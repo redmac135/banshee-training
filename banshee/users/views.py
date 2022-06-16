@@ -1,31 +1,26 @@
+from django.contrib import messages
 from django.shortcuts import render, redirect
-from django.views.generic.edit import FormView
-from django.contrib.auth import authenticate, login
-from .forms import SignupForm
+from django.views.generic import View
+from .forms import UserForm, SeniorForm
 
 # Create your views here.
-class SignupView(FormView):
+class SignupView(View):
     template_name = 'users/signup.html'
-    form_class = SignupForm
+    user_form = UserForm
+    senior_form = SeniorForm
         
     def get(self, request, *args, **kwargs):
-        form = self.form_class()
-        return render(request, self.template_name, {'form': form})
+        user_form = self.user_form()
+        senior_form = self.senior_form()
+        return render(request, self.template_name, {'user_form': user_form, 'senior_form': senior_form})
 
     def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            user = form.save()
-            user.refresh_from_db()  
-            # load the profile instance created by the signal
-            user.save()
-            raw_password = form.cleaned_data.get('password1')
-
-            # login user after signing up
-            user = authenticate(username=user.username, password=raw_password)
-            login(request, user)
-
-            # redirect user to home page
-            return redirect('home')
-
-        return render(request, self.template_name, {'form': form})
+        user_form = self.user_form(request.POST)
+        profile_form = self.senior_form(request.POST)
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, 'Signup Successful!')
+            return redirect('login')
+        messages.error(request, 'Please correct the errors below.')
+        return render(request, self.template_name, {'user_form': self.user_form, 'senior_form': self.senior_form})

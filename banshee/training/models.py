@@ -8,31 +8,41 @@ class Level(models.Model):
     def __str__(self):
         return self.name
 
-class Cadet(models.Model):
-    firstname = models.CharField(max_length=100)
-    lastname = models.CharField(max_length=100)
+class Senior(models.Model):
+    rank = models.IntegerField()
+    level = models.ForeignKey(Level, on_delete=models.SET_NULL, null=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.rank + ". " + self.user.last_name + ", " + self.user.first_name
+
+    class Meta:
+        ordering = ['level', 'rank']
+
+    def get_juniors_by_level(level):
+        return Senior.objects.filter(level=level)
+
+    def get_choice_tuple():
+        seniors = Senior.objects.filter(user__isnull=True).values_list('id', 'rank', 'lastname', 'firstname')
+        output = []
+        for senior in seniors:
+            output.append((senior[0], senior[1]+ ". "+senior[2]+", "+senior[3]))
+        return tuple(output)
+
+class Junior(models.Model):
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
     rank = models.IntegerField()
     level = models.ForeignKey(Level, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return self.level + " " + self.firstname + " " + self.lastname
-
-    def get_cadets_by_level(self, level):
-        return self.objects.filter(level=level)
+        return self.rank + ". " + self.last_name + ", " + self.first_name
+    
     class Meta:
         ordering = ['level', 'rank']
-        abstract = True
 
-class Senior(Cadet):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
-
-    def get_choice_tuple():
-        tuples = []
-        for senior in Senior.objects.filter(user__isnull=True):
-            tuples.append((str(senior.id), str(senior)))
-        return tuples
-
-class Junior(Cadet):
+    def get_juniors_by_level(level):
+        return Junior.objects.filter(level=level)
 
     def create_cadet(firstname, lastname, rank, level):
         cadet = Junior.objects.create(
@@ -55,6 +65,13 @@ class PO(models.Model):
 
     def get_pos():
         return PO.objects.all()
+    
+    def get_choice_tuples():
+        pos = ((1, 312), (2, 321))
+        output = []
+        for po in pos:
+            output.append((po[0], f"PO{str(po[1])}"))
+        return tuple(output)
 
 class MapPORequirement(models.Model):
     cadet = models.ForeignKey(Junior, on_delete=models.CASCADE)
