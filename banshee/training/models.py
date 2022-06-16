@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 
 # Managing People
 class Level(models.Model):
-    name = models.CharField(max_length=2)
+    number = models.IntegerField()
+    subset = models.CharField(max_length=1, blank=True) # The 'a' in 2a
 
     def __str__(self):
         return self.name
@@ -51,26 +52,36 @@ class Junior(models.Model):
             rank=rank, 
             level=level
         )
-        for po in PO.get_pos():
+        for po in PO.get_pos(level.number):
             MapPORequirement.objects.create(cadet, po, 0)
         return cadet
     
 
 # Managing Training POs
 class PO(models.Model):
-    number = models.IntegerField()
+    number = models.IntegerField() # 2 digit number at the end of PO
+    lev1 = models.BooleanField() # does it apply to this level?
+    lev2 = models.BooleanField()
+    lev3 = models.BooleanField()
+    lev4 = models.BooleanField()
 
     def __str__(self):
         return "PO" + str(self.number)
-
-    def get_pos():
-        return PO.objects.all()
+ 
+    def get_pos(level):
+        queries = {
+            1: PO.objects.filter(lev1=True),
+            2: PO.objects.filter(lev2=True),
+            3: PO.objects.filter(lev3=True),
+            4: PO.objects.filter(lev4=True), 
+        }
+        return queries.get(level)
     
     def get_choice_tuples():
         pos = ((1, 312), (2, 321))
         output = []
         for po in pos:
-            output.append((po[0], f"PO{str(po[1])}"))
+            output.append((po[0], f"PO X{str(po[1])}"))
         return tuple(output)
 
 class MapPORequirement(models.Model):
