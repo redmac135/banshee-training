@@ -8,6 +8,10 @@ class Level(models.Model):
 
     def __str__(self):
         return str(self.number) + " " + self.subset
+    
+    @classmethod
+    def get_subsets(cls, level: int):
+        return cls.objects.filter(number=level)
 
 class Senior(models.Model):
     rank = models.IntegerField()
@@ -55,11 +59,11 @@ class Junior(models.Model):
         ordering = ['level', 'rank']
 
     @classmethod
-    def by_level(cls, level):
+    def by_level(cls, level: Level):
         return cls.objects.filter(level=level)
 
     @classmethod
-    def create(cls, first_name, last_name, rank, level):
+    def create(cls, first_name: str, last_name: str, rank: int, level: Level):
         cadet = cls(
             first_name=first_name, 
             last_name=last_name, 
@@ -83,7 +87,7 @@ class PO(models.Model):
         return "PO" + str(self.number)
  
     @classmethod
-    def get_pos(cls, level):
+    def get_pos(cls, level: int):
         queries = {
             1: cls.objects.filter(lev1=True),
             2: cls.objects.filter(lev2=True),
@@ -109,7 +113,7 @@ class MapPORequirement(models.Model):
         return self.cadet + " " + self.PO
 
     @classmethod
-    def get_cadet_qualifications(cls, cadet):
+    def get_cadet_qualifications(cls, cadet: Junior):
         return cls.objects.filter(cadet=cadet)
 
 # Lessons
@@ -125,6 +129,8 @@ class Teach(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True)
     levels = models.ManyToManyField(Level)
     cadets = models.ManyToManyField(Junior)
+    finished = models.BooleanField()
+    plan = models.CharField(max_length=1000) # Link to lesson plan
 
     def __str__(self):
         if MapSeniorAssignment.get_ic(self.lesson):
@@ -132,7 +138,7 @@ class Teach(models.Model):
         else:
             return "No IC " + self.lesson
     
-    def assign_senior(self, senior, role):
+    def assign_senior(self, senior: Senior, role: int):
         # TODO: make sure there is only 1 IC per lesson
         MapSeniorAssignment.objects.create(senior, self, role)
 
@@ -156,7 +162,7 @@ class MapSeniorAssignment(models.Model):
         return cls.ROLES[role]
 
     @classmethod
-    def get_ic(cls, lesson):
+    def get_ic(cls, lesson: Teach):
         if cls.objects.filter(lesson=lesson, role=0).exists():
             return cls.objects.get(lesson=lesson, role=0)
         else:
