@@ -28,10 +28,6 @@ class UserForm(UserCreationForm):
                 raise ValidationError({'passkey': "Passkey is Incorrect"})
 
         return cleaned_data
-    
-    def save(self, commit=True):
-        print('[SENIOR CLEAN] ' + self.cleaned_data.get('senior'))
-        return super().save(commit)
 
 class SeniorForm(forms.ModelForm):
     preferences = forms.MultipleChoiceField(choices=PO.get_choice_tuples(), widget=forms.CheckboxSelectMultiple)

@@ -16,11 +16,11 @@ class SignupView(View):
 
     def post(self, request, *args, **kwargs):
         user_form = self.user_form(request.POST)
-        profile_form = self.senior_form(request.POST)
-        if user_form.is_valid() and profile_form.is_valid():
+        senior_form = self.senior_form(request.POST)
+        if user_form.is_valid() and senior_form.is_valid():
             user_form.save()
-            profile_form.save()
+            senior_form.save()
             messages.success(request, 'Signup Successful!')
             return redirect('login')
         messages.error(request, 'Please correct the errors below.')
-        return render(request, self.template_name, {'user_form': self.user_form, 'senior_form': self.senior_form})
+        return render(request, self.template_name, {'user_form': user_form, 'senior_form': senior_form})
