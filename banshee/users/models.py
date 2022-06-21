@@ -2,15 +2,16 @@ from django.db import models
 
 # Create your models here.
 class TrainingSetting(models.Model):
-    duedateoffset = models.IntegerField() # days before lesson
+    duedateoffset = models.IntegerField(default=7) # days before lesson
 
-    def __str__(self):
-        return self.pk
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super(TrainingSetting, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        pass
 
     @classmethod
-    def create(cls, *args, **kwargs):
-        if cls.objects.all().exists():
-            cls.objects.all().delete()
-        settings = cls(*args, **kwargs)
-        settings.save()
-        return settings
+    def load(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
