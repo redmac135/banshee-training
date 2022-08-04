@@ -15,7 +15,7 @@ class Level(models.Model):
     @classmethod
     def get_master(cls):
         if cls.objects.filter(number=0).exists():
-            return cls.objects.filter(number=0)
+            return cls.objects.get(number=0)
         else:
             return cls.objects.create(
                 name = cls.MASTER_LEVEL_NAME,
@@ -82,9 +82,10 @@ class Teach(models.Model):
 class TrainingPeriod(models.Model):
     lessons = models.ManyToManyField(Teach)
 
+    # create a training period with a teach instance for each level
     @classmethod
-    def create(cls):
-        instance = cls()
+    def create_full(cls):
+        instance = cls.objects.create()
         levels = Level.objects.all()
         for level in levels:
             teach = Teach.objects.create(
@@ -112,11 +113,18 @@ class TrainingNight(models.Model):
     def create(cls, date):
         instance = cls()
         instance.date = date
-        instance.p1 = TrainingPeriod.create()
-        instance.p2 = TrainingPeriod.create()
-        instance.p3 = TrainingPeriod.create()
-        instance.masterteach = Teach.objects.create(
-            lesson = None
-        )
-        instance.masterteach.levels.add(Level.get_master())
+        instance.p1 = TrainingPeriod.create_full()
+        instance.p2 = TrainingPeriod.create_full()
+        instance.p3 = TrainingPeriod.create_full()
+
+        masterinstance = Teach.objects.create(lesson = None)
+        masterinstance.levels.add(Level.get_master())
+        instance.masterteach = masterinstance
+
+        instance.save()
+
         return instance
+
+    @classmethod
+    def get_list(cls, **kwargs):
+        return cls.objects.filter(**kwargs)
