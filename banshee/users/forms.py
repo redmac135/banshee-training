@@ -7,7 +7,7 @@ from training.models import Senior
 
 class SignupForm(UserCreationForm):
     passkey = forms.CharField(required=True)
-    senior = forms.ChoiceField(choices=Senior.get_choice_tuple())
+    senior = forms.ChoiceField(choices=Senior.get_available_seniors)
 
     class Meta:
         model = User
