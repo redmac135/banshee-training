@@ -28,15 +28,17 @@ class Senior(models.Model):
     lastname = models.CharField(max_length=100)
     rank = models.IntegerField()
     level = models.ForeignKey(Level, on_delete=models.SET_NULL, null=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.level + " " + self.firstname + " " + self.lastname
+        return self.rank + ". " + self.user.last_name + ", " + self.user.first_name
 
     class Meta:
         ordering = ['level', 'rank']
 
-    def get_cadets_by_level(self, level):
-        return self.objects.filter(level=level)
+    @classmethod
+    def by_level(cls, level):
+        return cls.objects.filter(level=level)
     
     @classmethod
     def get_available_seniors(cls):
@@ -67,7 +69,9 @@ class MapSeniorTeach(models.Model):
 
 class Teach(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True)
-    level = models.ManyToManyField(Level)
+    levels = models.ManyToManyField(Level)
+    finished = models.BooleanField()
+    plan = models.CharField(max_length=1000) # Link to lesson plan
 
     def __str__(self):
         if MapSeniorTeach.get_ic(self.lesson):
@@ -97,6 +101,9 @@ class TrainingNight(models.Model):
     p3 = models.OneToOneField(TrainingPeriod, related_name='periodthree', on_delete=models.SET_NULL, null=True)
     masterteach = models.ForeignKey(Teach, on_delete=models.SET_NULL, null=True)
     excused = models.ManyToManyField(Senior)
+
+    def __str__(self):
+        return str(self.date)
 
     class Meta:
         ordering = ['-date']

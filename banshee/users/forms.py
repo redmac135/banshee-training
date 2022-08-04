@@ -1,6 +1,6 @@
 from django import forms
-from django.core.exceptions import ValidationError
 from django.contrib.auth.forms import UserCreationForm
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 
 from training.models import Senior
@@ -11,8 +11,7 @@ class SignupForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['username', 'passkey', 'email', 'password1', 'password2']
-        labels = {'passkey': 'Passkey'}
+        fields = ['username', 'passkey', 'first_name', 'last_name', 'email', 'password1', 'password2']
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -30,8 +29,3 @@ class SignupForm(UserCreationForm):
                 raise ValidationError({'passkey': "Passkey is Incorrect"})
 
         return cleaned_data
-    
-    def save(self, commit=True):
-        print('[SENIOR CLEAN] ' + self.cleaned_data.get('senior'))
-        return super().save(commit)
-    
