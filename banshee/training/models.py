@@ -70,8 +70,8 @@ class MapSeniorTeach(models.Model):
 class Teach(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True)
     levels = models.ManyToManyField(Level)
-    finished = models.BooleanField()
-    plan = models.CharField(max_length=1000) # Link to lesson plan
+    finished = models.BooleanField(default=False)
+    plan = models.CharField(max_length=1000, default='', blank=True) # Link to lesson plan
 
     def __str__(self):
         if MapSeniorTeach.get_ic(self.lesson):
@@ -90,7 +90,7 @@ class TrainingPeriod(models.Model):
             teach = Teach.objects.create(
                 lesson = None
             )
-            teach.level.add(level)
+            teach.levels.add(level)
             instance.lessons.add(teach)
         return instance
 
@@ -118,5 +118,5 @@ class TrainingNight(models.Model):
         instance.masterteach = Teach.objects.create(
             lesson = None
         )
-        instance.masterteach.level.add(Level.get_master())
+        instance.masterteach.levels.add(Level.get_master())
         return instance
