@@ -1,4 +1,9 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block links %}
+<link rel="stylesheet" href="{% static 'training/css/trainingcal.css' %}">
+{% endblock %}
 
 {% block content %}
 {{ calendar }}
