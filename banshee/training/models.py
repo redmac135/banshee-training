@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 
 # Managing People
 class Level(models.Model):
@@ -18,6 +20,14 @@ class Level(models.Model):
             return cls.objects.get(number=0)
         else:
             return cls.objects.create(name=cls.MASTER_LEVEL_NAME, number=0)
+
+    @classmethod
+    def get_juniors(cls):
+        return cls.objects.filter(number__lte=4)
+
+    @classmethod
+    def get_seniors(cls):
+        return cls.objects.filter(number__gte=5)
 
 
 class Senior(models.Model):
@@ -46,19 +56,45 @@ class Senior(models.Model):
 
 
 # Managing Lessons
+class Teach(models.Model):
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content = GenericForeignKey()
+
+    levels = models.ManyToManyField(Level)
+    finished = models.BooleanField(default=False)
+    plan = models.CharField(
+        max_length=1000, default="", blank=True
+    )  # Link to lesson plan
+
+    def __str__(self):
+        return str(self.content)
+
+    class Meta:
+        indexes = [models.Index(fields=["content_type", "object_id"])]
+
+
 class Lesson(models.Model):
     po = models.IntegerField()
-    eocode = models.CharField(max_length=7)
+    eocode = models.CharField(max_length=64)
     title = models.CharField(max_length=256)
+    teach = GenericRelation(Teach)
 
     def __str__(self):
         return self.eocode
 
 
+class Activity(models.Model):
+    title = models.CharField(max_length=256, default="Squadron-Organized Event")
+
+    def __str__(self):
+        return self.title
+
+
 class MapSeniorTeach(models.Model):
     IC_ROLE_NAME = "ic"
 
-    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
+    teach = models.ForeignKey(Teach, on_delete=models.CASCADE)
     senior = models.ForeignKey(Senior, on_delete=models.CASCADE)
     role = models.CharField(max_length=32)
 
@@ -70,33 +106,33 @@ class MapSeniorTeach(models.Model):
             return False
 
 
-class Teach(models.Model):
-    lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True)
-    levels = models.ManyToManyField(Level)
-    finished = models.BooleanField(default=False)
-    plan = models.CharField(
-        max_length=1000, default="", blank=True
-    )  # Link to lesson plan
-
-    def __str__(self):
-        if MapSeniorTeach.get_ic(self.lesson):
-            return MapSeniorTeach.get_ic(self.lesson).senior + " " + self.lesson
-        else:
-            return "No IC " + self.lesson
-
-
 class TrainingPeriod(models.Model):
     lessons = models.ManyToManyField(Teach)
 
     # create a training period with a teach instance for each level
     @classmethod
-    def create_full(cls):
+    def create_fulllesson(cls):
         instance = cls.objects.create()
-        levels = Level.objects.all()
+        levels = Level.get_juniors()
         for level in levels:
             teach = Teach.objects.create(lesson=None)
             teach.levels.add(level)
             instance.lessons.add(teach)
+        return instance
+
+    @classmethod
+    def create_fullact(cls):
+        instance = cls.objects.create()
+        levels = Level.get_juniors()
+        teach = Teach.objects.create(lesson=None)
+        for level in levels:
+            teach.levels.add(level)
+        instance.lessons.add(teach)
+        return instance
+
+    @classmethod
+    def create_blank(cls):
+        instance = cls.objects.create()
         return instance
 
 
@@ -120,13 +156,19 @@ class TrainingNight(models.Model):
     class Meta:
         ordering = ["-date"]
 
+    PERIOD_OBJECTS = {
+        0: TrainingPeriod.create_fulllesson(),
+        1: TrainingPeriod.create_fullact(),
+        2: TrainingPeriod.create_blank(),
+    }
+
     @classmethod
-    def create(cls, date):
+    def create(cls, date, p1o, p2o, p3o):
         instance = cls()
         instance.date = date
-        instance.p1 = TrainingPeriod.create_full()
-        instance.p2 = TrainingPeriod.create_full()
-        instance.p3 = TrainingPeriod.create_full()
+        instance.p1 = cls.PERIOD_OBJECTS[p1o]
+        instance.p2 = cls.PERIOD_OBJECTS[p2o]
+        instance.p3 = cls.PERIOD_OBJECTS[p3o]
 
         masterinstance = Teach.objects.create(lesson=None)
         masterinstance.levels.add(Level.get_master())
