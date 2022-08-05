@@ -1,5 +1,6 @@
 from calendar import HTMLCalendar
 
+
 class TrainingCalendar(HTMLCalendar):
     def __init__(self, year=None, month=None):
         self.year = year
@@ -10,24 +11,24 @@ class TrainingCalendar(HTMLCalendar):
     # filter events by day
     def formatday(self, day, events, today):
         events_per_day = events.filter(date__day=day)
-        d = ''
+        d = ""
         for event in events_per_day:
-            d += f'<li> {event} </li>'
+            d += f"<li> {event} </li>"
 
         if day != 0:
             if today == None:
-                class_ = ''
+                class_ = ""
             else:
-                class_ = ' class="istoday"' if day == today.day else ''
+                class_ = ' class="istoday"' if day == today.day else ""
             return f"<td{class_}><span class='date'>{day}</span><ul> {d} </ul></td>"
-        return '<td></td>'
+        return "<td></td>"
 
-    # formats a week as a tr 
+    # formats a week as a tr
     def formatweek(self, theweek, events, today):
-        week = ''
+        week = ""
         for d, weekday in theweek:
             week += self.formatday(d, events, today)
-        return f'<tr> {week} </tr>'
+        return f"<tr> {week} </tr>"
 
     # formats a month as a table
     # filter events by year and month
@@ -38,8 +39,8 @@ class TrainingCalendar(HTMLCalendar):
             today = None
 
         cal = f'<table border="0" cellpadding="0" cellspacing="0" class="calendar">\n'
-        cal += f'{self.formatmonthname(self.year, self.month, withyear=withyear)}\n'
-        cal += f'{self.formatweekheader()}\n'
+        cal += f"{self.formatmonthname(self.year, self.month, withyear=withyear)}\n"
+        cal += f"{self.formatweekheader()}\n"
         for week in self.monthdays2calendar(self.year, self.month):
-            cal += f'{self.formatweek(week, events, today)}\n'
+            cal += f"{self.formatweek(week, events, today)}\n"
         return cal

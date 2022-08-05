@@ -3,24 +3,22 @@ from django.contrib.auth.models import User
 
 # Managing People
 class Level(models.Model):
-    MASTER_LEVEL_NAME = 'ms' # must be 2 characters
+    MASTER_LEVEL_NAME = "ms"  # must be 2 characters
 
     name = models.CharField(max_length=2)
     number = models.IntegerField()
 
     def __str__(self):
         return self.name
-    
+
     # The level for the teach instance attached to every training night for NCOs and OnCalls
     @classmethod
     def get_master(cls):
         if cls.objects.filter(number=0).exists():
             return cls.objects.get(number=0)
         else:
-            return cls.objects.create(
-                name = cls.MASTER_LEVEL_NAME,
-                number = 0
-            )
+            return cls.objects.create(name=cls.MASTER_LEVEL_NAME, number=0)
+
 
 class Senior(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
@@ -34,15 +32,18 @@ class Senior(models.Model):
         return self.rank + ". " + self.user.last_name + ", " + self.user.first_name
 
     class Meta:
-        ordering = ['level', 'rank']
+        ordering = ["level", "rank"]
 
     @classmethod
     def by_level(cls, level):
         return cls.objects.filter(level=level)
-    
+
     @classmethod
     def get_available_seniors(cls):
-        return [(str(senior.id), str(senior)) for senior in cls.objects.filter(user = None)]
+        return [
+            (str(senior.id), str(senior)) for senior in cls.objects.filter(user=None)
+        ]
+
 
 # Managing Lessons
 class Lesson(models.Model):
@@ -53,8 +54,9 @@ class Lesson(models.Model):
     def __str__(self):
         return self.eocode
 
+
 class MapSeniorTeach(models.Model):
-    IC_ROLE_NAME = 'ic'
+    IC_ROLE_NAME = "ic"
 
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE)
     senior = models.ForeignKey(Senior, on_delete=models.CASCADE)
@@ -67,17 +69,21 @@ class MapSeniorTeach(models.Model):
         else:
             return False
 
+
 class Teach(models.Model):
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True)
     levels = models.ManyToManyField(Level)
     finished = models.BooleanField(default=False)
-    plan = models.CharField(max_length=1000, default='', blank=True) # Link to lesson plan
+    plan = models.CharField(
+        max_length=1000, default="", blank=True
+    )  # Link to lesson plan
 
     def __str__(self):
         if MapSeniorTeach.get_ic(self.lesson):
             return MapSeniorTeach.get_ic(self.lesson).senior + " " + self.lesson
         else:
             return "No IC " + self.lesson
+
 
 class TrainingPeriod(models.Model):
     lessons = models.ManyToManyField(Teach)
@@ -88,18 +94,23 @@ class TrainingPeriod(models.Model):
         instance = cls.objects.create()
         levels = Level.objects.all()
         for level in levels:
-            teach = Teach.objects.create(
-                lesson = None
-            )
+            teach = Teach.objects.create(lesson=None)
             teach.levels.add(level)
             instance.lessons.add(teach)
         return instance
 
+
 class TrainingNight(models.Model):
     date = models.DateField()
-    p1 = models.OneToOneField(TrainingPeriod, related_name='periodone', on_delete=models.SET_NULL, null=True)
-    p2 = models.OneToOneField(TrainingPeriod, related_name='periodtwo', on_delete=models.SET_NULL, null=True)
-    p3 = models.OneToOneField(TrainingPeriod, related_name='periodthree', on_delete=models.SET_NULL, null=True)
+    p1 = models.OneToOneField(
+        TrainingPeriod, related_name="periodone", on_delete=models.SET_NULL, null=True
+    )
+    p2 = models.OneToOneField(
+        TrainingPeriod, related_name="periodtwo", on_delete=models.SET_NULL, null=True
+    )
+    p3 = models.OneToOneField(
+        TrainingPeriod, related_name="periodthree", on_delete=models.SET_NULL, null=True
+    )
     masterteach = models.ForeignKey(Teach, on_delete=models.SET_NULL, null=True)
     excused = models.ManyToManyField(Senior)
 
@@ -107,7 +118,7 @@ class TrainingNight(models.Model):
         return str(self.date)
 
     class Meta:
-        ordering = ['-date']
+        ordering = ["-date"]
 
     @classmethod
     def create(cls, date):
@@ -117,7 +128,7 @@ class TrainingNight(models.Model):
         instance.p2 = TrainingPeriod.create_full()
         instance.p3 = TrainingPeriod.create_full()
 
-        masterinstance = Teach.objects.create(lesson = None)
+        masterinstance = Teach.objects.create(lesson=None)
         masterinstance.levels.add(Level.get_master())
         instance.masterteach = masterinstance
 

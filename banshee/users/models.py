@@ -2,7 +2,7 @@ from django.db import models
 
 # Create your models here.
 class TrainingSetting(models.Model):
-    duedateoffset = models.IntegerField(default=7) # days before lesson
+    duedateoffset = models.IntegerField(default=7)  # days before lesson
 
     def save(self, *args, **kwargs):
         self.pk = 1
