@@ -59,7 +59,7 @@ class Senior(models.Model):
 class Teach(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
-    content = GenericForeignKey()
+    content = GenericForeignKey('content_type', 'object_id')
 
     levels = models.ManyToManyField(Level)
     finished = models.BooleanField(default=False)
@@ -115,7 +115,7 @@ class TrainingPeriod(models.Model):
         instance = cls.objects.create()
         levels = Level.get_juniors()
         for level in levels:
-            teach = Teach.objects.create(lesson=None)
+            teach = Teach.objects.create(content=None)
             teach.levels.add(level)
             instance.lessons.add(teach)
         return instance
@@ -124,7 +124,7 @@ class TrainingPeriod(models.Model):
     def create_fullact(cls):
         instance = cls.objects.create()
         levels = Level.get_juniors()
-        teach = Teach.objects.create(lesson=None)
+        teach = Teach.objects.create(content=None)
         for level in levels:
             teach.levels.add(level)
         instance.lessons.add(teach)
@@ -157,9 +157,9 @@ class TrainingNight(models.Model):
         ordering = ["-date"]
 
     PERIOD_OBJECTS = {
-        0: TrainingPeriod.create_fulllesson(),
-        1: TrainingPeriod.create_fullact(),
-        2: TrainingPeriod.create_blank(),
+        0: TrainingPeriod.create_fulllesson,
+        1: TrainingPeriod.create_fullact,
+        2: TrainingPeriod.create_blank,
     }
 
     @classmethod
@@ -170,7 +170,7 @@ class TrainingNight(models.Model):
         instance.p2 = cls.PERIOD_OBJECTS[p2o]
         instance.p3 = cls.PERIOD_OBJECTS[p3o]
 
-        masterinstance = Teach.objects.create(lesson=None)
+        masterinstance = Teach.objects.create(content=None)
         masterinstance.levels.add(Level.get_master())
         instance.masterteach = masterinstance
 
