@@ -7,7 +7,7 @@ from django.utils.safestring import mark_safe
 
 from .models import TrainingNight, Teach
 
-from .utils import TrainingCalendar
+from .utils import TrainingCalendar, DashboardCalendar
 
 # Create your views here.
 
@@ -15,9 +15,26 @@ from .utils import TrainingCalendar
 class HomeView(TemplateView):
     template_name = "training/home.html"
 
+
 # Main Views
-class DashboardView(TemplateView):
+class DashboardView(ListView):
+    model = TrainingNight
     template_name = "training/dashboard.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        d = get_date(self.request.GET.get("month", None))
+        context["prev_month"] = prev_month(d)
+        context["next_month"] = next_month(d)
+        cal = DashboardCalendar(d.year, d.month)
+
+        nights = self.model.get_list(date__year=d.year, date__month=d.month)
+
+        html_cal = cal.formatmonth(nights=nights, today=date.today(), withyear=True)
+        context["calendar"] = mark_safe(html_cal)
+        context["monthname"] = str(calendar.month_name[d.month]) + " " + str(d.year)
+        return context
 
 
 # Overall view of all training nights
@@ -42,7 +59,7 @@ class TrainingCalView(ListView):
         return context
 
 
-# Function for TrainingCalView
+# Function for all Calendars
 def get_date(req_day):
     if req_day:
         year, month = map(int, req_day.split("-"))

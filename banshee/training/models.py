@@ -59,7 +59,7 @@ class Senior(models.Model):
 class Teach(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField()
-    content = GenericForeignKey('content_type', 'object_id')
+    content = GenericForeignKey("content_type", "object_id")
 
     levels = models.ManyToManyField(Level)
     finished = models.BooleanField(default=False)
