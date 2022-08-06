@@ -2,6 +2,7 @@ import calendar
 from datetime import date, datetime, timedelta
 
 from django.views.generic import TemplateView, ListView
+from django.views import View
 from django.utils.safestring import mark_safe
 
 from .models import TrainingNight, Teach
@@ -13,6 +14,10 @@ from .utils import TrainingCalendar
 
 class HomeView(TemplateView):
     template_name = "training/home.html"
+
+# Main Views
+class DashboardView(TemplateView):
+    template_name = "training/dashboard.html"
 
 
 # Overall view of all training nights
