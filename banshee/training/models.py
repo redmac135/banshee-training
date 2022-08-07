@@ -57,8 +57,8 @@ class Senior(models.Model):
 
 # Managing Lessons
 class Teach(models.Model):
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-    object_id = models.PositiveIntegerField()
+    content_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True)
+    object_id = models.PositiveIntegerField(null=True)
     content = GenericForeignKey("content_type", "object_id")
 
     levels = models.ManyToManyField(Level)
@@ -106,6 +106,16 @@ class MapSeniorTeach(models.Model):
             return False
 
 
+# Blank object for empty teach instances
+class EmptyLesson(models.Model):
+    def __str__(self):
+        return str(self.pk)
+
+    @classmethod
+    def create(cls):
+        return cls.objects.create()
+
+
 class TrainingPeriod(models.Model):
     lessons = models.ManyToManyField(Teach)
 
@@ -115,7 +125,7 @@ class TrainingPeriod(models.Model):
         instance = cls.objects.create()
         levels = Level.get_juniors()
         for level in levels:
-            teach = Teach.objects.create(content=None)
+            teach = Teach.objects.create(content=EmptyLesson.create())
             teach.levels.add(level)
             instance.lessons.add(teach)
         return instance
@@ -124,7 +134,7 @@ class TrainingPeriod(models.Model):
     def create_fullact(cls):
         instance = cls.objects.create()
         levels = Level.get_juniors()
-        teach = Teach.objects.create(content=None)
+        teach = Teach.objects.create(content=EmptyLesson.create())
         for level in levels:
             teach.levels.add(level)
         instance.lessons.add(teach)
@@ -163,14 +173,14 @@ class TrainingNight(models.Model):
     }
 
     @classmethod
-    def create(cls, date, p1o, p2o, p3o):
+    def create(cls, date, p1o=0, p2o=0, p3o=0):
         instance = cls()
         instance.date = date
-        instance.p1 = cls.PERIOD_OBJECTS[p1o]
-        instance.p2 = cls.PERIOD_OBJECTS[p2o]
-        instance.p3 = cls.PERIOD_OBJECTS[p3o]
+        instance.p1 = cls.PERIOD_OBJECTS[p1o]()
+        instance.p2 = cls.PERIOD_OBJECTS[p2o]()
+        instance.p3 = cls.PERIOD_OBJECTS[p3o]()
 
-        masterinstance = Teach.objects.create(content=None)
+        masterinstance = Teach.objects.create(content=EmptyLesson.create())
         masterinstance.levels.add(Level.get_master())
         instance.masterteach = masterinstance
 

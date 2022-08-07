@@ -14,8 +14,8 @@
     @apply flex items-center justify-center w-full rounded-full cursor-pointer
 }
 
-.small-day-purple-highlight {
-    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-700 focus:bg-indigo-500 hover:bg-indigo-500 text-base w-8 h-8 flex items-center justify-center font-medium text-white bg-indigo-700 rounded-full
+.small-day-green-highlight {
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-clr-4 focus:bg-clr-4 hover:bg-clr-4 text-base w-8 h-8 flex items-center justify-center font-medium text-white bg-clr-3 rounded-full
 }
 
 @tailwind utilities;

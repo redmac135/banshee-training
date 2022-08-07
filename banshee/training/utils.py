@@ -54,12 +54,11 @@ class DashboardCalendar(HTMLCalendar):
 
     def formatday(self, day, events, today):
         event_today = events.filter(date__day=day).exists()
-        d = ""
         if event_today:
-            d += f"""<td><div class='w-full h-full'>
+            return f"""<td><div class='w-full h-full'>
                     <div class='small-day-highlight-wrapper'>
                         <a role="link" tabindex="0"
-                            class="small-day-purple-highlight">{day}</a>
+                            class="small-day-green-highlight">{day}</a>
                     </div>
                 </div></td>"""
 
