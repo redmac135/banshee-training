@@ -3,14 +3,14 @@
 {% block content %}
 <div class="flex items-center justify-center py-8 px-4">
     <div class="max-w-sm w-full shadow-lg">
-        <div class="md:p-8 p-5 dark:bg-gray-800 bg-white rounded">
+        <div class="md:p-8 p-5 bg-clr-1 rounded">
             <div class="px-4 flex items-center justify-between">
                 <span tabindex="0"
                     class="focus:outline-none  text-base font-bold dark:text-gray-100 text-gray-800">{{ monthname }}</span>
                 <div class="flex items-center">
                     <a href="{% url 'dashboard' %}?{{ prev_month }}">
                         <button aria-label="calendar backward"
-                            class="focus:text-gray-400 hover:text-gray-400 text-gray-800 dark:text-gray-100">
+                            class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left"
                                 width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                                 fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -21,7 +21,7 @@
                     </a>
                     <a href="{% url 'dashboard' %}?{{ next_month }}">
                         <button aria-label="calendar forward"
-                            class="focus:text-gray-400 hover:text-gray-400 ml-3 text-gray-800 dark:text-gray-100">
+                            class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler  icon-tabler-chevron-right"
                                 width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
                                 fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -38,37 +38,37 @@
                         <tr>
                             <th>
                                 <div class="w-full flex justify-center">
-                                    <p class="text-base font-medium text-center text-gray-800 dark:text-gray-100">Mo</p>
+                                    <p class="text-base font-medium text-center text-clr-5">Mo</p>
                                 </div>
                             </th>
                             <th>
                                 <div class="w-full flex justify-center">
-                                    <p class="text-base font-medium text-center text-gray-800 dark:text-gray-100">Tu</p>
+                                    <p class="text-base font-medium text-center text-clr-5">Tu</p>
                                 </div>
                             </th>
                             <th>
                                 <div class="w-full flex justify-center">
-                                    <p class="text-base font-medium text-center text-gray-800 dark:text-gray-100">We</p>
+                                    <p class="text-base font-medium text-center text-clr-5">We</p>
                                 </div>
                             </th>
                             <th>
                                 <div class="w-full flex justify-center">
-                                    <p class="text-base font-medium text-center text-gray-800 dark:text-gray-100">Th</p>
+                                    <p class="text-base font-medium text-center text-clr-5">Th</p>
                                 </div>
                             </th>
                             <th>
                                 <div class="w-full flex justify-center">
-                                    <p class="text-base font-medium text-center text-gray-800 dark:text-gray-100">Fr</p>
+                                    <p class="text-base font-medium text-center text-clr-5">Fr</p>
                                 </div>
                             </th>
                             <th>
                                 <div class="w-full flex justify-center">
-                                    <p class="text-base font-medium text-center text-gray-800 dark:text-gray-100">Sa</p>
+                                    <p class="text-base font-medium text-center text-clr-5">Sa</p>
                                 </div>
                             </th>
                             <th>
                                 <div class="w-full flex justify-center">
-                                    <p class="text-base font-medium text-center text-gray-800 dark:text-gray-100">Su</p>
+                                    <p class="text-base font-medium text-center text-clr-5">Su</p>
                                 </div>
                             </th>
                         </tr>
