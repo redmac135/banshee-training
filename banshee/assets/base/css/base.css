@@ -3,7 +3,7 @@
 
 /* Small Calendar Classes */
 .small-day-wrapper {
-    @apply px-2 py-2 cursor-pointer flex w-full justify-center
+    @apply px-2 py-2 cursor-pointer flex w-full h-full justify-center
 }
 
 .small-day-number {
@@ -14,8 +14,16 @@
     @apply flex items-center justify-center w-full rounded-full cursor-pointer
 }
 
+.small-day-highlight-base {
+    @apply focus:outline-none text-base w-8 h-8 flex items-center justify-center font-medium rounded-full
+}
+
 .small-day-green-highlight {
-    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-clr-4 focus:bg-clr-4 hover:bg-clr-4 text-base w-8 h-8 flex items-center justify-center font-medium text-white bg-clr-3 rounded-full
+    @apply focus:bg-clr-4 hover:bg-clr-4 text-white bg-clr-3
+}
+
+.small-day-yellow-circle {
+    @apply text-yellow-500 ring-2 ring-yellow-500
 }
 
 @tailwind utilities;
