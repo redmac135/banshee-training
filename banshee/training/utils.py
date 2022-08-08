@@ -57,8 +57,9 @@ class DashboardCalendar(HTMLCalendar):
         d = ""
         if event_today:
             d += ' small-day-green-highlight' # space nesscary to keep classes seperated 
-        if day == today.day:
-            d += ' small-day-yellow-circle'
+        if day != 0 and today != None:
+            if day == today.day:
+                d += ' small-day-yellow-circle'
         if d:
             return f"""<td><div class='w-full h-full'>
                     <div class='small-day-highlight-wrapper'>
