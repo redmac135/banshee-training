@@ -1,11 +1,16 @@
 from django.shortcuts import render, redirect
 from django.views.generic.edit import FormView
 from django.contrib.auth import authenticate, login
-from .forms import SignupForm
+from .forms import SignupForm, LoginForm
 
 from training.models import Senior, Level
 
 # Create your views here.
+class LoginView(FormView):
+    template_name = "users/login.html"
+    form_class = LoginForm
+
+
 class SignupView(FormView):
     template_name = "users/signup.html"
     form_class = SignupForm

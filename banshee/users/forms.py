@@ -1,24 +1,50 @@
 from django import forms
 from django.db.models.fields import BLANK_CHOICE_DASH
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 
 from training.models import Senior, Level
 
 
+class LoginForm(AuthenticationForm):
+    username = forms.CharField(
+        widget=forms.TextInput(attrs={"placeholder": "Username"})
+    )
+    password = forms.CharField(
+        widget=forms.PasswordInput(attrs={"placeholder": "Password"})
+    )
+
+    class Meta:
+        fields = ["username", "password"]
+
+
 class SignupForm(UserCreationForm):
     BLANK_CHOICE_RANK = [("", "Rank")]
     BLANK_CHOICE_LEVEL = [("", "Level")]
 
-    username = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Username'}))
-    first_name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'First Name'}))
-    last_name = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Last Name'}))
-    email = forms.EmailField(widget=forms.EmailInput(attrs={'placeholder': 'Email'}))
-    password1 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Password'}))
-    password2 = forms.CharField(widget=forms.PasswordInput(attrs={'placeholder': 'Confirm Password'}))
-    rank = forms.ChoiceField(choices=BLANK_CHOICE_RANK + BLANK_CHOICE_DASH + Senior.RANK_CHOICES)
-    level = forms.ChoiceField(choices=BLANK_CHOICE_LEVEL + BLANK_CHOICE_DASH + Level.get_senior_choices())
+    username = forms.CharField(
+        widget=forms.TextInput(attrs={"placeholder": "Username"})
+    )
+    first_name = forms.CharField(
+        widget=forms.TextInput(attrs={"placeholder": "First Name"})
+    )
+    last_name = forms.CharField(
+        widget=forms.TextInput(attrs={"placeholder": "Last Name"})
+    )
+    email = forms.EmailField(widget=forms.EmailInput(attrs={"placeholder": "Email"}))
+    password1 = forms.CharField(
+        widget=forms.PasswordInput(attrs={"placeholder": "Password"})
+    )
+    password2 = forms.CharField(
+        widget=forms.PasswordInput(attrs={"placeholder": "Confirm Password"})
+    )
+    rank = forms.ChoiceField(
+        choices=BLANK_CHOICE_RANK + BLANK_CHOICE_DASH + Senior.RANK_CHOICES
+    )
+    level = forms.ChoiceField(
+        choices=BLANK_CHOICE_LEVEL + BLANK_CHOICE_DASH + Level.get_senior_choices()
+    )
 
     class Meta:
         model = User
