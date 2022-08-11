@@ -1,14 +1,30 @@
 from django.shortcuts import render, redirect
 from django.views.generic.edit import FormView
+from django.contrib.auth.views import LoginView
 from django.contrib.auth import authenticate, login
 from .forms import SignupForm, LoginForm
 
 from training.models import Senior, Level
 
 # Create your views here.
-class LoginView(FormView):
+class SigninView(LoginView):
     template_name = "users/login.html"
     form_class = LoginForm
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(
+            data=request.POST
+        )  # Not sure why but it doesn't work if passed normal, must be a kwarg
+        if form.is_valid():
+            username = form.cleaned_data.get("username")
+            password = form.cleaned_data.get("password")
+
+            user = authenticate(username=username, password=password)
+            login(request, user)
+
+            # redirect user to home page
+            return redirect("home")
+        return render(request, self.template_name, {"form": form})
 
 
 class SignupView(FormView):
@@ -21,7 +37,6 @@ class SignupView(FormView):
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
-        print(request.POST)
         if form.is_valid():
             user = form.save()
 
@@ -42,5 +57,4 @@ class SignupView(FormView):
 
             # redirect user to home page
             return redirect("home")
-
         return render(request, self.template_name, {"form": form})

@@ -28,7 +28,7 @@
                       <div class="mb-4">
                         {{ field|addclass:'form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-red-300 focus:outline-none border-red-600' }}
                         {% for error in field.errors %}
-                        <p class="mb-4 text-red-600">{{ error }}</p>
+                          <p class="mb-4 text-red-600">{{ error }}</p>
                         {% endfor %}
                       </div>
                     {% else %}
@@ -39,6 +39,13 @@
 
                   {% endfor %}
                   <div class="text-center pt-1 mb-12 pb-1">
+                    {% if form.non_field_errors %}
+                      <div class="non-field-errors">
+                        {% for error in form.non_field_errors %}
+                          <p class="mb-4 text-red-600">{{ error }}</p>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
                     <button
                       class="inline-block px-6 py-2.5 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-clr-4 focus:bg-clr-4 hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg transition duration-150 ease-in-out w-full mb-3 bg-clr-3"
                       type="submit"
