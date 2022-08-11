@@ -4,6 +4,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 
 # Managing People
+
+# Important: users.forms requires senior numbers be unique
 class Level(models.Model):
     MASTER_LEVEL_NAME = "ms"  # must be 2 characters
 
@@ -29,17 +31,40 @@ class Level(models.Model):
     def get_seniors(cls):
         return cls.objects.filter(number__gte=5)
 
+    @classmethod
+    def get_senior_choices(cls):
+        seniors = cls.get_seniors()
+        return [(level.number, level.name) for level in Level.get_seniors()]
+
+    @classmethod
+    def senior_numbertoinstance(cls, number):
+        return cls.objects.get(number=number)
+
 
 class Senior(models.Model):
+    RANK_CHOICES = [
+        (1, "Cdt"),
+        (2, "Lac"),
+        (3, "Cpl"),
+        (4, "FCpl"),
+        (5, "Sgt"),
+        (6, "FSgt"),
+        (7, "WO2"),
+        (8, "WO1"),
+    ]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
-    firstname = models.CharField(max_length=100)
-    lastname = models.CharField(max_length=100)
     rank = models.IntegerField()
     level = models.ForeignKey(Level, on_delete=models.SET_NULL, null=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.rank + ". " + self.user.last_name + ", " + self.user.first_name
+        return (
+            self.rank_to_str(self.rank)
+            + ". "
+            + self.user.last_name
+            + ", "
+            + self.user.first_name
+        )
 
     class Meta:
         ordering = ["level", "rank"]
@@ -47,6 +72,11 @@ class Senior(models.Model):
     @classmethod
     def by_level(cls, level):
         return cls.objects.filter(level=level)
+
+    @classmethod
+    def rank_to_str(cls, number):
+        ranks = dict(cls.RANK_CHOICES)
+        return ranks[number]
 
     @classmethod
     def get_available_seniors(cls):

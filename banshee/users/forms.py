@@ -3,21 +3,22 @@ from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 
-from training.models import Senior
+from training.models import Senior, Level
 
 
 class SignupForm(UserCreationForm):
-    passkey = forms.CharField(required=True)
-    senior = forms.ChoiceField(choices=Senior.get_available_seniors)
+    rank = forms.ChoiceField(choices=Senior.RANK_CHOICES)
+    level = forms.ChoiceField(choices=Level.get_senior_choices())
 
     class Meta:
         model = User
         fields = [
             "username",
-            "passkey",
             "first_name",
             "last_name",
             "email",
+            "rank",
+            "level",
             "password1",
             "password2",
         ]
@@ -26,9 +27,8 @@ class SignupForm(UserCreationForm):
         cleaned_data = self.cleaned_data
         username = cleaned_data.get("username")
         email = cleaned_data.get("email")
-        passkey = cleaned_data.get("passkey")
 
-        if username and email and passkey:
+        if username and email:
             # Check Username and Email Uniqueness
             if User.objects.filter(username=username).exists():
                 raise ValidationError(
@@ -38,7 +38,5 @@ class SignupForm(UserCreationForm):
                 raise ValidationError(
                     {"email": "An Account with this Email Already Exists"}
                 )
-            if not passkey == "passkey":
-                raise ValidationError({"passkey": "Passkey is Incorrect"})
 
         return cleaned_data

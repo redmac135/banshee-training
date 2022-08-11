@@ -3,8 +3,7 @@
 {% block content %}
 <form method="post">
   {% csrf_token %}
-  {{ user_form.as_p }}
-  {{ senior_form.as_p }}
+  {{ form.as_p }}
   <button type="submit">Signup</button>
 </form>
 {% endblock %}

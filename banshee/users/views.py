@@ -3,6 +3,8 @@ from django.views.generic.edit import FormView
 from django.contrib.auth import authenticate, login
 from .forms import SignupForm
 
+from training.models import Senior, Level
+
 # Create your views here.
 class SignupView(FormView):
     template_name = "users/signup.html"
@@ -14,11 +16,19 @@ class SignupView(FormView):
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
+        print(request.POST)
         if form.is_valid():
             user = form.save()
-            user.refresh_from_db()
-            # load the profile instance created by the signal
+
+            level = form.cleaned_data.get("level")
+            level_instance = Level.senior_numbertoinstance(level)
+            rank = form.cleaned_data.get("rank")
+
+            senior = Senior.objects.get_or_create(
+                user=user, level=level_instance, rank=rank
+            )
             user.save()
+
             raw_password = form.cleaned_data.get("password1")
 
             # login user after signing up
