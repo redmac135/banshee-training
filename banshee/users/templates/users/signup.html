@@ -1,9 +1,79 @@
 {% extends 'base.html' %}
+{% load static %}
+{% load formclass %}
   
 {% block content %}
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Signup</button>
-</form>
+<section class="flex items-center justify-center h-full min-h-screen bg-gray-200" id="main">
+  <div class="container py-12 px-6 h-full">
+    <div class="flex justify-center items-center flex-wrap h-full g-6 text-gray-800">
+      <div class="xl:w-10/12">
+        <div class="block bg-white shadow-lg rounded-lg">
+          <div class="lg:flex lg:flex-wrap g-0">
+            <div class="lg:w-6/12 px-4 md:px-0">
+              <div class="md:p-12 md:mx-6">
+                <div class="text-center">
+                  <img
+                    class="mx-auto w-48"
+                    src="{% static 'base/img/778crest.png' %}"
+                    alt="logo"
+                  />
+                  <h4 class="text-xl font-semibold mt-1 mb-12 pb-1">778 Banshee Royal Canadian Air Cadets</h4>
+                </div>
+                <form method="post">
+                  {% csrf_token %}
+
+                  {% for field in form %}
+
+                    {% if field.errors %}
+                      <div class="mb-4">
+                        {{ field|addclass:'form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-red-300 focus:outline-none border-red-600' }}
+                        {% for error in field.errors %}
+                        <p class="mb-4 text-red-600">{{ error }}</p>
+                        {% endfor %}
+                      </div>
+                    {% else %}
+                      <div class="mb-4">
+                        {{ field|addclass:'form-control block w-full px-3 py-1.5 text-base font-normal text-gray-700 bg-white bg-clip-padding border border-solid border-gray-300 rounded transition ease-in-out m-0 focus:text-gray-700 focus:bg-white focus:border-blue-600 focus:outline-none' }}
+                      </div>
+                    {% endif %}
+
+                  {% endfor %}
+                  <div class="text-center pt-1 mb-12 pb-1">
+                    <button
+                      class="inline-block px-6 py-2.5 text-white font-medium text-xs leading-tight uppercase rounded shadow-md hover:bg-clr-4 focus:bg-clr-4 hover:shadow-lg focus:shadow-lg focus:outline-none focus:ring-0 active:shadow-lg transition duration-150 ease-in-out w-full mb-3 bg-clr-3"
+                      type="submit"
+                    >
+                      Register
+                    </button>
+                  </div>
+                  <div class="flex items-center justify-between pb-6">
+                    <p class="mb-0 mr-2">Don't have an account?</p>
+                    <button
+                      type="button"
+                      class="inline-block px-6 py-2 border-2 border-red-600 text-red-600 font-medium text-xs leading-tight uppercase rounded hover:bg-black hover:bg-opacity-5 focus:outline-none focus:ring-0 transition duration-150 ease-in-out"
+                      data-mdb-ripple="true"
+                      data-mdb-ripple-color="light"
+                    >
+                      Danger
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div
+              class="lg:w-6/12 flex items-center lg:rounded-r-lg rounded-b-lg lg:rounded-bl-none bg-clr-2"
+            >
+              <div class="text-white px-4 py-6 md:p-12 md:mx-6">
+                <h4 class="text-xl font-semibold mb-6">Welcome to the Training App!</h4>
+                <p class="text-sm">
+                  This app will notify you when you're assigned a lesson and will remind you to submit lesson plans. In addition I've added a few useful tools in here. Hope you enjoy!
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 {% endblock %}
