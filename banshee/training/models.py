@@ -210,6 +210,7 @@ class Lesson(models.Model):
 
 class Activity(models.Model):
     title = models.CharField(max_length=256, default="Squadron-Organized Event")
+    teach = GenericRelation(Teach)
 
     def __str__(self):
         return self.title
@@ -217,6 +218,8 @@ class Activity(models.Model):
 
 # Blank object for empty teach instances
 class EmptyLesson(models.Model):
+    teach = GenericRelation(Teach)
+
     def __str__(self):
         return "Empty Lesson Placeholder"
 

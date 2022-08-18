@@ -22,6 +22,7 @@ class LoginForm(AuthenticationForm):
 class SignupForm(UserCreationForm):
     BLANK_CHOICE_RANK = [("", "Rank")]
     BLANK_CHOICE_LEVEL = [("", "Level")]
+    BLANK_CHOICE_DASH = BLANK_CHOICE_DASH
 
     username = forms.CharField(
         widget=forms.TextInput(attrs={"placeholder": "Username"})
@@ -45,8 +46,12 @@ class SignupForm(UserCreationForm):
     level = forms.ChoiceField(
         choices=BLANK_CHOICE_LEVEL
         + BLANK_CHOICE_DASH
-        + Level.get_senior_level_choices()
     )
+
+    def __init__(self, *args, **kwargs):
+        super(SignupForm, self).__init__(*args, **kwargs)
+
+        self.fields['level'].choices = self.BLANK_CHOICE_LEVEL + self.BLANK_CHOICE_DASH + Level.get_senior_level_choices()
 
     class Meta:
         model = User
