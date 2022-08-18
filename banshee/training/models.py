@@ -1,4 +1,6 @@
+from datetime import datetime
 from django.db import models
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -32,13 +34,33 @@ class Level(models.Model):
         return cls.objects.filter(number__gte=5)
 
     @classmethod
-    def get_senior_choices(cls):
+    def get_senior_level_choices(cls):
         seniors = cls.get_seniors()
-        return [(level.number, level.name) for level in Level.get_seniors()]
+        return [(level.number, level.name) for level in seniors]
 
     @classmethod
     def senior_numbertoinstance(cls, number):
         return cls.objects.get(number=number)
+
+    def get_next(self):
+        found = False
+        levels = self.objects.all()
+        for level in levels:
+            if found:
+                return level
+            if self == level:
+                found = True
+        return None
+
+    def get_prev(self):
+        found = False
+        levels = self.objects.all().reverse()
+        for level in levels:
+            if found:
+                return level
+            if self == level:
+                found = True
+        return None
 
 
 class Senior(models.Model):
@@ -78,20 +100,19 @@ class Senior(models.Model):
         ranks = dict(cls.RANK_CHOICES)
         return ranks[number]
 
-    @classmethod
-    def get_available_seniors(cls):
-        return [
-            (str(senior.id), str(senior)) for senior in cls.objects.filter(user=None)
-        ]
-
 
 # Managing Lessons
 class Teach(models.Model):
+    lesson_id = (
+        models.PositiveIntegerField()
+    )  # For joining 2 period lessons or mulilevel lessons
+
     content_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True)
     object_id = models.PositiveIntegerField(null=True)
     content = GenericForeignKey("content_type", "object_id")
 
-    levels = models.ManyToManyField(Level)
+    level = models.ForeignKey(Level, on_delete=models.SET_NULL, null=True)
+    location = models.CharField(max_length=128)
     finished = models.BooleanField(default=False)
     plan = models.CharField(
         max_length=1000, default="", blank=True
@@ -101,17 +122,90 @@ class Teach(models.Model):
         return str(self.content)
 
     class Meta:
+        ordering = ["lesson_id"]
         indexes = [models.Index(fields=["content_type", "object_id"])]
+
+    @classmethod
+    def get_next_lesson_id(cls):
+        queryset = (
+            cls.objects.all()
+        )  # don't use class get_objects to prevent duplicate ids
+        if not queryset:
+            return 1
+
+        largest_id = queryset[0].lesson_id
+        return largest_id + 1
+
+    @classmethod
+    def create(cls, level: Level, content=None, id: int = None):
+        if id == None:
+            id = cls.get_next_lesson_id()
+
+        if content == None:
+            content = EmptyLesson.create()
+
+        instance = cls.objects.create(lesson_id=id, content=content, level=level)
+        return instance
+
+    def format_html_block(self):
+        content_class = type(self.content).__name__
+
+        if content_class == "Lesson":
+            return Lesson.format_html_block(self.content, self)
+        if content_class == "EmptyLesson":
+            return EmptyLesson.format_html_block()
+        return "UNKNOWN CONTENT CLASS NAME"
+
+
+class PerformanceObjective(models.Model):
+    po = models.CharField(max_length=3, unique=True)
+    po_title = models.CharField(max_length=256)
+
+    def __str__(self):
+        return self.po
+
+    @classmethod
+    def create(cls, po: str, po_title: str):
+        if cls.objects.filter(po=po).exists():
+            return cls.objects.get(po=po)
+
+        instance = cls.objects.create(po=po, po_title=po_title)
+        return instance
 
 
 class Lesson(models.Model):
-    po = models.IntegerField()
-    eocode = models.CharField(max_length=64)
+    po = models.ForeignKey(PerformanceObjective, on_delete=models.SET_NULL, null=True)
+    eocode = models.CharField(
+        max_length=64, unique=True
+    )  # Should be in the format 'M336.04'
     title = models.CharField(max_length=256)
     teach = GenericRelation(Teach)
 
     def __str__(self):
         return self.eocode
+
+    @classmethod
+    def create(cls, eocode: str, po_title: str, title: str, po: str = None):
+        if cls.objects.filter(eocode=eocode).exists():
+            return cls.objects.get(eocode=eocode)
+
+        if po == None:
+            po = eocode[1:4]
+
+        po_instance = PerformanceObjective.create(po, po_title)
+        instance = cls.objects.create(po=po_instance, eocode=eocode, title=title)
+        return instance
+
+    # This method is for the utils.trainingdayschedule class
+    def format_html_block(self, teach: Teach):
+        block = f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.eocode}</p>"
+
+        instructors = ""
+        for instructor in MapSeniorTeach.get_instructors(teach):
+            instructors += f"{instructor}<br>"
+        block += f"<p class='font-normal text-gray-400'>{instructors}</p>"
+
+        return block
 
 
 class Activity(models.Model):
@@ -119,6 +213,20 @@ class Activity(models.Model):
 
     def __str__(self):
         return self.title
+
+
+# Blank object for empty teach instances
+class EmptyLesson(models.Model):
+    def __str__(self):
+        return "Empty Lesson Placeholder"
+
+    @classmethod
+    def create(cls):
+        return cls.objects.create()
+
+    @classmethod
+    def format_html_block(self):
+        return "UNASSIGNED"
 
 
 class MapSeniorTeach(models.Model):
@@ -129,21 +237,21 @@ class MapSeniorTeach(models.Model):
     role = models.CharField(max_length=32)
 
     @classmethod
-    def get_ic(cls, lesson):
-        if cls.objects.filter(lesson=lesson, role=cls.IC_ROLE_NAME).exists():
-            return cls.objects.get(lesson=lesson, role=cls.IC_ROLE_NAME)
+    def get_ic(cls, teach: Teach):
+        if cls.objects.filter(teach=teach, role=cls.IC_ROLE_NAME).exists():
+            return cls.objects.get(teach=teach, role=cls.IC_ROLE_NAME)
         else:
             return False
 
-
-# Blank object for empty teach instances
-class EmptyLesson(models.Model):
-    def __str__(self):
-        return str(self.pk)
-
     @classmethod
-    def create(cls):
-        return cls.objects.create()
+    def get_instructors(cls, teach: Teach):
+        queryset = cls.objects.filter(teach=teach)
+
+        instructors = []
+        for object in queryset:
+            instructors.append((object.role, object.senior))
+
+        return instructors
 
 
 class TrainingPeriod(models.Model):
@@ -155,8 +263,7 @@ class TrainingPeriod(models.Model):
         instance = cls.objects.create()
         levels = Level.get_juniors()
         for level in levels:
-            teach = Teach.objects.create(content=EmptyLesson.create())
-            teach.levels.add(level)
+            teach = Teach.create(level)
             instance.lessons.add(teach)
         return instance
 
@@ -164,10 +271,10 @@ class TrainingPeriod(models.Model):
     def create_fullact(cls):
         instance = cls.objects.create()
         levels = Level.get_juniors()
-        teach = Teach.objects.create(content=EmptyLesson.create())
+        teach_id = Teach.get_next_lesson_id()
         for level in levels:
-            teach.levels.add(level)
-        instance.lessons.add(teach)
+            teach = Teach.create(level, id=teach_id)
+            instance.lessons.add(teach)
         return instance
 
     @classmethod
@@ -203,15 +310,14 @@ class TrainingNight(models.Model):
     }
 
     @classmethod
-    def create(cls, date, p1o=0, p2o=0, p3o=0):
+    def create(cls, date: datetime, p1o: int = 0, p2o: int = 0, p3o: int = 0):
         instance = cls()
         instance.date = date
         instance.p1 = cls.PERIOD_OBJECTS[p1o]()
         instance.p2 = cls.PERIOD_OBJECTS[p2o]()
         instance.p3 = cls.PERIOD_OBJECTS[p3o]()
 
-        masterinstance = Teach.objects.create(content=EmptyLesson.create())
-        masterinstance.levels.add(Level.get_master())
+        masterinstance = Teach.create(Level.get_master())
         instance.masterteach = masterinstance
 
         instance.save()
@@ -219,5 +325,5 @@ class TrainingNight(models.Model):
         return instance
 
     @classmethod
-    def get_list(cls, **kwargs):
+    def get_nights(cls, **kwargs):
         return cls.objects.filter(**kwargs)
