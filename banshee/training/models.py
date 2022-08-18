@@ -27,7 +27,7 @@ class Level(models.Model):
 
     @classmethod
     def get_juniors(cls):
-        return cls.objects.filter(number__lte=4)
+        return cls.objects.filter(number__lte=4, number__gte=1)
 
     @classmethod
     def get_seniors(cls):
