@@ -1,0 +1,19 @@
+.plan-wrapper {
+    width: 100%;
+    margin: auto;
+    font-size: 13px;
+}
+
+.plan-wrapper tr th:first-child {
+    width: 50px
+}
+
+.plan-wrapper td,
+.plan-wrapper th {
+    border: 1px solid white;
+}
+
+.plan-wrapper th {
+    text-align: center;
+    font-size: 18px;
+}
