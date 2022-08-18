@@ -54,11 +54,9 @@ class TrainingDaySchedule:
     def formatperiod(self, periodnum: int, period: TrainingPeriod):
         period_html = f"<th>P{str(periodnum)}</th>"
 
-        print(period.lessons.all().count())
         for lesson in period.lessons.all():
             period_html += self.formatlesson(lesson)
 
-        print(period_html)
         return f"<tr>{period_html}</tr>"
 
     def formatheader(self, levels: list):
@@ -67,7 +65,6 @@ class TrainingDaySchedule:
         for level in levels:
             header += f"<th>{str(level)}</th>"
 
-        print(header)
         return f"<tr>{header}</tr>"
 
     def formatschedule(self, night: TrainingNight, levels: list):
