@@ -49,7 +49,7 @@ class TrainingCalendar(HTMLCalendar):
 
 class TrainingDaySchedule:
     def formatlesson(self, lesson: Teach):
-        return f"<td><a href='AHHHH' class='block p-2 m-2 w-auto h-24 bg-clr-1 hover:bg-green-900 rounded-lg shadow-md'>{lesson.format_html_block()}</a></td>"
+        return f"<td><a href='AHHHH' class='block p-2 m-2 w-auto min-h-24 bg-clr-1 hover:bg-green-900 rounded-lg shadow-md'>{lesson.format_html_block()}</a></td>"
 
     def formatperiod(self, periodnum: int, period: TrainingPeriod):
         period_html = f"<th>P{str(periodnum)}</th>"

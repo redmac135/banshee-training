@@ -6,6 +6,9 @@ module.exports = {
     ],
     theme: {
         extend: {
+            minHeight: {
+                '24': '6rem'
+            },
             colors: {
                 "clr-1": "#052324",
                 "clr-2": "#314448",

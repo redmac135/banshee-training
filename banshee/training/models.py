@@ -198,7 +198,8 @@ class Lesson(models.Model):
 
     # This method is for the utils.trainingdayschedule class
     def format_html_block(self, teach: Teach):
-        block = f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.eocode}</p>"
+        block = "<p class='tracking-tight text-gray-400 leading-none'>Lesson</p>"
+        block += f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.eocode}</p>"
 
         instructors = ""
         for instructor in MapSeniorTeach.get_instructors(teach):
@@ -214,6 +215,18 @@ class Activity(models.Model):
 
     def __str__(self):
         return self.title
+    
+    # This method is for the utils.trainingdayschedule class
+    def format_html_block(self, teach: Teach):
+        block = "<p class='tracking-tight text-gray-400 leading-none'>Activity</p>"
+        block += f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.title}</p>"
+
+        instructors = ""
+        for instructor in MapSeniorTeach.get_instructors(teach):
+            instructors += f"{instructor}<br>"
+        block += f"<p class='font-normal text-gray-400'>{instructors}</p>"
+
+        return block
 
 
 # Blank object for empty teach instances
@@ -229,7 +242,7 @@ class EmptyLesson(models.Model):
 
     @classmethod
     def format_html_block(self):
-        return "<div class='pb-2 font-bold text-lg tracking-tight text-gray-400 text-center h-full place-items-center grid'>UNASSIGNED</div>"
+        return "<div class='text-center h-full font-bold text-lg tracking-tight text-gray-400'>UNASSIGNED</div>"
 
 
 class MapSeniorTeach(models.Model):
