@@ -16,6 +16,9 @@ from .utils import TrainingCalendar, DashboardCalendar, TrainingDaySchedule
 class HomeView(TemplateView):
     template_name = "training/home.html"
 
+# Testing View
+class ExampleView(TemplateView):
+    template_name = "training/example.html"
 
 # Main Views
 class DashboardView(ListView):
