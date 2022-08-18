@@ -43,7 +43,9 @@ class SignupForm(UserCreationForm):
         choices=BLANK_CHOICE_RANK + BLANK_CHOICE_DASH + Senior.RANK_CHOICES
     )
     level = forms.ChoiceField(
-        choices=BLANK_CHOICE_LEVEL + BLANK_CHOICE_DASH + Level.get_senior_choices()
+        choices=BLANK_CHOICE_LEVEL
+        + BLANK_CHOICE_DASH
+        + Level.get_senior_level_choices()
     )
 
     class Meta:

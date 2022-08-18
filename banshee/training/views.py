@@ -3,11 +3,12 @@ from datetime import date, datetime, timedelta
 
 from django.views.generic import TemplateView, ListView
 from django.views import View
+from django.shortcuts import render
 from django.utils.safestring import mark_safe
 
-from .models import TrainingNight, Teach
+from .models import TrainingNight, Teach, Level
 
-from .utils import TrainingCalendar, DashboardCalendar
+from .utils import TrainingCalendar, DashboardCalendar, TrainingDaySchedule
 
 # Create your views here.
 
@@ -29,7 +30,7 @@ class DashboardView(ListView):
         context["next_month"] = next_month(d)
         cal = DashboardCalendar(d.year, d.month)
 
-        nights = self.model.get_list(date__year=d.year, date__month=d.month)
+        nights = self.model.get_nights(date__year=d.year, date__month=d.month)
 
         html_cal = cal.formatmonth(nights=nights, today=date.today(), withyear=True)
         context["calendar"] = mark_safe(html_cal)
@@ -51,7 +52,7 @@ class TrainingCalView(ListView):
         context["next_month"] = next_month(d)
         cal = TrainingCalendar(d.year, d.month)
 
-        nights = self.model.get_list(date__year=d.year, date__month=d.month)
+        nights = self.model.get_nights(date__year=d.year, date__month=d.month)
 
         # Call the formatmonth method, which returns our calendar as a table
         html_cal = cal.formatmonth(nights=nights, today=date.today(), withyear=True)
@@ -83,5 +84,15 @@ def next_month(d):
 
 
 # View for specific training night
-class TrainingNightView(ListView):
-    model = Teach
+class TrainingNightView(View):
+    model = TrainingNight
+    template_name = "training/trainingnight.html"
+
+    def get(self, request, *args, **kwargs):
+        night = TrainingNight.create(datetime.today())
+        schedule_obj = TrainingDaySchedule()
+        level_objects = levels = Level.get_juniors()
+        levels = [level.name for level in levels]
+        schedule = schedule_obj.formatschedule(night, levels)
+        mark_safe(schedule)
+        return render(request, self.template_name, {"schedule": mark_safe(schedule)})

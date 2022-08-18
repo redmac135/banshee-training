@@ -1,4 +1,5 @@
 from calendar import HTMLCalendar
+from .models import *
 
 
 class TrainingCalendar(HTMLCalendar):
@@ -44,6 +45,38 @@ class TrainingCalendar(HTMLCalendar):
         for week in self.monthdays2calendar(self.year, self.month):
             cal += f"{self.formatweek(week, events, today)}\n"
         return cal
+
+
+class TrainingDaySchedule:
+    def formatlesson(self, lesson: Teach):
+        return f"<td><a href='AHHHH' class='block p-2 m-2 w-auto h-24 bg-clr-1 hover:bg-green-900 rounded-lg shadow-md'>{lesson.format_html_block()}</a></td>"
+
+    def formatperiod(self, periodnum: int, period: TrainingPeriod):
+        period_html = f"<th>P{str(periodnum)}</th>"
+
+        print(period.lessons.all().count())
+        for lesson in period.lessons.all():
+            period_html += self.formatlesson(lesson)
+
+        print(period_html)
+        return f"<tr>{period_html}</tr>"
+
+    def formatheader(self, levels: list):
+        header = "<th></th>"
+
+        for level in levels:
+            header += f"<th>{str(level)}</th>"
+
+        print(header)
+        return f"<tr>{header}</tr>"
+
+    def formatschedule(self, night: TrainingNight, levels: list):
+        schedule = self.formatheader(levels)
+        schedule += self.formatperiod(1, night.p1)
+        schedule += self.formatperiod(2, night.p2)
+        schedule += self.formatperiod(3, night.p3)
+
+        return schedule
 
 
 class DashboardCalendar(HTMLCalendar):

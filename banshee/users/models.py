@@ -12,6 +12,6 @@ class TrainingSetting(models.Model):
         pass
 
     @classmethod
-    def load(cls):
+    def create(cls):
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
