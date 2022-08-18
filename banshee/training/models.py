@@ -229,7 +229,7 @@ class EmptyLesson(models.Model):
 
     @classmethod
     def format_html_block(self):
-        return "UNASSIGNED"
+        return "<div class='pb-2 font-bold text-lg tracking-tight text-gray-400 text-center h-full place-items-center grid'>UNASSIGNED</div>"
 
 
 class MapSeniorTeach(models.Model):

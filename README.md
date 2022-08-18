@@ -2,4 +2,5 @@
 
 ## Before Production
 
-Delete Test View and training/example.html as well as it's reference in urls.py
+Delete Test View and it's reference in urls.py
+However keep training/example.html to ensure purgecss does not get rid of nesscary classes
