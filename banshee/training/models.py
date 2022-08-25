@@ -319,7 +319,7 @@ class TrainingPeriod(models.Model):
 
 
 class TrainingNight(models.Model):
-    date = models.DateField()
+    date = models.DateField(unique=True)
     p1 = models.OneToOneField(
         TrainingPeriod, related_name="periodone", on_delete=models.SET_NULL, null=True
     )
@@ -346,6 +346,9 @@ class TrainingNight(models.Model):
 
     @classmethod
     def create(cls, date: datetime, p1o: int = 0, p2o: int = 0, p3o: int = 0):
+        if cls.objects.filter(date=date).exists():
+            return cls.objects.get(date=date)
+
         instance = cls()
         instance.date = date
         instance.p1 = cls.PERIOD_OBJECTS[p1o]()

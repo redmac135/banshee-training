@@ -96,8 +96,8 @@ class TrainingNightView(View):
     def get(self, request, *args, **kwargs):
         night = TrainingNight.create(datetime.today())
         schedule_obj = TrainingDaySchedule()
-        level_objects = levels = Level.get_juniors()
-        levels = [level.name for level in levels]
+        level_objects = Level.get_juniors()
+        levels = [level_object.name for level_object in level_objects]
         schedule = schedule_obj.formatschedule(night, levels)
         mark_safe(schedule)
         return render(
