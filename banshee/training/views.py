@@ -1,13 +1,13 @@
 import calendar
 from datetime import date, datetime, timedelta
 
-from django.views.generic import TemplateView, ListView
+from django.views.generic import TemplateView, ListView, FormView
 from django.views import View
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
 
-from .models import TrainingNight, Teach, Level
-
+from .models import TrainingNight, Level
+from .forms import LessonTeachForm, ActivityTeachForm
 from .utils import TrainingCalendar, DashboardCalendar, TrainingDaySchedule
 
 # Create your views here.
@@ -16,9 +16,34 @@ from .utils import TrainingCalendar, DashboardCalendar, TrainingDaySchedule
 class HomeView(TemplateView):
     template_name = "training/home.html"
 
+
 # Testing View
 class ExampleView(TemplateView):
     template_name = "training/example.html"
+
+
+# Functions for Calendar List Views
+def get_date(req_day):
+    if req_day:
+        year, month = map(int, req_day.split("-"))
+        return date(year, month, day=1)
+    return datetime.now()
+
+
+def prev_month(d):
+    first = d.replace(day=1)
+    prev_month = first - timedelta(days=1)
+    month = "month=" + str(prev_month.year) + "-" + str(prev_month.month)
+    return month
+
+
+def next_month(d):
+    days_in_month = calendar.monthrange(d.year, d.month)[1]
+    last = d.replace(day=days_in_month)
+    next_month = last + timedelta(days=1)
+    month = "month=" + str(next_month.year) + "-" + str(next_month.month)
+    return month
+
 
 # Main Views
 class DashboardView(ListView):
@@ -63,29 +88,6 @@ class TrainingCalView(ListView):
         return context
 
 
-# Function for all Calendars
-def get_date(req_day):
-    if req_day:
-        year, month = map(int, req_day.split("-"))
-        return date(year, month, day=1)
-    return datetime.now()
-
-
-def prev_month(d):
-    first = d.replace(day=1)
-    prev_month = first - timedelta(days=1)
-    month = "month=" + str(prev_month.year) + "-" + str(prev_month.month)
-    return month
-
-
-def next_month(d):
-    days_in_month = calendar.monthrange(d.year, d.month)[1]
-    last = d.replace(day=days_in_month)
-    next_month = last + timedelta(days=1)
-    month = "month=" + str(next_month.year) + "-" + str(next_month.month)
-    return month
-
-
 # View for specific training night
 class TrainingNightView(View):
     model = TrainingNight
@@ -98,4 +100,35 @@ class TrainingNightView(View):
         levels = [level.name for level in levels]
         schedule = schedule_obj.formatschedule(night, levels)
         mark_safe(schedule)
-        return render(request, self.template_name, {"schedule": mark_safe(schedule)})
+        return render(
+            request,
+            self.template_name,
+            {"schedule": mark_safe(schedule), "nightid": night.pk},
+        )
+
+
+class TeachFormView(FormView):
+    template_name = "training/teachform.html"
+    form_class = [
+        ("Lesson", LessonTeachForm),
+        ("Activity", ActivityTeachForm),
+    ]
+
+    def init_form(self, levels, night_id, form_id, *args, **kwargs):
+        form = self.form_class[form_id][1](levels, night_id, *args, **kwargs)
+        return form
+
+    def get(self, request, night_id, form_id, *args, **kwargs):
+        levels = Level.get_juniors()
+        form = self.init_form(levels, night_id, form_id)
+        return render(request, self.template_name, {"form": form, "levels": levels, "nightid": night_id})
+
+    def post(self, request, night_id, form_id, *args, **kwargs):
+        levels = Level.get_juniors()
+        print(request.POST)
+        form = self.init_form(levels, night_id, form_id, data=request.POST)
+        if form.is_valid():
+            print(form.cleaned_data)
+            return redirect('home')
+        print(form.errors)
+        return render(request, self.template_name, {"form": form, "levels": levels, "nightid": night_id})

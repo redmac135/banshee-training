@@ -43,15 +43,16 @@ class SignupForm(UserCreationForm):
     rank = forms.ChoiceField(
         choices=BLANK_CHOICE_RANK + BLANK_CHOICE_DASH + Senior.RANK_CHOICES
     )
-    level = forms.ChoiceField(
-        choices=BLANK_CHOICE_LEVEL
-        + BLANK_CHOICE_DASH
-    )
+    level = forms.ChoiceField(choices=BLANK_CHOICE_LEVEL + BLANK_CHOICE_DASH)
 
     def __init__(self, *args, **kwargs):
         super(SignupForm, self).__init__(*args, **kwargs)
 
-        self.fields['level'].choices = self.BLANK_CHOICE_LEVEL + self.BLANK_CHOICE_DASH + Level.get_senior_level_choices()
+        self.fields["level"].choices = (
+            self.BLANK_CHOICE_LEVEL
+            + self.BLANK_CHOICE_DASH
+            + Level.get_senior_level_choices()
+        )
 
     class Meta:
         model = User

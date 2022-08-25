@@ -3,6 +3,7 @@ module.exports = {
         "./banshee/templates/*.html",
         "./banshee/templates/**/*.html",
         "./banshee/**/templates/**/*.html",
+        "./banshee/**/static/**/*.js",
     ],
     theme: {
         extend: {

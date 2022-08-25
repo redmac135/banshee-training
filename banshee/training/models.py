@@ -155,10 +155,15 @@ class Teach(models.Model):
             return EmptyLesson.format_html_block()
         return "UNKNOWN CONTENT CLASS NAME"
 
+    def change_content(self, content):
+        if type(self.content) == EmptyLesson:
+            self.content.delete()
+        self.content = content
+        self.save()
 
 class PerformanceObjective(models.Model):
     po = models.CharField(max_length=3, unique=True)
-    po_title = models.CharField(max_length=256)
+    po_title = models.CharField(max_length=256, blank=True, null=True)
 
     def __str__(self):
         return self.po
@@ -184,8 +189,11 @@ class Lesson(models.Model):
         return self.eocode
 
     @classmethod
-    def create(cls, eocode: str, po_title: str, title: str, po: str = None):
+    def create(cls, eocode: str, title: str, po_title: str = None, po: str = None):
         if cls.objects.filter(eocode=eocode).exists():
+            instance = cls.objects.get(eocode=eocode)
+            if not instance.title == title:
+                instance.change_title(title)
             return cls.objects.get(eocode=eocode)
 
         if po == None:
@@ -194,11 +202,17 @@ class Lesson(models.Model):
         po_instance = PerformanceObjective.create(po, po_title)
         instance = cls.objects.create(po=po_instance, eocode=eocode, title=title)
         return instance
+    
+    def change_title(self, title):
+        self.title = title
+        self.save()
 
     # This method is for the utils.trainingdayschedule class
     def format_html_block(self, teach: Teach):
         block = "<p class='tracking-tight text-gray-400 leading-none'>Lesson</p>"
-        block += f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.eocode}</p>"
+        block += (
+            f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.eocode}</p>"
+        )
 
         instructors = ""
         for instructor in MapSeniorTeach.get_instructors(teach):
@@ -214,7 +228,12 @@ class Activity(models.Model):
 
     def __str__(self):
         return self.title
-    
+
+    @classmethod
+    def create(cls, title: str):
+        instance = cls.objects.create(title=title)
+        return instance
+
     # This method is for the utils.trainingdayschedule class
     def format_html_block(self, teach: Teach):
         block = "<p class='tracking-tight text-gray-400 leading-none'>Activity</p>"
