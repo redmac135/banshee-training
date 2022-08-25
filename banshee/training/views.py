@@ -121,7 +121,11 @@ class TeachFormView(FormView):
     def get(self, request, night_id, form_id, *args, **kwargs):
         levels = Level.get_juniors()
         form = self.init_form(levels, night_id, form_id)
-        return render(request, self.template_name, {"form": form, "levels": levels, "nightid": night_id})
+        return render(
+            request,
+            self.template_name,
+            {"form": form, "levels": levels, "nightid": night_id},
+        )
 
     def post(self, request, night_id, form_id, *args, **kwargs):
         levels = Level.get_juniors()
@@ -129,6 +133,10 @@ class TeachFormView(FormView):
         form = self.init_form(levels, night_id, form_id, data=request.POST)
         if form.is_valid():
             print(form.cleaned_data)
-            return redirect('home')
+            return redirect("home")
         print(form.errors)
-        return render(request, self.template_name, {"form": form, "levels": levels, "nightid": night_id})
+        return render(
+            request,
+            self.template_name,
+            {"form": form, "levels": levels, "nightid": night_id},
+        )

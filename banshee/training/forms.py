@@ -1,4 +1,7 @@
 from django import forms
+from django.core.exceptions import ValidationError
+
+import re
 
 from .models import Activity, Lesson, TrainingNight, EmptyLesson, Teach
 
@@ -29,6 +32,22 @@ class BaseTeachForm(forms.Form):
         self.fields["p3_choice"].choices = level_choices
 
         self.night_id = night_id
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        p1_choice = self.cleaned_data.get("p1_choice")
+        p2_choice = self.cleaned_data.get("p2_choice")
+        p3_choice = self.cleaned_data.get("p3_choice")
+
+        print(cleaned_data)
+
+        print(p1_choice + p2_choice + p3_choice)
+        if len(p1_choice + p2_choice + p3_choice) <= 0:
+            raise ValidationError(
+                {"p1_choice": "Please select at least 1 timeslot to assign lesson."}
+            )
+
+        return cleaned_data
 
     def get_teach_list(self):
         data = self.cleaned_data
@@ -75,7 +94,11 @@ class BaseTeachForm(forms.Form):
 
 
 class LessonTeachForm(BaseTeachForm):
-    eocode = forms.CharField(max_length=64, widget=forms.TextInput(attrs={"placeholder": "M000.00"}))
+    EOCODE_REGEX = re.compile("^[a-zA-Z][a-zA-Z0-9_.-]\d\d\.\d\d$")
+
+    eocode = forms.CharField(
+        max_length=64, widget=forms.TextInput(attrs={"placeholder": "M000.00"})
+    )
     eocode.group = 1
     title = forms.CharField(max_length=256)
     title.group = 1
@@ -84,6 +107,18 @@ class LessonTeachForm(BaseTeachForm):
         data = self.cleaned_data
 
         return Lesson.create(data["eocode"], data["title"])
+
+    def clean(self):
+        cleaned_data = super().clean()
+        eocode = cleaned_data.get("eocode")
+
+        if eocode:
+            if not self.EOCODE_REGEX.match(eocode):
+                raise ValidationError(
+                    {"eocode": "Please enter the eocode in the format M000.00"}
+                )
+
+        return cleaned_data
 
 
 class ActivityTeachForm(BaseTeachForm):

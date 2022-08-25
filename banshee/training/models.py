@@ -161,6 +161,7 @@ class Teach(models.Model):
         self.content = content
         self.save()
 
+
 class PerformanceObjective(models.Model):
     po = models.CharField(max_length=3, unique=True)
     po_title = models.CharField(max_length=256, blank=True, null=True)
@@ -202,7 +203,7 @@ class Lesson(models.Model):
         po_instance = PerformanceObjective.create(po, po_title)
         instance = cls.objects.create(po=po_instance, eocode=eocode, title=title)
         return instance
-    
+
     def change_title(self, title):
         self.title = title
         self.save()

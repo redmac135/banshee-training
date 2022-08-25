@@ -7,8 +7,8 @@
 
 {% block content %}
 <div class="p-4">
+    <form action="" method="post">
     <div class="flex flex-col items-center">
-        <form action="" method="post">
             {% csrf_token %}
             <div class="w-full max-w-xs">
                 <div class="bg-clr-1 shadow-md rounded px-8 pt-6 pb-8 mb-4">
@@ -17,12 +17,17 @@
                         <label class="block text-clr-5 text-sm font-bold mb-2" for="{{ field.id_for_label }}">
                         {{ field.name }}
                         </label>
-                        <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="{{ field.id_for_label }}" name="{{ field.name }}">
+                        <input class="shadow appearance-none border {% if field.errors %}border-red-500{% endif %} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="{{ field.id_for_label }}" name="{{ field.name }}">
                     </div>
+                    {% if field.errors %}
+                        {% for error in field.errors %}
+                        <p class="text-red-500 text-xs italic mb-2">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
                 {% endfor %}
                 </div>
             </div>
-            <div class="block p-2 min-h-min w-min bg-clr-1 rounded-lg shadow-md">
+            <div class="block p-2 mb-4 min-h-min w-min bg-clr-1 rounded-lg shadow-md">
                 <table class="table-fixed text-clr-5">
                     <thead>
                         <tr>
@@ -34,22 +39,40 @@
                     </thead>
                     <tbody>
                         {% for field in form.slot_fields %}
-                            <tr class="h-[50px]">
+                            <tr class="h-[50px]" id="id_{{ field.name }}">
                                 <th>P{{ forloop.counter }}</th>
                                 {% for subwidget in field %}
                                 <td class="w-[50px]">
                                     <div onclick="checkChild(this)">
                                         <label for="{{ subwidget.id_for_label }}" class="block p-4 m-2 bg-clr-3 hover:bg-yellow-500 rounded-lg shadow-md"></label>
-                                        <input type="checkbox" id="{{ subwidget.id_for_label }}" hidden value="{{ forloop.counter0 }}">
+                                        <input type="checkbox" hidden id="{{ subwidget.id_for_label }}" name="{{ field.name }}" value="{{ forloop.counter0 }}">
                                     </div>
                                 </td>
                             {% endfor %}
                         {% endfor %}
                     </tbody>
                 </table>
+                {% for field in form.slot_fields %}
+                    {% if field.errors %}
+                        {% for error in field.errors %}
+                        <p class="text-red-500 text-xs text-center pb-2">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
             </div>
-            <input type="submit" name="submit" value="Submit">
-        </form>
-    </div>
+            <div class="block p-4 mb-4 min-h-min w-56 bg-clr-1 rounded-lg shadow-md">
+                <div class="flex flex-col items-center">
+                    {% if form.errors %}
+                        {% for error in form.non_field_errors %}
+                        <p class="text-red-500 text-xs pb-2">{{ error }}</p>
+                        {% endfor %}
+                    {% endif %}
+                    <input type="submit" name="submit" value="Submit"
+                        class="text-white bg-clr-3 hover:bg-clr-4 focus:outline-none focus:bg-clr-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3 md:mr-0">
+                    </input>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 {% endblock %}
