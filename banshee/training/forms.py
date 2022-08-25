@@ -39,9 +39,6 @@ class BaseTeachForm(forms.Form):
         p2_choice = self.cleaned_data.get("p2_choice")
         p3_choice = self.cleaned_data.get("p3_choice")
 
-        print(cleaned_data)
-
-        print(p1_choice + p2_choice + p3_choice)
         if len(p1_choice + p2_choice + p3_choice) <= 0:
             raise ValidationError(
                 {"p1_choice": "Please select at least 1 timeslot to assign lesson."}
@@ -57,7 +54,7 @@ class BaseTeachForm(forms.Form):
         teach_list = []
 
         p1_teachs = instance.p1.lessons.all()
-        print(list(p1_teachs))
+
         for index in data["p1_choice"]:
             teach_list.append(p1_teachs[int(index)])
 

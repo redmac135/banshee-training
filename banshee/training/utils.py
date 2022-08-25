@@ -92,7 +92,7 @@ class DashboardCalendar(HTMLCalendar):
                 " small-day-green-highlight"  # space nesscary to keep classes seperated
             )
             event_instance = events.get(date__day=day)
-            href = reverse('teach-form', args=[event_instance.pk, 0])
+            href = reverse('trainingnight', args=[event_instance.pk])
         if day != 0 and today != None:
             if day == today.day:
                 d += " small-day-yellow-circle"

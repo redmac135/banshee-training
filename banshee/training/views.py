@@ -93,8 +93,8 @@ class TrainingNightView(View):
     model = TrainingNight
     template_name = "training/trainingnight.html"
 
-    def get(self, request, *args, **kwargs):
-        night = TrainingNight.create(datetime.today())
+    def get(self, request, night_id, *args, **kwargs):
+        night = TrainingNight.objects.get(pk=night_id)
         schedule_obj = TrainingDaySchedule()
         level_objects = Level.get_juniors()
         levels = [level_object.name for level_object in level_objects]
@@ -129,12 +129,9 @@ class TeachFormView(FormView):
 
     def post(self, request, night_id, form_id, *args, **kwargs):
         levels = Level.get_juniors()
-        print(request.POST)
         form = self.init_form(levels, night_id, form_id, data=request.POST)
         if form.is_valid():
-            print(form.cleaned_data)
             return redirect("home")
-        print(form.errors)
         return render(
             request,
             self.template_name,
