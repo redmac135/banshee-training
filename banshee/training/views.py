@@ -6,7 +6,7 @@ from django.views import View
 from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
 
-from .models import TrainingNight, Level
+from .models import MapSeniorTeach, TrainingNight, Level
 from .forms import LessonTeachForm, ActivityTeachForm
 from .utils import TrainingCalendar, DashboardCalendar, TrainingDaySchedule
 
@@ -95,15 +95,20 @@ class TrainingNightView(View):
 
     def get(self, request, night_id, *args, **kwargs):
         night = TrainingNight.objects.get(pk=night_id)
-        schedule_obj = TrainingDaySchedule()
+
         level_objects = Level.get_juniors()
         levels = [level_object.name for level_object in level_objects]
+
+        schedule_obj = TrainingDaySchedule()
         schedule = schedule_obj.formatschedule(night, levels)
         mark_safe(schedule)
+
+        roles = MapSeniorTeach.get_instructors(night.masterteach)
+
         return render(
             request,
             self.template_name,
-            {"schedule": mark_safe(schedule), "nightid": night.pk},
+            {"schedule": mark_safe(schedule), "nightid": night.pk, "roles": roles},
         )
 
 
