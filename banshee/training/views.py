@@ -131,7 +131,7 @@ class TrainingNightView(View):
     template_name = "training/trainingnight.html"
 
     def get(self, request, night_id, *args, **kwargs):
-        night = TrainingNight.objects.get(pk=night_id)
+        night:TrainingNight = TrainingNight.objects.get(pk=night_id)
 
         level_objects = Level.get_juniors()
         levels = [level_object.name for level_object in level_objects]
@@ -142,10 +142,15 @@ class TrainingNightView(View):
 
         roles = MapSeniorTeach.get_instructors(night.masterteach)
 
+        date = night.date
+        title = {}
+        title['month'] = date.strftime("%B")
+        title['day'] = date.day
+
         return render(
             request,
             self.template_name,
-            {"schedule": mark_safe(schedule), "nightid": night.pk, "roles": roles},
+            {"schedule": mark_safe(schedule), "nightid": night.pk, "roles": roles, "title": title},
         )
 
 
