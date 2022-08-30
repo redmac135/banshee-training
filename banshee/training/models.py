@@ -207,6 +207,12 @@ class Lesson(models.Model):
         instance = cls.objects.create(po=po_instance, eocode=eocode, title=title)
         return instance
 
+    def get_title(cls, eocode: str):
+        if cls.objects.filter(eocode=eocode).exists():
+            instance = cls.objects.get(eocode=eocode)
+            return instance.title
+        return False
+
     def change_title(self, title):
         self.title = title
         self.save()

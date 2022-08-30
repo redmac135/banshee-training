@@ -96,9 +96,7 @@ class LessonTeachForm(BaseTeachForm):
     eocode = forms.CharField(
         max_length=64, widget=forms.TextInput(attrs={"placeholder": "M000.00"})
     )
-    eocode.group = 1
-    title = forms.CharField(max_length=256)
-    title.group = 1
+    title = forms.CharField(max_length=256, required=False)
 
     def get_content_instance(self):
         data = self.cleaned_data
@@ -108,19 +106,26 @@ class LessonTeachForm(BaseTeachForm):
     def clean(self):
         cleaned_data = super().clean()
         eocode = cleaned_data.get("eocode")
+        title = cleaned_data.get("title")
 
         if eocode:
             if not self.EOCODE_REGEX.match(eocode):
                 raise ValidationError(
                     {"eocode": "Please enter the eocode in the format M000.00"}
                 )
+        
+        if not title:
+            tmp_title = Lesson.get_title(eocode)
+            if tmp_title == False:
+                raise ValidationError({"title": "Lesson title not found, please enter manually."})
+            else:
+                cleaned_data["title"] = tmp_title
 
         return cleaned_data
 
 
 class ActivityTeachForm(BaseTeachForm):
     title = forms.CharField(max_length=256)
-    title.group = 1
 
     def get_content_instance(self):
         data = self.cleaned_data
