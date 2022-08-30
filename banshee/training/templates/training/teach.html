@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block links %}
+<link rel="stylesheet" href="{% static 'training/css/trainingnight.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="p-4">
+    <div class="w-full min-w-sm max-w-fit">
+        <div class="bg-clr-1 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <div class="font-bold text-2xl text-white">{{ content.type }}</div>
+            {% for key, value in content.attributes %}
+            <p class="font-normal text-white"><strong>{{ key }}:</strong> {{ value }}</p>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="w-full min-w-sm max-w-fit">
+        <div class="bg-clr-1 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <div class="font-bold text-2xl text-white">Plan</div>
+            {% if plan.finished %}
+            <p class="font-normal text-white"><strong>Link: </strong><a class="underline text-blue-600 hover:text-blue-800 visited:text-purple-600" href="{{ plan.link }}">{{ plan.link }}</a></p>
+            {% else %}
+            <p class="font-bold text-gray-400">UNFINISHED</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

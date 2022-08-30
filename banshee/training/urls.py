@@ -10,8 +10,9 @@ urlpatterns = [
     path("dashboard/create", CreateDashboardView.as_view(), name="create-dashboard"),
     path("dashboard", DashboardView.as_view(), name="dashboard"),
     path(
-        "teach/<int:night_id>/<int:form_id>", TeachFormView.as_view(), name="teach-form"
+        "teach/create/<int:night_id>/<int:form_id>", TeachFormView.as_view(), name="teach-form"
     ),
+    path("teach/<int:teachid>", TeachView.as_view(), name="teach"),
     path(
         "api/<int:year>/<int:month>/<int:day>",
         CreateTrainingNightView.as_view(),

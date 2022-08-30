@@ -1,5 +1,6 @@
 from datetime import datetime
 from django.db import models
+from django.urls import reverse
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
@@ -126,13 +127,13 @@ class Teach(models.Model):
 
     @classmethod
     def get_next_lesson_id(cls):
-        queryset = (
-            cls.objects.all()
+        largest = (
+            cls.objects.all().last()
         )  # don't use class get_objects to prevent duplicate ids
-        if not queryset:
+        if not largest:
             return 1
 
-        largest_id = queryset[0].lesson_id
+        largest_id = largest.lesson_id
         return largest_id + 1
 
     @classmethod
@@ -143,11 +144,19 @@ class Teach(models.Model):
         if content == None:
             content = EmptyLesson.create()
 
+        print(id)
         instance = cls.objects.create(lesson_id=id, content=content, level=level)
         return instance
 
+    def get_absolute_url(self):
+        return reverse("teach", args=[self.lesson_id])
+
+    def get_content_type(self):
+        name = type(self.content).__name__
+        return name
+
     def format_html_block(self):
-        content_class = type(self.content).__name__
+        content_class = self.get_content_type()
 
         if content_class == "Lesson":
             return Lesson.format_html_block(self.content, self)
@@ -156,6 +165,20 @@ class Teach(models.Model):
         if content_class == "EmptyLesson":
             return EmptyLesson.format_html_block()
         return "UNKNOWN CONTENT CLASS NAME"
+
+    @classmethod
+    def get_by_lessonid(cls, teachid):
+        instances = cls.objects.filter(lesson_id=teachid)
+        return instances.first()
+
+    def get_content_attributes(self):
+        content_class = self.get_content_type()
+
+        if content_class == "Lesson":
+            return Lesson.get_content_attributes(self.content)
+        if content_class == "Activity":
+            return Activity.get_content_attributes(self.content)
+        return {}
 
     def change_content(self, content):
         old_content = self.content
@@ -233,6 +256,9 @@ class Lesson(models.Model):
         block += f"<p class='font-normal text-gray-400'>{instructors}</p>"
 
         return block
+    
+    def get_content_attributes(self):
+        return [("EO Code", self.eocode), ("Title", self.title)]
 
 
 class Activity(models.Model):
@@ -258,6 +284,9 @@ class Activity(models.Model):
         block += f"<p class='font-normal text-gray-400'>{instructors}</p>"
 
         return block
+    
+    def get_content_attributes(self):
+        return ["Title", self.title]
 
 
 # Blank object for empty teach instances

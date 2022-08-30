@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import MapSeniorTeach, TrainingNight, Level
+from .models import MapSeniorTeach, TrainingNight, Level, Teach
 from .forms import LessonTeachForm, ActivityTeachForm
 from .utils import (
     TrainingCalendar,
@@ -186,6 +186,28 @@ class TeachFormView(FormView):
             self.template_name,
             {"form": form, "levels": levels, "nightid": night_id, "formid": form_id},
         )
+
+
+# Teach Specific Views
+class TeachView(TemplateView):
+    template_name = "training/teach.html"
+
+    def get_context_data(self, teachid, **kwargs):
+        context = super().get_context_data(**kwargs)
+        instance = Teach.get_by_lessonid(teachid)
+
+        content_details = instance.get_content_attributes()
+        content_type = instance.get_content_type()
+        context["content"] = {"type": content_type, "attributes": content_details}
+
+        finished = instance.finished
+        context["plan"] = {"finished": finished}
+        if finished:
+            context["plan"]["link"] = instance.plan
+
+        print(context)
+        return context
+
 
 
 # Utility Views (views that do things but don't actually have a template)
