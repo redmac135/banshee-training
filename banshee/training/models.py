@@ -106,8 +106,8 @@ class Teach(models.Model):
         models.PositiveIntegerField()
     )  # For joining 2 period lessons or mulilevel lessons
 
-    content_type = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True)
-    object_id = models.PositiveIntegerField(null=True)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
     content = GenericForeignKey("content_type", "object_id")
 
     level = models.ForeignKey(Level, on_delete=models.SET_NULL, null=True)
@@ -156,10 +156,13 @@ class Teach(models.Model):
         return "UNKNOWN CONTENT CLASS NAME"
 
     def change_content(self, content):
-        if type(self.content) == EmptyLesson:
-            self.content.delete()
+        old_content = self.content
+
         self.content = content
         self.save()
+
+        if type(old_content) == EmptyLesson:
+            old_content.delete()
 
 
 class PerformanceObjective(models.Model):
@@ -321,15 +324,15 @@ class TrainingPeriod(models.Model):
 class TrainingNight(models.Model):
     date = models.DateField(unique=True)
     p1 = models.OneToOneField(
-        TrainingPeriod, related_name="periodone", on_delete=models.SET_NULL, null=True
+        TrainingPeriod, related_name="periodone", on_delete=models.CASCADE
     )
     p2 = models.OneToOneField(
-        TrainingPeriod, related_name="periodtwo", on_delete=models.SET_NULL, null=True
+        TrainingPeriod, related_name="periodtwo", on_delete=models.CASCADE
     )
     p3 = models.OneToOneField(
-        TrainingPeriod, related_name="periodthree", on_delete=models.SET_NULL, null=True
+        TrainingPeriod, related_name="periodthree", on_delete=models.CASCADE
     )
-    masterteach = models.ForeignKey(Teach, on_delete=models.SET_NULL, null=True)
+    masterteach = models.ForeignKey(Teach, on_delete=models.CASCADE)
     excused = models.ManyToManyField(Senior)
 
     def __str__(self):

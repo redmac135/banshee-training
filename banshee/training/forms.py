@@ -5,7 +5,8 @@ import re
 
 from .models import Activity, Lesson, TrainingNight, EmptyLesson, Teach
 
-# Group 1 is rendered seperately from group 2
+
+# Forms to edit Teach Instances
 class BaseTeachForm(forms.Form):
     LIST_FIELDS = ("p1_choice", "p2_choice", "p3_choice")
 
@@ -54,7 +55,6 @@ class BaseTeachForm(forms.Form):
         teach_list = []
 
         p1_teachs = instance.p1.lessons.all()
-
         for index in data["p1_choice"]:
             teach_list.append(p1_teachs[int(index)])
 

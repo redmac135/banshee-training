@@ -6,9 +6,18 @@ from django.views import View
 from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
 
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
 from .models import MapSeniorTeach, TrainingNight, Level
 from .forms import LessonTeachForm, ActivityTeachForm
-from .utils import TrainingCalendar, DashboardCalendar, TrainingDaySchedule
+from .utils import (
+    TrainingCalendar,
+    DashboardCalendar,
+    CreateDashboardCalendar,
+    TrainingDaySchedule,
+)
 
 # Create your views here.
 
@@ -28,6 +37,11 @@ def get_date(req_day):
         year, month = map(int, req_day.split("-"))
         return date(year, month, day=1)
     return datetime.now()
+
+
+def curr_month(d):
+    month = "month=" + str(d.year) + "-" + str(d.month)
+    return month
 
 
 def prev_month(d):
@@ -54,9 +68,32 @@ class DashboardView(ListView):
         context = super().get_context_data(**kwargs)
 
         d = get_date(self.request.GET.get("month", None))
+        context["curr_month"] = curr_month(d)
         context["prev_month"] = prev_month(d)
         context["next_month"] = next_month(d)
+        print(context)
         cal = DashboardCalendar(d.year, d.month)
+
+        nights = self.model.get_nights(date__year=d.year, date__month=d.month)
+
+        html_cal = cal.formatmonth(nights=nights, today=date.today(), withyear=True)
+        context["calendar"] = mark_safe(html_cal)
+        context["monthname"] = str(calendar.month_name[d.month]) + " " + str(d.year)
+        return context
+
+
+class CreateDashboardView(ListView):
+    model = TrainingNight
+    template_name = "training/createdashboard.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        d = get_date(self.request.GET.get("month", None))
+        context["curr_month"] = curr_month(d)
+        context["prev_month"] = prev_month(d)
+        context["next_month"] = next_month(d)
+        cal = CreateDashboardCalendar(d.year, d.month)
 
         nights = self.model.get_nights(date__year=d.year, date__month=d.month)
 
@@ -136,9 +173,19 @@ class TeachFormView(FormView):
         levels = Level.get_juniors()
         form = self.init_form(levels, night_id, form_id, data=request.POST)
         if form.is_valid():
-            return redirect("home")
+            form.save()
+            print(type(night_id))
+            return redirect("trainingnight", night_id=night_id)
         return render(
             request,
             self.template_name,
             {"form": form, "levels": levels, "nightid": night_id},
         )
+
+
+# Utility Views (views that do things but don't actually have a template)
+class CreateTrainingNightView(APIView):
+    def get(self, request, year, month, day, *args, **kwargs):
+        day = date(year, month, day)
+        TrainingNight.create(day)
+        return Response(status=status.HTTP_200_OK)

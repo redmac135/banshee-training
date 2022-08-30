@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "jquery",
     "training",
     "users",
+    "rest_framework",
 ]
 
 MIDDLEWARE = [
