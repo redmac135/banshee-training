@@ -171,7 +171,7 @@ class TeachFormView(FormView):
         return render(
             request,
             self.template_name,
-            {"form": form, "levels": levels, "nightid": night_id},
+            {"form": form, "levels": levels, "nightid": night_id, "formid": form_id},
         )
 
     def post(self, request, night_id, form_id, *args, **kwargs):
@@ -184,7 +184,7 @@ class TeachFormView(FormView):
         return render(
             request,
             self.template_name,
-            {"form": form, "levels": levels, "nightid": night_id},
+            {"form": form, "levels": levels, "nightid": night_id, "formid": form_id},
         )
 
 

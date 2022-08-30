@@ -125,7 +125,7 @@ class LessonTeachForm(BaseTeachForm):
 
 
 class ActivityTeachForm(BaseTeachForm):
-    title = forms.CharField(max_length=256)
+    title = forms.CharField(max_length=256, required=True)
 
     def get_content_instance(self):
         data = self.cleaned_data

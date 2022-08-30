@@ -151,6 +151,8 @@ class Teach(models.Model):
 
         if content_class == "Lesson":
             return Lesson.format_html_block(self.content, self)
+        if content_class == "Activity":
+            return Activity.format_html_block(self.content, self)
         if content_class == "EmptyLesson":
             return EmptyLesson.format_html_block()
         return "UNKNOWN CONTENT CLASS NAME"
@@ -207,6 +209,7 @@ class Lesson(models.Model):
         instance = cls.objects.create(po=po_instance, eocode=eocode, title=title)
         return instance
 
+    @classmethod
     def get_title(cls, eocode: str):
         if cls.objects.filter(eocode=eocode).exists():
             instance = cls.objects.get(eocode=eocode)
