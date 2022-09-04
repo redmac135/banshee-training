@@ -205,7 +205,6 @@ class TeachView(TemplateView):
         if finished:
             context["plan"]["link"] = instance.plan
 
-        print(context)
         return context
 
 

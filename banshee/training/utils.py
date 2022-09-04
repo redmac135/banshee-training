@@ -55,7 +55,7 @@ class TrainingDaySchedule:
     def formatperiod(self, periodnum: int, period: TrainingPeriod):
         period_html = f"<th>P{str(periodnum)}</th>"
 
-        for lesson in period.lessons.all():
+        for lesson in period.get_lessons():
             period_html += self.formatlesson(lesson)
 
         return f"<tr>{period_html}</tr>"

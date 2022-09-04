@@ -333,6 +333,9 @@ class MapSeniorTeach(models.Model):
 class TrainingPeriod(models.Model):
     lessons = models.ManyToManyField(Teach)
 
+    def get_lessons(self):
+        return self.lessons.all().order_by("level__name")
+
     # create a training period with a teach instance for each level
     @classmethod
     def create_fulllesson(cls):

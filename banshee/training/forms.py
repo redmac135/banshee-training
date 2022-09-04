@@ -54,15 +54,15 @@ class BaseTeachForm(forms.Form):
 
         teach_list = []
 
-        p1_teachs = instance.p1.lessons.all()
+        p1_teachs = instance.p1.get_lessons()
         for index in data["p1_choice"]:
             teach_list.append(p1_teachs[int(index)])
 
-        p2_teachs = instance.p2.lessons.all()
+        p2_teachs = instance.p2.get_lessons()
         for index in data["p2_choice"]:
             teach_list.append(p2_teachs[int(index)])
 
-        p3_teachs = instance.p3.lessons.all()
+        p3_teachs = instance.p3.get_lessons()
         for index in data["p3_choice"]:
             teach_list.append(p3_teachs[int(index)])
 
