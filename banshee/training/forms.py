@@ -53,16 +53,17 @@ class BaseTeachForm(forms.Form):
         instance: TrainingNight = TrainingNight.objects.get(id=night_id)
 
         teach_list = []
+        periods = instance.get_periods()
 
-        p1_teachs = instance.p1.get_lessons()
+        p1_teachs = periods[0].get_lessons()
         for index in data["p1_choice"]:
             teach_list.append(p1_teachs[int(index)])
 
-        p2_teachs = instance.p2.get_lessons()
+        p2_teachs = periods[1].get_lessons()
         for index in data["p2_choice"]:
             teach_list.append(p2_teachs[int(index)])
 
-        p3_teachs = instance.p3.get_lessons()
+        p3_teachs = periods[2].get_lessons()
         for index in data["p3_choice"]:
             teach_list.append(p3_teachs[int(index)])
 
@@ -113,11 +114,13 @@ class LessonTeachForm(BaseTeachForm):
                 raise ValidationError(
                     {"eocode": "Please enter the eocode in the format M000.00"}
                 )
-        
+
         if not title:
             tmp_title = Lesson.get_title(eocode)
             if tmp_title == False:
-                raise ValidationError({"title": "Lesson title not found, please enter manually."})
+                raise ValidationError(
+                    {"title": "Lesson title not found, please enter manually."}
+                )
             else:
                 cleaned_data["title"] = tmp_title
 

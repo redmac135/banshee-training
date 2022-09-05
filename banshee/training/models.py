@@ -256,7 +256,7 @@ class Lesson(models.Model):
         block += f"<p class='font-normal text-gray-400'>{instructors}</p>"
 
         return block
-    
+
     def get_content_attributes(self):
         return [("EO Code", self.eocode), ("Title", self.title)]
 
@@ -284,7 +284,7 @@ class Activity(models.Model):
         block += f"<p class='font-normal text-gray-400'>{instructors}</p>"
 
         return block
-    
+
     def get_content_attributes(self):
         return ["Title", self.title]
 
@@ -330,49 +330,8 @@ class MapSeniorTeach(models.Model):
         return instructors
 
 
-class TrainingPeriod(models.Model):
-    lessons = models.ManyToManyField(Teach)
-
-    def get_lessons(self):
-        return self.lessons.all().order_by("level__name")
-
-    # create a training period with a teach instance for each level
-    @classmethod
-    def create_fulllesson(cls):
-        instance = cls.objects.create()
-        levels = Level.get_juniors()
-        for level in levels:
-            teach = Teach.create(level)
-            instance.lessons.add(teach)
-        return instance
-
-    @classmethod
-    def create_fullact(cls):
-        instance = cls.objects.create()
-        levels = Level.get_juniors()
-        teach_id = Teach.get_next_lesson_id()
-        for level in levels:
-            teach = Teach.create(level, id=teach_id)
-            instance.lessons.add(teach)
-        return instance
-
-    @classmethod
-    def create_blank(cls):
-        instance = cls.objects.create()
-        return instance
-
-
 class TrainingNight(models.Model):
     date = models.DateField(unique=True)
-    p1 = models.OneToOneField(
-        TrainingPeriod, related_name="periodone", on_delete=models.CASCADE
-    )
-    p2 = models.OneToOneField(
-        TrainingPeriod, related_name="periodtwo", on_delete=models.CASCADE
-    )
-    p3 = models.OneToOneField(
-        TrainingPeriod, related_name="periodthree", on_delete=models.CASCADE
-    )
     masterteach = models.ForeignKey(Teach, on_delete=models.CASCADE)
     excused = models.ManyToManyField(Senior)
 
@@ -382,30 +341,65 @@ class TrainingNight(models.Model):
     class Meta:
         ordering = ["-date"]
 
-    PERIOD_OBJECTS = {
-        0: TrainingPeriod.create_fulllesson,
-        1: TrainingPeriod.create_fullact,
-        2: TrainingPeriod.create_blank,
-    }
-
     @classmethod
-    def create(cls, date: datetime, p1o: int = 0, p2o: int = 0, p3o: int = 0):
+    def create(cls, date: datetime, period_types: list = [0, 0, 0]):
         if cls.objects.filter(date=date).exists():
             return cls.objects.get(date=date)
 
         instance = cls()
         instance.date = date
-        instance.p1 = cls.PERIOD_OBJECTS[p1o]()
-        instance.p2 = cls.PERIOD_OBJECTS[p2o]()
-        instance.p3 = cls.PERIOD_OBJECTS[p3o]()
-
         masterinstance = Teach.create(Level.get_master())
         instance.masterteach = masterinstance
-
         instance.save()
+
+        for order, period_type in enumerate(period_types):
+            print(order, period_type)
+            if period_type == 0:
+                TrainingPeriod.create_fulllesson(instance, order)
+            if period_type == 1:
+                TrainingPeriod.create_fullact(instance, order)
+            if period_type == 2:
+                TrainingPeriod.create_blank(instance, order)
 
         return instance
 
     @classmethod
     def get_nights(cls, **kwargs):
         return cls.objects.filter(**kwargs)
+
+    def get_periods(self):
+        return self.trainingperiod_set.all().order_by("order")
+
+
+class TrainingPeriod(models.Model):
+    lessons = models.ManyToManyField(Teach)
+    night = models.ForeignKey(TrainingNight, on_delete=models.CASCADE)
+    order = models.PositiveSmallIntegerField()
+
+    def get_lessons(self):
+        return self.lessons.all().order_by("level__name")
+
+    # create a training period with a teach instance for each level
+    @classmethod
+    def create_fulllesson(cls, night, order):
+        instance = cls.objects.create(night=night, order=order)
+        levels = Level.get_juniors()
+        for level in levels:
+            teach = Teach.create(level)
+            instance.lessons.add(teach)
+        return instance
+
+    @classmethod
+    def create_fullact(cls, night, order):
+        instance = cls.objects.create(night=night, order=order)
+        levels = Level.get_juniors()
+        teach_id = Teach.get_next_lesson_id()
+        for level in levels:
+            teach = Teach.create(level, id=teach_id)
+            instance.lessons.add(teach)
+        return instance
+
+    @classmethod
+    def create_blank(cls, night, order):
+        instance = cls.objects.create(night=night, order=order)
+        return instance

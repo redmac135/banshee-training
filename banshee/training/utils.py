@@ -70,9 +70,8 @@ class TrainingDaySchedule:
 
     def formatschedule(self, night: TrainingNight, levels: list):
         schedule = self.formatheader(levels)
-        schedule += self.formatperiod(1, night.p1)
-        schedule += self.formatperiod(2, night.p2)
-        schedule += self.formatperiod(3, night.p3)
+        for number, period in enumerate(night.get_periods(), 1):
+            schedule += self.formatperiod(number, period)
 
         return schedule
 
@@ -125,6 +124,7 @@ class DashboardCalendar(HTMLCalendar):
             cal += f"{self.formatweek(week, events, today)}\n"
         return cal
 
+
 class CreateDashboardCalendar(HTMLCalendar):
     def __init__(self, year=None, month=None):
         self.year = year
@@ -133,7 +133,7 @@ class CreateDashboardCalendar(HTMLCalendar):
 
     def formatday(self, day, events, today):
         event_today = events.filter(date__day=day).exists()
-        href = reverse('api-createtrainingnight', args=[self.year, self.month, day])
+        href = reverse("api-createtrainingnight", args=[self.year, self.month, day])
         d = ""
 
         if day != 0 and today != None:
