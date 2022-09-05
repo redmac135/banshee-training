@@ -9,16 +9,6 @@ from .models import Activity, Lesson, TrainingNight, EmptyLesson, Teach
 # Forms to edit Teach Instances
 class BaseTeachForm(forms.Form):
     LIST_FIELDS = ("p1_choice", "p2_choice", "p3_choice")
-
-    p1_choice = forms.MultipleChoiceField(
-        choices=[("", "")], widget=forms.CheckboxSelectMultiple, required=False
-    )
-    p2_choice = forms.MultipleChoiceField(
-        choices=[("", "")], widget=forms.CheckboxSelectMultiple, required=False
-    )
-    p3_choice = forms.MultipleChoiceField(
-        choices=[("", "")], widget=forms.CheckboxSelectMultiple, required=False
-    )
     location = forms.CharField(max_length=64)
 
     def __init__(self, levels: list, night_id: int, *args, **kwargs):
@@ -28,19 +18,25 @@ class BaseTeachForm(forms.Form):
         for i, level in enumerate(levels, 0):
             level_choices.append((i, level.name))
 
-        self.fields["p1_choice"].choices = level_choices
-        self.fields["p2_choice"].choices = level_choices
-        self.fields["p3_choice"].choices = level_choices
-
         self.night_id = night_id
+
+        instance = TrainingNight.get(night_id)
+        for number, period in enumerate(instance.get_periods(), 1):
+            self.fields[f"p{number}_choice"] = forms.MultipleChoiceField(
+                choices=level_choices, widget=forms.CheckboxSelectMultiple, required=False
+            )
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        p1_choice = self.cleaned_data.get("p1_choice")
-        p2_choice = self.cleaned_data.get("p2_choice")
-        p3_choice = self.cleaned_data.get("p3_choice")
-
-        if len(p1_choice + p2_choice + p3_choice) <= 0:
+        
+        fields = cleaned_data.keys()
+        test = re.compile('^p\d_choice$')
+        period_fields = [field for field in fields if test.match(field)]
+        
+        length = 0
+        for period_field in period_fields:
+            length += len(period_field)
+        if length <= 0:
             raise ValidationError(
                 {"p1_choice": "Please select at least 1 timeslot to assign lesson."}
             )
@@ -55,17 +51,10 @@ class BaseTeachForm(forms.Form):
         teach_list = []
         periods = instance.get_periods()
 
-        p1_teachs = periods[0].get_lessons()
-        for index in data["p1_choice"]:
-            teach_list.append(p1_teachs[int(index)])
-
-        p2_teachs = periods[1].get_lessons()
-        for index in data["p2_choice"]:
-            teach_list.append(p2_teachs[int(index)])
-
-        p3_teachs = periods[2].get_lessons()
-        for index in data["p3_choice"]:
-            teach_list.append(p3_teachs[int(index)])
+        for number, period in enumerate(periods, 1):
+            teachs = period.get_lessons()
+            for index in data[f"p{number}_choice"]:
+                teach_list.append(teachs[int(index)])
 
         return teach_list
 
