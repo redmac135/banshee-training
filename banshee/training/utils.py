@@ -76,12 +76,7 @@ class TrainingDaySchedule:
         return schedule
 
 
-class DashboardCalendar(HTMLCalendar):
-    def __init__(self, year=None, month=None):
-        self.year = year
-        self.month = month
-        super(DashboardCalendar, self).__init__()
-
+class ViewDashboardCalendar(HTMLCalendar):
     def formatday(self, day, events, today):
         event_today = events.filter(date__day=day).exists()
         href = "#"
@@ -107,54 +102,55 @@ class DashboardCalendar(HTMLCalendar):
             return f"<td><div class='small-day-wrapper'><p class='small-day-number'>{day}</p></div></td>"
         return "<td><div class='small-day-wrapper'></div></td>"
 
-    def formatweek(self, theweek, events, today):
-        week = ""
-        for d, weekday in theweek:
-            week += self.formatday(d, events, today)
-        return f"<tr> {week} </tr>"
-
-    def formatmonth(self, nights, today, withyear=True):
-        events = nights
-
-        if not self.year == today.year or not self.month == today.month:
-            today = None
-
-        cal = ""
-        for week in self.monthdays2calendar(self.year, self.month):
-            cal += f"{self.formatweek(week, events, today)}\n"
-        return cal
-
 
 class CreateDashboardCalendar(HTMLCalendar):
-    def __init__(self, year=None, month=None):
-        self.year = year
-        self.month = month
-        super(CreateDashboardCalendar, self).__init__()
-
     def formatday(self, day, events, today):
         event_today = events.filter(date__day=day).exists()
-        href = reverse("api-createtrainingnight", args=[self.year, self.month, day])
-        d = ""
+        href = reverse("api-trainingnight", args=[self.year, self.month, day])
 
-        if day != 0 and today != None:
-            if day == today.day:
-                d += " small-day-yellow-circle"
         if event_today:
             return f"""<td><div class='w-full h-full'>
                 <div class='small-day-highlight-wrapper'>
                     <a role="link" tabindex="0" href="#"
-                        class="small-day-highlight-base small-day-red-highlight">{day}</a>
+                        class="small-day-highlight-base small-day-blue-highlight">{day}</a>
                 </div>
             </div></td>"""
 
         if day != 0:
-            return f"""<td><div class='small-day-wrapper'><button onclick='createnight("{href}")'><p class='small-day-red-number'>{day}</p></button></div></td>"""
+            return f"""<td><div class='small-day-wrapper'><button onclick='createnight("{href}")'><p class='small-day-blue-number'>{day}</p></button></div></td>"""
         return "<td><div class='small-day-wrapper'></div></td>"
+
+class DeleteDashboardCalendar(HTMLCalendar):    
+    def formatday(self, day, events, today):
+        event_today = events.filter(date__day=day).exists()
+        href = reverse("api-trainingnight", args=[self.year, self.month, day])
+
+        if event_today:
+            return f"""<td><div class='small-day-highlight-wrapper'><button onclick='deletenight("{href}")'><p class='small-day-highlight-base small-day-red-highlight'>{day}</p></button></div></td>"""
+
+        if day != 0:
+            return f"""<td><div class='small-day-wrapper'><p class='small-day-red-number'>{day}</p></div></td>"""
+        return "<td><div class='small-day-wrapper'></div></td>"
+
+class DashboardCalendar(HTMLCalendar):
+    view: ViewDashboardCalendar
+
+    def __init__(self, view, year=None, month=None):
+        if view == 'view':
+            self.view = ViewDashboardCalendar
+        elif view == 'create':
+            self.view = CreateDashboardCalendar
+        elif view == 'delete':
+            self.view = DeleteDashboardCalendar
+
+        self.year = year
+        self.month = month
+        super(DashboardCalendar, self).__init__()
 
     def formatweek(self, theweek, events, today):
         week = ""
         for d, weekday in theweek:
-            week += self.formatday(d, events, today)
+            week += self.view.formatday(self, d, events, today) # Call function based on view
         return f"<tr> {week} </tr>"
 
     def formatmonth(self, nights, today, withyear=True):

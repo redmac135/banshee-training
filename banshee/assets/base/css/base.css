@@ -26,7 +26,16 @@
     @apply text-yellow-500 ring-2 ring-yellow-500
 }
 
-/* Classes for Adding Calendar Classes */
+/* Classes for Adding Calendar Instances */
+.small-day-blue-highlight {
+    @apply bg-blue-500 bg-opacity-50
+}
+
+.small-day-blue-number {
+    @apply text-base text-blue-500 font-medium
+}
+
+/* Classes for Deleting Calendar Instances */
 .small-day-red-highlight {
     @apply bg-red-500 bg-opacity-50
 }
@@ -34,5 +43,6 @@
 .small-day-red-number {
     @apply text-base text-red-500 font-medium
 }
+
 
 @tailwind utilities;

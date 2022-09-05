@@ -364,6 +364,10 @@ class TrainingNight(models.Model):
         return instance
 
     @classmethod
+    def get_by_date(cls, date: datetime):
+        return cls.objects.get(date=date)
+
+    @classmethod
     def get_nights(cls, **kwargs):
         return cls.objects.filter(**kwargs)
 

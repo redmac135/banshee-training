@@ -15,7 +15,6 @@ from .forms import LessonTeachForm, ActivityTeachForm
 from .utils import (
     TrainingCalendar,
     DashboardCalendar,
-    CreateDashboardCalendar,
     TrainingDaySchedule,
 )
 
@@ -60,46 +59,30 @@ def next_month(d):
 
 
 # Main Views
-class DashboardView(ListView):
+class DashboardView(View):
     model = TrainingNight
     template_name = "training/dashboard.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+    def get(self, request, view, *args, **kwargs):
+        context = self.get_context_data(view, **kwargs)
+        return render(request, self.template_name, context)
+
+    def get_context_data(self, view, **kwargs):
+        context = {}
 
         d = get_date(self.request.GET.get("month", None))
         context["curr_month"] = curr_month(d)
         context["prev_month"] = prev_month(d)
         context["next_month"] = next_month(d)
-        print(context)
-        cal = DashboardCalendar(d.year, d.month)
+        cal = DashboardCalendar(view, d.year, d.month)
 
         nights = self.model.get_nights(date__year=d.year, date__month=d.month)
-
         html_cal = cal.formatmonth(nights=nights, today=date.today(), withyear=True)
         context["calendar"] = mark_safe(html_cal)
         context["monthname"] = str(calendar.month_name[d.month]) + " " + str(d.year)
-        return context
 
+        context["view"] = view
 
-class CreateDashboardView(ListView):
-    model = TrainingNight
-    template_name = "training/createdashboard.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        d = get_date(self.request.GET.get("month", None))
-        context["curr_month"] = curr_month(d)
-        context["prev_month"] = prev_month(d)
-        context["next_month"] = next_month(d)
-        cal = CreateDashboardCalendar(d.year, d.month)
-
-        nights = self.model.get_nights(date__year=d.year, date__month=d.month)
-
-        html_cal = cal.formatmonth(nights=nights, today=date.today(), withyear=True)
-        context["calendar"] = mark_safe(html_cal)
-        context["monthname"] = str(calendar.month_name[d.month]) + " " + str(d.year)
         return context
 
 
@@ -214,8 +197,16 @@ class TeachView(TemplateView):
 
 
 # Utility Views (views that do things but don't actually have a template)
-class CreateTrainingNightView(APIView):
+class EditTrainingNightView(APIView):
+    http_method_names = ['get', 'delete']
+    
     def get(self, request, year, month, day, *args, **kwargs):
         day = date(year, month, day)
         TrainingNight.create(day)
+        return Response(status=status.HTTP_200_OK)
+
+    def delete(self, request, year, month, day, *args, **kwargs):
+        day = date(year, month, day)
+        instance = TrainingNight.get_by_date(day)
+        instance.delete()
         return Response(status=status.HTTP_200_OK)
