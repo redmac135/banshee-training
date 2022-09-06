@@ -111,7 +111,7 @@ class Senior(models.Model):
 
 # Managing Lessons
 class Teach(models.Model):
-    lesson_id = (
+    teach_id = (
         models.PositiveIntegerField()
     )  # For joining 2 period lessons or mulilevel lessons
 
@@ -130,34 +130,34 @@ class Teach(models.Model):
         return str(self.content)
 
     class Meta:
-        ordering = ["lesson_id"]
+        ordering = ["teach_id"]
         indexes = [models.Index(fields=["content_type", "object_id"])]
 
     @classmethod
-    def get_next_lesson_id(cls):
+    def get_next_teach_id(cls):
         largest = (
             cls.objects.all().last()
         )  # don't use class get_objects to prevent duplicate ids
         if not largest:
             return 1
 
-        largest_id = largest.lesson_id
+        largest_id = largest.teach_id
         return largest_id + 1
 
     @classmethod
     def create(cls, level: Level, content=None, id: int = None):
         if id == None:
-            id = cls.get_next_lesson_id()
+            id = cls.get_next_teach_id()
 
         if content == None:
             content = EmptyLesson.create()
 
         print(id)
-        instance = cls.objects.create(lesson_id=id, content=content, level=level)
+        instance = cls.objects.create(teach_id=id, content=content, level=level)
         return instance
 
     def get_absolute_url(self):
-        return reverse("teach", args=[self.lesson_id])
+        return reverse("teach", args=[self.teach_id])
 
     def get_content_type(self):
         name = type(self.content).__name__
@@ -175,8 +175,8 @@ class Teach(models.Model):
         return "UNKNOWN CONTENT CLASS NAME"
 
     @classmethod
-    def get_by_lessonid(cls, teachid):
-        instances = cls.objects.filter(lesson_id=teachid)
+    def get_by_teach_id(cls, teachid):
+        instances = cls.objects.filter(teach_id=teachid)
         return instances.first()
 
     def get_content_attributes(self):
@@ -417,7 +417,7 @@ class TrainingPeriod(models.Model):
     def create_fullact(cls, night, order):
         instance = cls.objects.create(night=night, order=order)
         levels = Level.get_juniors()
-        teach_id = Teach.get_next_lesson_id()
+        teach_id = Teach.get_next_teach_id()
         for level in levels:
             teach = Teach.create(level, id=teach_id)
             instance.lessons.add(teach)
