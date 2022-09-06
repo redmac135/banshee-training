@@ -320,6 +320,9 @@ class MapSeniorTeach(models.Model):
     senior = models.ForeignKey(Senior, on_delete=models.CASCADE)
     role = models.CharField(max_length=32)
 
+    def __str__(self):
+        return str(self.teach) + " " + str(self.senior)
+
     @classmethod
     def get_ic(cls, teach: Teach):
         if cls.objects.filter(teach=teach, role=cls.IC_ROLE_NAME).exists():
