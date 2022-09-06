@@ -86,28 +86,6 @@ class DashboardView(View):
         return context
 
 
-# Overall view of all training nights
-class TrainingCalView(ListView):
-    model = TrainingNight
-    template_name = "training/trainingcal.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # use today's date for the calendar
-        d = get_date(self.request.GET.get("month", None))
-        context["prev_month"] = prev_month(d)
-        context["next_month"] = next_month(d)
-        cal = TrainingCalendar(d.year, d.month)
-
-        nights = self.model.get_nights(date__year=d.year, date__month=d.month)
-
-        # Call the formatmonth method, which returns our calendar as a table
-        html_cal = cal.formatmonth(nights=nights, today=date.today(), withyear=True)
-        context["calendar"] = mark_safe(html_cal)
-        return context
-
-
 # View for specific training night
 class TrainingNightView(View):
     model = TrainingNight
