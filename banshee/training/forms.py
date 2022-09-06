@@ -1,9 +1,27 @@
 from django import forms
+from django.forms import modelformset_factory, ModelForm
 from django.core.exceptions import ValidationError
 
 import re
 
-from .models import Activity, Lesson, TrainingNight, EmptyLesson, Teach
+from .models import Activity, Lesson, TrainingNight, EmptyLesson, Teach, MapSeniorTeach
+
+
+# Edit Senior Form
+class MapSeniorTeachForm(ModelForm):
+    role = forms.CharField(max_length=32)
+
+    def __init__(self, *args, teach_id, **kwargs):
+        super(MapSeniorTeachForm, self).__init__(*args, **kwargs)
+
+        self.teach_id = teach_id
+        self.fields['senior'] = forms.ChoiceField(choices=[(1,1),(2,2),(3,3)])
+
+    class Meta:
+        model = MapSeniorTeach
+        fields = ['role', 'senior']
+
+MapSeniorTeachFormset = modelformset_factory(MapSeniorTeach, form=MapSeniorTeachForm, extra=3)
 
 
 # Forms to edit Teach Instances

@@ -11,7 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import MapSeniorTeach, TrainingNight, Level, Teach
-from .forms import LessonTeachForm, ActivityTeachForm
+from .forms import LessonTeachForm, ActivityTeachForm, MapSeniorTeachFormset
 from .utils import (
     TrainingCalendar,
     DashboardCalendar,
@@ -173,6 +173,18 @@ class TeachFormView(FormView):
             request,
             self.template_name,
             {"form": form, "levels": levels, "nightid": night_id, "formid": form_id},
+        )
+
+class MapSeniorTeachView(FormView):
+    template_name = "training/example.html"
+    form_class = MapSeniorTeachFormset
+
+    def get(self, request, teach_id, *args, **kwargs):
+        formset = self.form_class(form_kwargs={'teach_id': teach_id})
+        return render(
+            request,
+            self.template_name,
+            {"formset": formset},
         )
 
 
