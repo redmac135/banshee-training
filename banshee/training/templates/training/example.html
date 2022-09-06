@@ -2,24 +2,14 @@
 {% load static %}
 
 {% block links %}
-<link rel="stylesheet" href="{% static 'training/css/trainingnight.css' %}">
+
 {% endblock %}
 
 {% block content %}
-<div class="p-4">
-    <div class="w-full min-w-sm max-w-fit">
-        <div class="bg-clr-1 shadow-md rounded px-8 pt-6 pb-8 mb-4">
-            <div class="font-bold text-2xl text-white">Lesson</div>
-            <p class="font-normal text-white"><strong>EO Code:</strong> M101.01</p>
-            <p class="font-normal text-white"><strong>Title: </strong> How to Fly</p>        
-        </div>
-    </div>
-    <div class="w-full min-w-sm max-w-fit">
-        <div class="bg-clr-1 shadow-md rounded px-8 pt-6 pb-8 mb-4">
-            <div class="font-bold text-2xl text-white">Lesson Plan</div>
-            <p class="font-bold text-gray-400">UNFINISHED</p>
-            <p class="font-normal text-white"><strong>Link: </strong><a class="underline text-blue-600 hover:text-blue-800 visited:text-purple-600" href="https://mail.google.com/mail/u/0/#inbox">https://mail.google.com/mail/u/0/#inbox</a></p>
-        </div>
-    </div>
-</div>
+{% csrf_token %}
+
+    {% for form in formset.forms %}
+        {{ form }}
+    {% endfor %}
+
 {% endblock %}

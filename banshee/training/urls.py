@@ -19,5 +19,5 @@ urlpatterns = [
         EditTrainingNightView.as_view(),
         name="api-trainingnight",
     ),
-    path("example", ExampleView.as_view(), name="example"),
+    path("example/<int:teach_id>", MapSeniorTeachView.as_view(), name="example"),
 ]

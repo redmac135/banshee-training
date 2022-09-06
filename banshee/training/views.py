@@ -175,12 +175,13 @@ class TeachFormView(FormView):
             {"form": form, "levels": levels, "nightid": night_id, "formid": form_id},
         )
 
+
 class MapSeniorTeachView(FormView):
     template_name = "training/example.html"
     form_class = MapSeniorTeachFormset
 
     def get(self, request, teach_id, *args, **kwargs):
-        formset = self.form_class(form_kwargs={'teach_id': teach_id})
+        formset = self.form_class(form_kwargs={"teach_id": teach_id})
         return render(
             request,
             self.template_name,
@@ -210,8 +211,8 @@ class TeachView(TemplateView):
 
 # Utility Views (views that do things but don't actually have a template)
 class EditTrainingNightView(APIView):
-    http_method_names = ['get', 'delete']
-    
+    http_method_names = ["get", "delete"]
+
     def get(self, request, year, month, day, *args, **kwargs):
         day = date(year, month, day)
         TrainingNight.create(day)

@@ -15,13 +15,16 @@ class MapSeniorTeachForm(ModelForm):
         super(MapSeniorTeachForm, self).__init__(*args, **kwargs)
 
         self.teach_id = teach_id
-        self.fields['senior'] = forms.ChoiceField(choices=[(1,1),(2,2),(3,3)])
+        self.fields["senior"] = forms.ChoiceField(choices=[(1, 1), (2, 2), (3, 3)])
 
     class Meta:
         model = MapSeniorTeach
-        fields = ['role', 'senior']
+        fields = ["role", "senior"]
 
-MapSeniorTeachFormset = modelformset_factory(MapSeniorTeach, form=MapSeniorTeachForm, extra=3)
+
+MapSeniorTeachFormset = modelformset_factory(
+    MapSeniorTeach, form=MapSeniorTeachForm, extra=3
+)
 
 
 # Forms to edit Teach Instances
@@ -41,16 +44,18 @@ class BaseTeachForm(forms.Form):
         instance = TrainingNight.get(night_id)
         for number, period in enumerate(instance.get_periods(), 1):
             self.fields[f"p{number}_choice"] = forms.MultipleChoiceField(
-                choices=level_choices, widget=forms.CheckboxSelectMultiple, required=False
+                choices=level_choices,
+                widget=forms.CheckboxSelectMultiple,
+                required=False,
             )
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        
+
         fields = cleaned_data.keys()
-        test = re.compile('^p\d_choice$')
+        test = re.compile("^p\d_choice$")
         period_fields = [field for field in fields if test.match(field)]
-        
+
         length = 0
         for period_field in period_fields:
             length += len(period_field)

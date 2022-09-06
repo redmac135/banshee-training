@@ -120,7 +120,8 @@ class CreateDashboardCalendar(HTMLCalendar):
             return f"""<td><div class='small-day-wrapper'><button onclick='createnight("{href}")'><p class='small-day-blue-number'>{day}</p></button></div></td>"""
         return "<td><div class='small-day-wrapper'></div></td>"
 
-class DeleteDashboardCalendar(HTMLCalendar):    
+
+class DeleteDashboardCalendar(HTMLCalendar):
     def formatday(self, day, events, today):
         event_today = events.filter(date__day=day).exists()
         href = reverse("api-trainingnight", args=[self.year, self.month, day])
@@ -132,15 +133,16 @@ class DeleteDashboardCalendar(HTMLCalendar):
             return f"""<td><div class='small-day-wrapper'><p class='small-day-red-number'>{day}</p></div></td>"""
         return "<td><div class='small-day-wrapper'></div></td>"
 
+
 class DashboardCalendar(HTMLCalendar):
     view: ViewDashboardCalendar
 
     def __init__(self, view, year=None, month=None):
-        if view == 'view':
+        if view == "view":
             self.view = ViewDashboardCalendar
-        elif view == 'create':
+        elif view == "create":
             self.view = CreateDashboardCalendar
-        elif view == 'delete':
+        elif view == "delete":
             self.view = DeleteDashboardCalendar
 
         self.year = year
@@ -150,7 +152,9 @@ class DashboardCalendar(HTMLCalendar):
     def formatweek(self, theweek, events, today):
         week = ""
         for d, weekday in theweek:
-            week += self.view.formatday(self, d, events, today) # Call function based on view
+            week += self.view.formatday(
+                self, d, events, today
+            )  # Call function based on view
         return f"<tr> {week} </tr>"
 
     def formatmonth(self, nights, today, withyear=True):
