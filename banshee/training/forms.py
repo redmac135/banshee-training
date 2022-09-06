@@ -46,7 +46,7 @@ AssignSeniorFormset = inlineformset_factory(
 
 # Forms to edit Teach Instances
 class BaseTeachForm(forms.Form):
-    LIST_FIELDS = ("p1_choice", "p2_choice", "p3_choice")
+    PERIOD_FIELD_TEST = re.compile("^p\d_choice$")
     location = forms.CharField(max_length=64)
 
     def __init__(self, levels: list, night_id: int, *args, **kwargs):
@@ -114,10 +114,10 @@ class BaseTeachForm(forms.Form):
             teach.save()
 
     def content_fields(self):
-        return [field for field in self if not field.name in self.LIST_FIELDS]
+        return [field for field in self if not self.PERIOD_FIELD_TEST.match(field.name)]
 
     def slot_fields(self):
-        return [field for field in self if field.name in self.LIST_FIELDS]
+        return [field for field in self if self.PERIOD_FIELD_TEST.match(field.name)]
 
 
 class LessonTeachForm(BaseTeachForm):
