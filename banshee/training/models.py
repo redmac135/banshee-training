@@ -333,6 +333,7 @@ class MapSeniorTeach(models.Model):
     @classmethod
     def get_teach_queryset(cls, teach: Teach):
         queryset = cls.objects.filter(teach=teach)
+        return queryset
 
     @classmethod
     def get_instructors(cls, teach: Teach):
