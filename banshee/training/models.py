@@ -96,6 +96,14 @@ class Senior(models.Model):
         return cls.objects.filter(level=level)
 
     @classmethod
+    def get_all(cls):
+        return cls.objects.all()
+
+    @classmethod
+    def get_by_id(cls, id: int):
+        return cls.objects.get(id=id)
+
+    @classmethod
     def rank_to_str(cls, number):
         ranks = dict(cls.RANK_CHOICES)
         return ranks[number]
@@ -320,8 +328,12 @@ class MapSeniorTeach(models.Model):
             return False
 
     @classmethod
-    def get_instructors(cls, teach: Teach):
+    def get_teach_queryset(cls, teach: Teach):
         queryset = cls.objects.filter(teach=teach)
+
+    @classmethod
+    def get_instructors(cls, teach: Teach):
+        queryset = cls.get_teach_queryset(teach)
 
         instructors = []
         for object in queryset:

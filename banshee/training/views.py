@@ -10,8 +10,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import MapSeniorTeach, TrainingNight, Level, Teach
-from .forms import LessonTeachForm, ActivityTeachForm, MapSeniorTeachFormset
+from .models import MapSeniorTeach, TrainingNight, Level, Teach, Senior
+from .forms import AssignSeniorFormset, LessonTeachForm, ActivityTeachForm
 from .utils import (
     TrainingCalendar,
     DashboardCalendar,
@@ -176,17 +176,42 @@ class TeachFormView(FormView):
         )
 
 
-class MapSeniorTeachView(FormView):
+class AssignSeniorView(FormView):
     template_name = "training/example.html"
-    form_class = MapSeniorTeachFormset
+    formset_class = AssignSeniorFormset
+
+    def init_form(self, teach_id, *args, **kwargs):
+        teach_instance = Teach.get_by_lessonid(teach_id)
+        senior_queryset = Senior.get_all()
+        senior_choices = [(senior.id, str(senior)) for senior in senior_queryset]
+        formset = self.formset_class(
+            *args,
+            form_kwargs={"teach_id": teach_id, "senior_choices": senior_choices},
+            instance=teach_instance,
+            **kwargs
+        )
+        return formset
 
     def get(self, request, teach_id, *args, **kwargs):
-        formset = self.form_class(form_kwargs={"teach_id": teach_id})
+        formset = self.init_form(teach_id)
         return render(
             request,
             self.template_name,
             {"formset": formset},
         )
+
+    def post(self, request, teach_id, *args, **kwargs):
+        self.object = None
+        formset = self.init_form(teach_id, self.request.POST)
+        if formset.is_valid():
+            assigned_seniors = formset.save()
+            return redirect("example", teach_id=teach_id)
+        else:
+            return render(
+                request,
+                self.template_name,
+                {"formset": formset},
+            )
 
 
 # Teach Specific Views
