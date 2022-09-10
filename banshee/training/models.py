@@ -79,7 +79,7 @@ class Senior(models.Model):
     TRAINING_MANAGER = 2
     PERMISSION_CHOICES = [
         (STANDARD_INSTRUCTOR, "Standard Instructor"),
-        (TRAINING_MANAGER, "Training Manager")
+        (TRAINING_MANAGER, "Training Manager"),
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
@@ -115,7 +115,7 @@ class Senior(models.Model):
     def rank_to_str(cls, number):
         ranks = dict(cls.RANK_CHOICES)
         return ranks[number]
-    
+
     def is_training(self):
         if self.permission_level == 2:
             return True
@@ -175,7 +175,7 @@ class Teach(models.Model):
     def get_content_type(self):
         name = type(self.content).__name__
         return name
-    
+
     def get_night_id(self):
         return self.trainingperiod_set.all()[0].night.id
 

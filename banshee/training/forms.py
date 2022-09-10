@@ -28,7 +28,9 @@ class AssignSeniorForm(ModelForm):
         super(AssignSeniorForm, self).__init__(*args, **kwargs)
 
         self.teach_id = teach_id
-        self.fields["senior"].choices = self.BLANK_CHOICE_SENIOR + self.BLANK_CHOICE_DASH + senior_choices
+        self.fields["senior"].choices = (
+            self.BLANK_CHOICE_SENIOR + self.BLANK_CHOICE_DASH + senior_choices
+        )
 
     class Meta:
         model = MapSeniorTeach
@@ -41,6 +43,7 @@ class AssignSeniorForm(ModelForm):
         cleaned_data.update({"senior": senior_instance})
 
         return cleaned_data
+
 
 AssignSeniorFormset = inlineformset_factory(
     Teach, MapSeniorTeach, form=AssignSeniorForm, extra=2
@@ -110,7 +113,7 @@ class BaseTeachForm(forms.Form):
         location = self.cleaned_data["location"]
         teach_id = Teach.get_next_teach_id()
 
-        self.teach_id = teach_id # Used for future reference
+        self.teach_id = teach_id  # Used for future reference
 
         for teach in teach_list:
             teach.change_content(content)

@@ -149,7 +149,7 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         form = self.init_form(levels, night_id, form_id, data=request.POST)
         if form.is_valid():
             form.save()
-            teach_id = form.teach_id # Created in form.save() Method
+            teach_id = form.teach_id  # Created in form.save() Method
             return redirect("example", teach_id=teach_id)
         return render(
             request,
