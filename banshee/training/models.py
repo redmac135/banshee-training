@@ -121,7 +121,74 @@ class Senior(models.Model):
             return True
         else:
             return False
+class TrainingNight(models.Model):
+    date = models.DateField(unique=True)
+    excused = models.ManyToManyField(Senior)
 
+    def __str__(self):
+        return str(self.date)
+
+    class Meta:
+        ordering = ["-date"]
+
+    @classmethod
+    def create(cls, date: datetime, period_types: list = [0, 0, 0]):
+        if cls.objects.filter(date=date).exists():
+            return cls.objects.get(date=date)
+
+        instance = cls()
+        instance.date = date
+        instance.save()
+
+        for order, period_type in enumerate(period_types):
+            if period_type == 0:
+                TrainingPeriod.create_fulllesson(instance, order)
+            if period_type == 1:
+                TrainingPeriod.create_fullact(instance, order)
+
+        return instance
+
+    @classmethod
+    def get(cls, id):
+        return cls.objects.get(pk=id)
+
+    @classmethod
+    def get_by_date(cls, date: datetime):
+        return cls.objects.get(date=date)
+
+    @classmethod
+    def get_nights(cls, **kwargs):
+        return cls.objects.filter(**kwargs)
+
+    def get_periods(self):
+        return self.trainingperiod_set.all().order_by("order")
+
+
+class TrainingPeriod(models.Model):
+    night = models.ForeignKey(TrainingNight, on_delete=models.CASCADE)
+    order = models.PositiveSmallIntegerField()
+
+    def get_teach_instances(self):
+        queryset = Teach.get_by_period(self)
+        return queryset
+
+    # create a training period with a teach instance for each level
+    @classmethod
+    def create_fulllesson(cls, night, order):
+        instance = cls.objects.create(night=night, order=order)
+        levels = Level.get_juniors()
+        for level in levels:
+            Teach.create(level, instance)
+        return instance
+
+    @classmethod
+    def create_fullact(cls, night, order):
+        instance = cls.objects.create(night=night, order=order)
+        levels = Level.get_juniors()
+        teach_id = Teach.get_next_teach_id()
+        for level in levels:
+            Teach.create(level, instance, id=teach_id)
+        return instance
 
 # Managing Lessons
 class Teach(models.Model):
@@ -140,6 +207,8 @@ class Teach(models.Model):
         max_length=1000, default="", blank=True
     )  # Link to lesson plan
 
+    period = models.ForeignKey(TrainingPeriod, on_delete=models.CASCADE)
+
     def __str__(self):
         return str(self.content)
 
@@ -157,16 +226,21 @@ class Teach(models.Model):
 
         largest_id = largest.teach_id
         return largest_id + 1
+    
+    @classmethod
+    def get_by_period(cls, period: TrainingPeriod):
+        queryset = cls.objects.filter(period=period)
+        return queryset.order_by("level__name")
 
     @classmethod
-    def create(cls, level: Level, content=None, id: int = None):
+    def create(cls, level: Level, period: TrainingPeriod, content=None, id: int = None):
         if id == None:
             id = cls.get_next_teach_id()
 
         if content == None:
             content = EmptyLesson.create()
 
-        instance = cls.objects.create(teach_id=id, content=content, level=level)
+        instance = cls.objects.create(teach_id=id, period=period, content=content, level=level)
         return instance
 
     def get_absolute_url(self):
@@ -177,7 +251,7 @@ class Teach(models.Model):
         return name
 
     def get_night_id(self):
-        return self.trainingperiod_set.all()[0].night.id
+        return self.period.night.id
 
     def format_html_block(self):
         self = self.get_parent_instance()
@@ -366,85 +440,33 @@ class MapSeniorTeach(models.Model):
 
         return instructors
 
+    @classmethod
+    def get_senior_queryset_after_date(cls, senior: Senior, date: datetime):
+        queryset = cls.objects.filter(
+            senior=senior,
+            teach__trainingperiod_set__trainingnight__gte=date,  # teach > trainingperiod > trainingnight is before date
+        )
+        return queryset
 
-class TrainingNight(models.Model):
-    date = models.DateField(unique=True)
-    masterteach = models.ForeignKey(Teach, on_delete=models.CASCADE)
-    excused = models.ManyToManyField(Senior)
+class MapSeniorNight(models.Model):
+    night = models.ForeignKey(TrainingNight, on_delete=models.CASCADE)
+    senior = models.ForeignKey(Senior, on_delete=models.CASCADE)
+    role = models.CharField(max_length=32)
 
     def __str__(self):
-        return str(self.date)
-
-    class Meta:
-        ordering = ["-date"]
+        return self.role + " for " + str(self.night.date) + " " + str(self.senior)
+    
+    @classmethod
+    def get_night_queryset(cls, night: TrainingNight):
+        queryset = cls.objects.filter(night=night)
+        return queryset
 
     @classmethod
-    def create(cls, date: datetime, period_types: list = [0, 0, 0]):
-        if cls.objects.filter(date=date).exists():
-            return cls.objects.get(date=date)
+    def get_instructors(cls, night: TrainingNight):
+        queryset = cls.get_night_queryset(night)
 
-        instance = cls()
-        instance.date = date
-        masterinstance = Teach.create(Level.get_master())
-        instance.masterteach = masterinstance
-        instance.save()
+        instructors = []
+        for object in queryset:
+            instructors.append((object.role, object.senior))
 
-        for order, period_type in enumerate(period_types):
-            print(order, period_type)
-            if period_type == 0:
-                TrainingPeriod.create_fulllesson(instance, order)
-            if period_type == 1:
-                TrainingPeriod.create_fullact(instance, order)
-            if period_type == 2:
-                TrainingPeriod.create_blank(instance, order)
-
-        return instance
-
-    @classmethod
-    def get(cls, id):
-        return cls.objects.get(pk=id)
-
-    @classmethod
-    def get_by_date(cls, date: datetime):
-        return cls.objects.get(date=date)
-
-    @classmethod
-    def get_nights(cls, **kwargs):
-        return cls.objects.filter(**kwargs)
-
-    def get_periods(self):
-        return self.trainingperiod_set.all().order_by("order")
-
-
-class TrainingPeriod(models.Model):
-    lessons = models.ManyToManyField(Teach)
-    night = models.ForeignKey(TrainingNight, on_delete=models.CASCADE)
-    order = models.PositiveSmallIntegerField()
-
-    def get_lessons(self):
-        return self.lessons.all().order_by("level__name")
-
-    # create a training period with a teach instance for each level
-    @classmethod
-    def create_fulllesson(cls, night, order):
-        instance = cls.objects.create(night=night, order=order)
-        levels = Level.get_juniors()
-        for level in levels:
-            teach = Teach.create(level)
-            instance.lessons.add(teach)
-        return instance
-
-    @classmethod
-    def create_fullact(cls, night, order):
-        instance = cls.objects.create(night=night, order=order)
-        levels = Level.get_juniors()
-        teach_id = Teach.get_next_teach_id()
-        for level in levels:
-            teach = Teach.create(level, id=teach_id)
-            instance.lessons.add(teach)
-        return instance
-
-    @classmethod
-    def create_blank(cls, night, order):
-        instance = cls.objects.create(night=night, order=order)
-        return instance
+        return instructors

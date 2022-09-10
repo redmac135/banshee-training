@@ -98,7 +98,7 @@ class BaseTeachForm(forms.Form):
         periods = instance.get_periods()
 
         for number, period in enumerate(periods, 1):
-            teachs = period.get_lessons()
+            teachs = period.get_teach_instances()
             for index in data[f"p{number}_choice"]:
                 teach_list.append(teachs[int(index)])
 

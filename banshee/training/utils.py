@@ -10,7 +10,7 @@ class TrainingDaySchedule:
     def formatperiod(self, periodnum: int, period: TrainingPeriod):
         period_html = f"<th>P{str(periodnum)}</th>"
 
-        for lesson in period.get_lessons():
+        for lesson in period.get_teach_instances():
             period_html += self.formatlesson(lesson)
 
         return f"<tr>{period_html}</tr>"

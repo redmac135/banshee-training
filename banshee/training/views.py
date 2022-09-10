@@ -10,7 +10,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import MapSeniorTeach, TrainingNight, Level, Teach, Senior
+from .models import MapSeniorNight, TrainingNight, Level, Teach, Senior
 from .forms import AssignSeniorFormset, LessonTeachForm, ActivityTeachForm
 from .utils import (
     DashboardCalendar,
@@ -101,7 +101,7 @@ class TrainingNightView(LoginRequiredMixin, View):
         schedule = schedule_obj.formatschedule(night, levels)
         mark_safe(schedule)
 
-        roles = MapSeniorTeach.get_instructors(night.masterteach)
+        roles = MapSeniorNight.get_instructors(night)
 
         date = night.date
         title = {}
