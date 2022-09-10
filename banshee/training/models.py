@@ -75,9 +75,17 @@ class Senior(models.Model):
         (8, "WO1"),
     ]
 
+    STANDARD_INSTRUCTOR = 1
+    TRAINING_MANAGER = 2
+    PERMISSION_CHOICES = [
+        (STANDARD_INSTRUCTOR, "Standard Instructor"),
+        (TRAINING_MANAGER, "Training Manager")
+    ]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
     rank = models.IntegerField()
     level = models.ForeignKey(Level, on_delete=models.SET_NULL, null=True)
+    permission_level = models.IntegerField(choices=PERMISSION_CHOICES, default=1)
 
     def __str__(self):
         return (
@@ -107,6 +115,12 @@ class Senior(models.Model):
     def rank_to_str(cls, number):
         ranks = dict(cls.RANK_CHOICES)
         return ranks[number]
+    
+    def is_training(self):
+        if self.permission_level == 2:
+            return True
+        else:
+            return False
 
 
 # Managing Lessons

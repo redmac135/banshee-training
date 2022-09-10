@@ -16,6 +16,7 @@ from .utils import (
     DashboardCalendar,
     TrainingDaySchedule,
 )
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
 # Create your views here.
 
@@ -58,7 +59,7 @@ def next_month(d):
 
 
 # Main Views
-class DashboardView(View):
+class DashboardView(LoginRequiredMixin, View):
     model = TrainingNight
     template_name = "training/dashboard.html"
 
@@ -86,7 +87,7 @@ class DashboardView(View):
 
 
 # View for specific training night
-class TrainingNightView(View):
+class TrainingNightView(LoginRequiredMixin, View):
     model = TrainingNight
     template_name = "training/trainingnight.html"
 
@@ -119,12 +120,16 @@ class TrainingNightView(View):
         )
 
 
-class TeachFormView(FormView):
+class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     template_name = "training/teachform.html"
     form_class = [
         ("Lesson", LessonTeachForm),
         ("Activity", ActivityTeachForm),
     ]
+
+    # For UserPassesTestMixin
+    def test_func(self):
+        return self.request.user.senior.is_training()
 
     def init_form(self, levels, night_id, form_id, *args, **kwargs):
         form = self.form_class[form_id][1](levels, night_id, *args, **kwargs)
@@ -153,9 +158,13 @@ class TeachFormView(FormView):
         )
 
 
-class AssignSeniorView(FormView):
+class AssignSeniorView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     template_name = "training/teachassign.html"
     formset_class = AssignSeniorFormset
+
+    # For UserPassesTestMixin
+    def test_func(self):
+        return self.request.user.senior.is_training()
 
     def init_form(self, teach_id, teach_instance, *args, **kwargs):
         senior_queryset = Senior.get_all()
@@ -195,7 +204,7 @@ class AssignSeniorView(FormView):
 
 
 # Teach Specific Views
-class TeachView(TemplateView):
+class TeachView(LoginRequiredMixin, TemplateView):
     template_name = "training/teach.html"
 
     def get_context_data(self, teachid, **kwargs):
@@ -215,8 +224,12 @@ class TeachView(TemplateView):
 
 
 # Utility Views (views that do things but don't actually have a template)
-class EditTrainingNightView(APIView):
+class EditTrainingNightView(LoginRequiredMixin, UserPassesTestMixin, APIView):
     http_method_names = ["get", "delete"]
+
+    # For UserPassesTestMixin
+    def test_func(self):
+        return self.request.user.senior.is_training()
 
     def get(self, request, year, month, day, *args, **kwargs):
         day = date(year, month, day)
