@@ -13,7 +13,6 @@ from rest_framework.views import APIView
 from .models import MapSeniorTeach, TrainingNight, Level, Teach, Senior
 from .forms import AssignSeniorFormset, LessonTeachForm, ActivityTeachForm
 from .utils import (
-    TrainingCalendar,
     DashboardCalendar,
     TrainingDaySchedule,
 )
