@@ -144,7 +144,6 @@ class TeachFormView(FormView):
         form = self.init_form(levels, night_id, form_id, data=request.POST)
         if form.is_valid():
             form.save()
-            print(type(night_id))
             return redirect("trainingnight", night_id=night_id)
         return render(
             request,
