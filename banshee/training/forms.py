@@ -13,11 +13,12 @@ from .models import (
     EmptyLesson,
     Teach,
     MapSeniorTeach,
+    MapSeniorNight
 )
 
 
 # Edit Senior Form
-class AssignSeniorForm(ModelForm):
+class AssignTeachForm(ModelForm):
     BLANK_CHOICE_SENIOR = [("", "Senior")]
     BLANK_CHOICE_DASH = BLANK_CHOICE_DASH
 
@@ -25,7 +26,7 @@ class AssignSeniorForm(ModelForm):
     senior = forms.ChoiceField(choices=[])
 
     def __init__(self, *args, teach_id, senior_choices, **kwargs):
-        super(AssignSeniorForm, self).__init__(*args, **kwargs)
+        super(AssignTeachForm, self).__init__(*args, **kwargs)
 
         self.teach_id = teach_id
         self.fields["senior"].choices = (
@@ -45,8 +46,39 @@ class AssignSeniorForm(ModelForm):
         return cleaned_data
 
 
-AssignSeniorFormset = inlineformset_factory(
-    Teach, MapSeniorTeach, form=AssignSeniorForm, extra=2
+AssignTeachFormset = inlineformset_factory(
+    Teach, MapSeniorTeach, form=AssignTeachForm, extra=2
+)
+
+class AssignNightForm(ModelForm):
+    BLANK_CHOICE_SENIOR = [("", "Senior")]
+    BLANK_CHOICE_DASH = BLANK_CHOICE_DASH
+
+    role = forms.CharField(max_length=32)
+    senior = forms.ChoiceField(choices=[])
+
+    def __init__(self, *args, night_id, senior_choices, **kwargs):
+        super(AssignNightForm, self).__init__(*args, **kwargs)
+
+        self.night_id = night_id
+        self.fields["senior"].choices = (
+            self.BLANK_CHOICE_SENIOR + self.BLANK_CHOICE_DASH + senior_choices
+        )
+
+    class Meta:
+        model = MapSeniorNight
+        fields = ["role", "senior"]
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        senior_id = cleaned_data.get("senior")
+        senior_instance = Senior.get_by_id(senior_id)
+        cleaned_data.update({"senior": senior_instance})
+
+        return cleaned_data
+
+AssignNightFormset = inlineformset_factory(
+    TrainingNight, MapSeniorNight, form=AssignNightForm, extra=2
 )
 
 

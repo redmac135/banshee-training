@@ -1,9 +1,11 @@
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from django.db import models
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+
+from users.models import TrainingSetting
 
 # Managing People
 
@@ -140,7 +142,7 @@ class TrainingNight(models.Model):
         instance.date = date
         instance.save()
 
-        for order, period_type in enumerate(period_types):
+        for order, period_type in enumerate(period_types, 1):
             if period_type == 0:
                 TrainingPeriod.create_fulllesson(instance, order)
             if period_type == 1:
@@ -155,6 +157,9 @@ class TrainingNight(models.Model):
     @classmethod
     def get_by_date(cls, date: datetime):
         return cls.objects.get(date=date)
+    
+    def get_absolute_url(self):
+        return reverse("trainingnight", args=[self.id])
 
     @classmethod
     def get_nights(cls, **kwargs):
@@ -167,6 +172,9 @@ class TrainingNight(models.Model):
 class TrainingPeriod(models.Model):
     night = models.ForeignKey(TrainingNight, on_delete=models.CASCADE)
     order = models.PositiveSmallIntegerField()
+
+    def __str__(self):
+        return str(self.order + 1)
 
     def get_teach_instances(self):
         queryset = Teach.get_by_period(self)
@@ -252,6 +260,9 @@ class Teach(models.Model):
 
     def get_night_id(self):
         return self.period.night.id
+    
+    def get_date(self):
+        return self.period.night.date
 
     def format_html_block(self):
         self = self.get_parent_instance()
@@ -272,6 +283,37 @@ class Teach(models.Model):
 
     def get_parent_instance(self):
         return self.get_by_teach_id(self.teach_id)
+    
+    @classmethod
+    def get_neighbour_instances(cls, teach_id):
+        return cls.objects.filter(teach_id=teach_id)
+    
+    def get_level_list(self):
+        queryset = self.get_neighbour_instances(self.teach_id)
+        instances = queryset.values_list("level", flat=True)
+        unique_instances = list(set(instances))
+        return unique_instances
+    
+    def get_period_list(self):
+        queryset = self.get_neighbour_instances(self.teach_id)
+        instances = queryset.values_list("period__order", flat=True)
+        unique_instances = list(set(instances))
+        return unique_instances
+    
+    def get_status(self):
+        if self.finished == True:
+            return "Submitted"
+
+        today = date.today()
+        settings = TrainingSetting.create()
+        offset = settings.duedateoffset
+        teach_date = self.get_date()
+
+        if teach_date < today + timedelta(days=offset):
+            return "Not Submitted"
+        else:
+            return "Missing"
+
 
     def get_content_attributes(self):
         self = self.get_parent_instance()
@@ -441,10 +483,10 @@ class MapSeniorTeach(models.Model):
         return instructors
 
     @classmethod
-    def get_senior_queryset_after_date(cls, senior: Senior, date: datetime):
+    def get_senior_queryset_after_date(cls, senior: Senior, date: date):
         queryset = cls.objects.filter(
             senior=senior,
-            teach__trainingperiod_set__trainingnight__gte=date,  # teach > trainingperiod > trainingnight is before date
+            teach__period__night__date__gte=date,  # teach > trainingperiod > trainingnight date is before date
         )
         return queryset
 
@@ -470,3 +512,11 @@ class MapSeniorNight(models.Model):
             instructors.append((object.role, object.senior))
 
         return instructors
+    
+    @classmethod
+    def get_senior_queryset_after_date(cls, senior: Senior, date: date):
+        queryset = cls.objects.filter(
+            senior=senior,
+            night__date__gte=date,  # trainingnight date is before date
+        )
+        return queryset

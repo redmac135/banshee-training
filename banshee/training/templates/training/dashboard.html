@@ -6,121 +6,172 @@
 {% endblock %}
 
 {% block content %}
-<div class="flex items-center justify-center py-8 px-4">
-    <div class="max-w-sm w-full shadow-lg">
-        <div class="md:p-8 p-5 bg-clr-1 rounded">
-            <div class="px-4 flex items-center justify-between">
-                <span tabindex="0"
-                    class="focus:outline-none  text-base font-bold text-clr-5">{{ monthname }}</span>
-                <div class="flex items-center">
-                    {% if user.senior.is_training %}
-                        {% if view != 'view' %}
-                            <a href="{% url 'dashboard' 'view' %}?{{ curr_month }}">
-                                <button aria-label="calendar backward"
-                                    class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left"
-                                        width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M15 12c0 1.654-1.346 3-3 3s-3-1.346-3-3 1.346-3 3-3 3 1.346 3 3zm9-.449s-4.252 8.449-11.985 8.449c-7.18 0-12.015-8.449-12.015-8.449s4.446-7.551 12.015-7.551c7.694 0 11.985 7.551 11.985 7.551zm-7 .449c0-2.757-2.243-5-5-5s-5 2.243-5 5 2.243 5 5 5 5-2.243 5-5z"/>
-                                    </svg>
-                                </button>
-                            </a>
+<div class="flex items-center justify-center py-4 px-4">
+    <div class="flex">
+        <div class="max-w-sm w-full shadow-lg h-max">
+            <div class="md:p-8 p-5 bg-clr-1 rounded">
+                <div class="flex items-center justify-between">
+                    <span tabindex="0"
+                        class="focus:outline-none  text-base font-bold text-clr-5">{{ monthname }}</span>
+                    <div class="flex items-center">
+                        {% if user.senior.is_training %}
+                            {% if view != 'view' %}
+                                <a href="{% url 'dashboard' 'view' %}?{{ curr_month }}">
+                                    <button aria-label="calendar backward"
+                                        class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left"
+                                            width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                            fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M15 12c0 1.654-1.346 3-3 3s-3-1.346-3-3 1.346-3 3-3 3 1.346 3 3zm9-.449s-4.252 8.449-11.985 8.449c-7.18 0-12.015-8.449-12.015-8.449s4.446-7.551 12.015-7.551c7.694 0 11.985 7.551 11.985 7.551zm-7 .449c0-2.757-2.243-5-5-5s-5 2.243-5 5 2.243 5 5 5 5-2.243 5-5z"/>
+                                        </svg>
+                                    </button>
+                                </a>
+                            {% endif %}
+                            {% if view != 'create' %}
+                                <a href="{% url 'dashboard' 'create' %}?{{ curr_month }}">
+                                    <button aria-label="calendar backward"
+                                        class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left"
+                                            width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                            fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path d="M 18.414062 2 C 18.158062 2 17.902031 2.0979687 17.707031 2.2929688 L 15.707031 4.2929688 L 14.292969 5.7070312 L 3 17 L 3 21 L 7 21 L 21.707031 6.2929688 C 22.098031 5.9019687 22.098031 5.2689063 21.707031 4.8789062 L 19.121094 2.2929688 C 18.926094 2.0979687 18.670063 2 18.414062 2 z M 18.414062 4.4140625 L 19.585938 5.5859375 L 18.292969 6.8789062 L 17.121094 5.7070312 L 18.414062 4.4140625 z M 15.707031 7.1210938 L 16.878906 8.2929688 L 6.171875 19 L 5 19 L 5 17.828125 L 15.707031 7.1210938 z"/>
+                                        </svg>
+                                    </button>
+                                </a>
+                            {% endif %}
+                            {% if view != 'delete' %}
+                                <a href="{% url 'dashboard' 'delete' %}?{{ curr_month }}">
+                                    <button aria-label="calendar backward"
+                                        class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
+                                        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
+                                            width="24" height="24" viewBox="0 0 24 24"
+                                            style=" fill:currentColor">
+                                            <path d="M 10 2 L 9 3 L 4 3 L 4 5 L 5 5 L 5 20 C 5 20.522222 5.1913289 21.05461 5.5683594 21.431641 C 5.9453899 21.808671 6.4777778 22 7 22 L 17 22 C 17.522222 22 18.05461 21.808671 18.431641 21.431641 C 18.808671 21.05461 19 20.522222 19 20 L 19 5 L 20 5 L 20 3 L 15 3 L 14 2 L 10 2 z M 7 5 L 17 5 L 17 20 L 7 20 L 7 5 z M 9 7 L 9 18 L 11 18 L 11 7 L 9 7 z M 13 7 L 13 18 L 15 18 L 15 7 L 13 7 z"/>
+                                        </svg>
+                                    </button>
+                                </a>
+                            {% endif %}
                         {% endif %}
-                        {% if view != 'create' %}
-                            <a href="{% url 'dashboard' 'create' %}?{{ curr_month }}">
-                                <button aria-label="calendar backward"
-                                    class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left"
-                                        width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M 18.414062 2 C 18.158062 2 17.902031 2.0979687 17.707031 2.2929688 L 15.707031 4.2929688 L 14.292969 5.7070312 L 3 17 L 3 21 L 7 21 L 21.707031 6.2929688 C 22.098031 5.9019687 22.098031 5.2689063 21.707031 4.8789062 L 19.121094 2.2929688 C 18.926094 2.0979687 18.670063 2 18.414062 2 z M 18.414062 4.4140625 L 19.585938 5.5859375 L 18.292969 6.8789062 L 17.121094 5.7070312 L 18.414062 4.4140625 z M 15.707031 7.1210938 L 16.878906 8.2929688 L 6.171875 19 L 5 19 L 5 17.828125 L 15.707031 7.1210938 z"/>
-                                    </svg>
-                                </button>
-                            </a>
-                        {% endif %}
-                        {% if view != 'delete' %}
-                            <a href="{% url 'dashboard' 'delete' %}?{{ curr_month }}">
-                                <button aria-label="calendar backward"
-                                    class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
-                                    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
-                                        width="24" height="24" viewBox="0 0 24 24"
-                                        style=" fill:currentColor">
-                                        <path d="M 10 2 L 9 3 L 4 3 L 4 5 L 5 5 L 5 20 C 5 20.522222 5.1913289 21.05461 5.5683594 21.431641 C 5.9453899 21.808671 6.4777778 22 7 22 L 17 22 C 17.522222 22 18.05461 21.808671 18.431641 21.431641 C 18.808671 21.05461 19 20.522222 19 20 L 19 5 L 20 5 L 20 3 L 15 3 L 14 2 L 10 2 z M 7 5 L 17 5 L 17 20 L 7 20 L 7 5 z M 9 7 L 9 18 L 11 18 L 11 7 L 9 7 z M 13 7 L 13 18 L 15 18 L 15 7 L 13 7 z"/>
-                                    </svg>
-                                </button>
-                            </a>
-                        {% endif %}
-                    {% endif %}
-                    <a href="{% url 'dashboard' view %}?{{ prev_month }}">
-                        <button aria-label="calendar backward"
-                            class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left"
-                                width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <polyline points="15 6 9 12 15 18" />
-                            </svg>
-                        </button>
-                    </a>
-                    <a href="{% url 'dashboard' view %}?{{ next_month }}">
-                        <button aria-label="calendar forward"
-                            class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler  icon-tabler-chevron-right"
-                                width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-                                fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                <polyline points="9 6 15 12 9 18" />
-                            </svg>
-                        </button>
-                    </a>
+                        <a href="{% url 'dashboard' view %}?{{ prev_month }}">
+                            <button aria-label="calendar backward"
+                                class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left"
+                                    width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                    fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <polyline points="15 6 9 12 15 18" />
+                                </svg>
+                            </button>
+                        </a>
+                        <a href="{% url 'dashboard' view %}?{{ next_month }}">
+                            <button aria-label="calendar forward"
+                                class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler  icon-tabler-chevron-right"
+                                    width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                    fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                    <polyline points="9 6 15 12 9 18" />
+                                </svg>
+                            </button>
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between pt-6 overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <div class="w-full flex justify-center">
+                                        <p class="text-base font-medium text-center text-clr-5">Mo</p>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="w-full flex justify-center">
+                                        <p class="text-base font-medium text-center text-clr-5">Tu</p>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="w-full flex justify-center">
+                                        <p class="text-base font-medium text-center text-clr-5">We</p>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="w-full flex justify-center">
+                                        <p class="text-base font-medium text-center text-clr-5">Th</p>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="w-full flex justify-center">
+                                        <p class="text-base font-medium text-center text-clr-5">Fr</p>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="w-full flex justify-center">
+                                        <p class="text-base font-medium text-center text-clr-5">Sa</p>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="w-full flex justify-center">
+                                        <p class="text-base font-medium text-center text-clr-5">Su</p>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{ calendar }}
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <div class="flex items-center justify-between pt-12 overflow-x-auto">
-                <table class="w-full">
-                    <thead>
-                        <tr>
-                            <th>
-                                <div class="w-full flex justify-center">
-                                    <p class="text-base font-medium text-center text-clr-5">Mo</p>
+        </div>
+        <div class="pl-4">
+            <p class="text-3xl text-clr-5 font-bold mb-2 w-max">TEACHING ASSIGNMENTS</p>
+            {% for assignment in teach_assignments %}
+                <div class="block pb-2">
+                    <a href="{{ assignment.teach.get_absolute_url }}"
+                        class="block p-2 w-auto min-h-min bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                        <div class="flex text-clr-5 justify-between">
+                            <div class="flex">
+                                <div class="flex flex-col rounded-lg bg-blue-200 text-center p-2 m-1 leading-tight tracking-tighter text-clr-1 items-center">
+                                        <div class="font-bold text-lg">{{ assignment.teach.get_date|date:"M" }}</div>
+                                        <div class="font-bold text-2xl">{{ assignment.teach.get_date|date:"d" }}</div>
                                 </div>
-                            </th>
-                            <th>
-                                <div class="w-full flex justify-center">
-                                    <p class="text-base font-medium text-center text-clr-5">Tu</p>
+                                <div class="m-1">
+                                    <div class="w-max py-1 font-bold text-2xl leading-tight tracking-tighter">{{ assignment.role }} of {{ assignment.teach }}</div>
+                                    <p class="w-max">For L{{ assignment.teach.get_level_list|join:", "}}. During P{{ assignment.teach.get_period_list|join:", "}}</p>
                                 </div>
-                            </th>
-                            <th>
-                                <div class="w-full flex justify-center">
-                                    <p class="text-base font-medium text-center text-clr-5">We</p>
+                            </div>
+                            <div class="flex rounded-lg 
+                                {% if assignment.teach.get_status == 'Not Submitted' %}bg-gray-400{% endif %}
+                                {% if assignment.teach.get_status == 'Submitted' %}bg-banshee-green-800{% endif %}
+                                {% if assignment.teach.get_status == 'Missing' %}bg-red-600{% endif %}
+                                font-bold text-2xl text-center p-1 m-1 leading-tight tracking-tighter text-clr-1 items-center w-max">
+                                <div class="flex flex-col">
+                                    <div>LESSON PLAN</div>
+                                    <div class="text-lg">{{ assignment.teach.get_status }}</div>
                                 </div>
-                            </th>
-                            <th>
-                                <div class="w-full flex justify-center">
-                                    <p class="text-base font-medium text-center text-clr-5">Th</p>
-                                </div>
-                            </th>
-                            <th>
-                                <div class="w-full flex justify-center">
-                                    <p class="text-base font-medium text-center text-clr-5">Fr</p>
-                                </div>
-                            </th>
-                            <th>
-                                <div class="w-full flex justify-center">
-                                    <p class="text-base font-medium text-center text-clr-5">Sa</p>
-                                </div>
-                            </th>
-                            <th>
-                                <div class="w-full flex justify-center">
-                                    <p class="text-base font-medium text-center text-clr-5">Su</p>
-                                </div>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {{ calendar }}
-                    </tbody>
-                </table>
-            </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+            <p class="text-3xl text-clr-5 font-bold mb-2 w-max">SQUADRON ASSIGNMENTS</p>
+            {% for assignment in night_assignments %}
+                <div class="block pb-2">
+                    <a href="{{ assignment.night.get_absolute_url }}"
+                        class="block p-2 w-auto min-h-min bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                        <div class="flex text-clr-5">
+                            <div class="flex flex-col rounded-lg bg-blue-200 text-center p-2 m-1 leading-tight tracking-tighter text-clr-1 items-center">
+                                <div class="font-bold text-lg">{{ assignment.night.date|date:"M" }}</div>
+                                <div class="font-bold text-2xl">{{ assignment.night.date|date:"d" }}</div>
+                            </div>
+                            <div>
+                                <div class="w-max p-1 m-1 font-bold text-3xl leading-tight tracking-tighter">{{ assignment.role }}</div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
         </div>
     </div>
 </div>

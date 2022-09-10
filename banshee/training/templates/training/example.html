@@ -6,18 +6,396 @@
 {% endblock %}
 
 {% block content %}
-<form action="" method="post">
-    {% csrf_token %}
+<div class="flex items-center justify-center py-4 px-4">
+    <div class="flex">
+        <div class="max-w-sm w-full shadow-lg h-max">
+            <div class="md:p-8 p-5 bg-clr-1 rounded">
+                <div class="flex items-center justify-between w-full">
+                    <span tabindex="0" class="focus:outline-none  text-base font-bold text-clr-5">September 2022</span>
+                    <div class="flex items-center">
+                        <a href="/dashboard/create?month=2022-9">
+                            <button aria-label="calendar backward" class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left"
+                                    width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                    fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path
+                                        d="M 18.414062 2 C 18.158062 2 17.902031 2.0979687 17.707031 2.2929688 L 15.707031 4.2929688 L 14.292969 5.7070312 L 3 17 L 3 21 L 7 21 L 21.707031 6.2929688 C 22.098031 5.9019687 22.098031 5.2689063 21.707031 4.8789062 L 19.121094 2.2929688 C 18.926094 2.0979687 18.670063 2 18.414062 2 z M 18.414062 4.4140625 L 19.585938 5.5859375 L 18.292969 6.8789062 L 17.121094 5.7070312 L 18.414062 4.4140625 z M 15.707031 7.1210938 L 16.878906 8.2929688 L 6.171875 19 L 5 19 L 5 17.828125 L 15.707031 7.1210938 z">
+                                    </path>
+                                </svg>
+                            </button>
+                        </a>
 
-    {{ formset.management_form }}
-    {% for hidden in form.hidden_fields %}
-        {{ hidden }}
-    {% endfor %}
-    {% for form in formset.forms %}
-        {{ form }}
-    {% endfor %}
-    <input type="submit" name="submit" value="Submit"
-        class="text-white bg-clr-3 hover:bg-clr-4 focus:outline-none focus:bg-clr-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3 md:mr-0">
-    </input>
-</form>
+
+                        <a href="/dashboard/delete?month=2022-9">
+                            <button aria-label="calendar backward" class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24"
+                                    viewBox="0 0 24 24" style=" fill:currentColor">
+                                    <path
+                                        d="M 10 2 L 9 3 L 4 3 L 4 5 L 5 5 L 5 20 C 5 20.522222 5.1913289 21.05461 5.5683594 21.431641 C 5.9453899 21.808671 6.4777778 22 7 22 L 17 22 C 17.522222 22 18.05461 21.808671 18.431641 21.431641 C 18.808671 21.05461 19 20.522222 19 20 L 19 5 L 20 5 L 20 3 L 15 3 L 14 2 L 10 2 z M 7 5 L 17 5 L 17 20 L 7 20 L 7 5 z M 9 7 L 9 18 L 11 18 L 11 7 L 9 7 z M 13 7 L 13 18 L 15 18 L 15 7 L 13 7 z">
+                                    </path>
+                                </svg>
+                            </button>
+                        </a>
+
+
+                        <a href="/dashboard/view?month=2022-8">
+                            <button aria-label="calendar backward" class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left"
+                                    width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                    fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <polyline points="15 6 9 12 15 18"></polyline>
+                                </svg>
+                            </button>
+                        </a>
+                        <a href="/dashboard/view?month=2022-10">
+                            <button aria-label="calendar forward" class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler  icon-tabler-chevron-right"
+                                    width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                    fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <polyline points="9 6 15 12 9 18"></polyline>
+                                </svg>
+                            </button>
+                        </a>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between pt-8 overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr>
+                                <th>
+                                    <div class="w-full flex justify-center">
+                                        <p class="text-base font-medium text-center text-clr-5">Mo</p>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="w-full flex justify-center">
+                                        <p class="text-base font-medium text-center text-clr-5">Tu</p>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="w-full flex justify-center">
+                                        <p class="text-base font-medium text-center text-clr-5">We</p>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="w-full flex justify-center">
+                                        <p class="text-base font-medium text-center text-clr-5">Th</p>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="w-full flex justify-center">
+                                        <p class="text-base font-medium text-center text-clr-5">Fr</p>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="w-full flex justify-center">
+                                        <p class="text-base font-medium text-center text-clr-5">Sa</p>
+                                    </div>
+                                </th>
+                                <th>
+                                    <div class="w-full flex justify-center">
+                                        <p class="text-base font-medium text-center text-clr-5">Su</p>
+                                    </div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="small-day-wrapper"></div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper"></div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper"></div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">1</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">2</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">3</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">4</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">5</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">6</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">7</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="w-full h-full">
+                                        <div class="small-day-highlight-wrapper">
+                                            <a role="link" tabindex="0" href="/plan/5"
+                                                class="small-day-highlight-base small-day-green-highlight">8</a>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">9</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="w-full h-full">
+                                        <div class="small-day-highlight-wrapper">
+                                            <a role="link" tabindex="0" href="#"
+                                                class="small-day-highlight-base small-day-yellow-circle">10</a>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">11</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">12</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">13</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">14</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="w-full h-full">
+                                        <div class="small-day-highlight-wrapper">
+                                            <a role="link" tabindex="0" href="/plan/6"
+                                                class="small-day-highlight-base small-day-green-highlight">15</a>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">16</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">17</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">18</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">19</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">20</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">21</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">22</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">23</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">24</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">25</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">26</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">27</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">28</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">29</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper">
+                                        <p class="small-day-number">30</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper"></div>
+                                </td>
+                                <td>
+                                    <div class="small-day-wrapper"></div>
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="pl-4">
+            <p class="text-3xl text-clr-5 font-bold mb-2">TEACHING ASSIGNMENTS</p>
+            <div class="block pb-2">
+                <a href="AHHHH"
+                    class="block p-2 w-auto min-h-min bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                    <div class="flex text-clr-5 justify-between">
+                        <div class="flex">
+                            <div class="flex flex-col rounded-lg bg-blue-200 text-center p-2 m-1 leading-tight tracking-tighter text-clr-1 items-center">
+                                    <div class="font-bold text-lg">NOV</div>
+                                    <div class="font-bold text-2xl">11</div>
+                            </div>
+                            <div class="m-1">
+                                <div class="w-max py-1 font-bold text-2xl leading-tight tracking-tighter">IC of M101.01</div>
+                                <p>For L1, 2, 3a. During P1, 2</p>
+                            </div>
+                        </div>
+                        <div class="flex rounded-lg bg-gray-400 font-bold text-2xl text-center p-1 m-1 leading-tight tracking-tighter text-clr-1 items-center w-max">
+                            <div class="flex flex-col">
+                                <div>LESSON PLAN</div>
+                                <div class="text-lg">Not Submitted</div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="block pb-2">
+                <a href="AHHHH"
+                    class="block p-2 w-auto min-h-min bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                    <div class="flex text-clr-5">
+                        <div class="flex rounded-lg bg-banshee-green-800 font-bold text-2xl text-center p-1 m-1 leading-tight tracking-tighter text-clr-1 items-center">NOV<br>11</div>
+                        <div>
+                            <div class="w-max p-1 m-1 font-bold text-2xl leading-tight tracking-tighter">IC of M101.01</div>
+                            <div class="flex">
+                                <div class="block rounded-lg bg-banshee-green-800 font-bold text-2xl text-center p-1 m-1 leading-tight tracking-tighter text-clr-1 w-max">1, 2a, 2b</div>
+                                <div class="block rounded-lg bg-banshee-green-800 font-bold text-2xl text-center p-1 m-1 leading-tight tracking-tighter text-clr-1 w-max">1, 2a, 2b</div>
+                            </div>
+                        </div>
+                        <div class="flex rounded-lg bg-banshee-green-800 font-bold text-2xl text-center p-1 m-1 leading-tight tracking-tighter text-clr-1 items-center w-max">
+                            <div class="flex flex-col">
+                                <div>LESSON PLAN</div>
+                                <div class="text-lg">Submitted</div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="block pb-2">
+                <a href="AHHHH"
+                    class="block p-2 w-auto min-h-min bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                    <div class="flex text-clr-5">
+                        <div class="flex rounded-lg bg-banshee-green-800 font-bold text-2xl text-center p-1 m-1 leading-tight tracking-tighter text-clr-1 items-center">NOV<br>11</div>
+                        <div>
+                            <div class="w-max p-1 m-1 font-bold text-2xl leading-tight tracking-tighter">IC of M101.01</div>
+                            <div class="flex">
+                                <div class="block rounded-lg bg-banshee-green-800 font-bold text-2xl text-center p-1 m-1 leading-tight tracking-tighter text-clr-1 w-max">1, 2a, 2b</div>
+                                <div class="block rounded-lg bg-banshee-green-800 font-bold text-2xl text-center p-1 m-1 leading-tight tracking-tighter text-clr-1 w-max">1, 2a, 2b</div>
+                            </div>
+                        </div>
+                        <div class="flex rounded-lg bg-red-600 font-bold text-2xl text-center p-1 m-1 leading-tight tracking-tighter text-clr-1 items-center w-max">
+                            <div class="flex flex-col">
+                                <div>LESSON PLAN</div>
+                                <div class="text-lg">Missing</div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="block pb-2">
+                <a href="AHHHH"
+                    class="block p-2 w-auto min-h-min bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                    <div class="flex text-clr-5">
+                        <div class="flex rounded-lg bg-banshee-green-800 font-bold text-2xl text-center p-1 m-1 leading-tight tracking-tighter text-clr-1 items-center">NOV<br>11</div>
+                        <div>
+                            <div class="w-max p-1 m-1 font-bold text-2xl leading-tight tracking-tighter">IC of M101.01</div>
+                            <div class="flex">
+                                <div class="block rounded-lg bg-banshee-green-800 font-bold text-2xl text-center p-1 m-1 leading-tight tracking-tighter text-clr-1 w-max">1, 2a, 2b</div>
+                                <div class="block rounded-lg bg-banshee-green-800 font-bold text-2xl text-center p-1 m-1 leading-tight tracking-tighter text-clr-1 w-max">1, 2a, 2b</div>
+                            </div>
+                        </div>
+                        <div class="flex rounded-lg bg-gray-400 font-bold text-2xl text-center p-1 m-1 leading-tight tracking-tighter text-clr-1 items-center w-max">
+                            <div class="flex flex-col">
+                                <div>LESSON PLAN</div>
+                                <div class="text-lg">Not Submitted</div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <p class="text-3xl text-clr-5 font-bold mb-2">SQUADRON ASSIGNMENTS</p>
+            <div class="block pb-2">
+                <a href="AHHHH"
+                    class="block p-2 w-auto min-h-min bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                    <div class="flex text-clr-5">
+                        <div class="flex flex-col rounded-lg bg-blue-200 text-center p-2 m-1 leading-tight tracking-tighter text-clr-1 items-center">
+                            <div class="font-bold text-lg">NOV</div>
+                            <div class="font-bold text-2xl">11</div>
+                        </div>
+                        <div>
+                            <div class="w-max p-1 m-1 font-bold text-3xl leading-tight tracking-tighter">DUTY NCO</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

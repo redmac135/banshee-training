@@ -10,8 +10,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import MapSeniorNight, TrainingNight, Level, Teach, Senior
-from .forms import AssignSeniorFormset, LessonTeachForm, ActivityTeachForm
+from .models import MapSeniorNight, MapSeniorTeach, TrainingNight, Level, Teach, Senior
+from .forms import AssignTeachFormset, AssignNightFormset, LessonTeachForm, ActivityTeachForm
 from .utils import (
     DashboardCalendar,
     TrainingDaySchedule,
@@ -64,10 +64,10 @@ class DashboardView(LoginRequiredMixin, View):
     template_name = "training/dashboard.html"
 
     def get(self, request, view, *args, **kwargs):
-        context = self.get_context_data(view, **kwargs)
+        context = self.get_context_data(view, request, **kwargs)
         return render(request, self.template_name, context)
 
-    def get_context_data(self, view, **kwargs):
+    def get_context_data(self, view, request, **kwargs):
         context = {}
 
         d = get_date(self.request.GET.get("month", None))
@@ -80,6 +80,11 @@ class DashboardView(LoginRequiredMixin, View):
         html_cal = cal.formatmonth(nights=nights, today=date.today(), withyear=True)
         context["calendar"] = mark_safe(html_cal)
         context["monthname"] = str(calendar.month_name[d.month]) + " " + str(d.year)
+
+        teach_assignments = MapSeniorTeach.get_senior_queryset_after_date(request.user.senior, date.today())
+        context["teach_assignments"] = teach_assignments
+        night_assignments = MapSeniorNight.get_senior_queryset_after_date(request.user.senior, date.today())
+        context["night_assignments"] = night_assignments
 
         context["view"] = view
 
@@ -150,7 +155,7 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         if form.is_valid():
             form.save()
             teach_id = form.teach_id  # Created in form.save() Method
-            return redirect("example", teach_id=teach_id)
+            return redirect("teach-assign", teach_id=teach_id)
         return render(
             request,
             self.template_name,
@@ -158,9 +163,9 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         )
 
 
-class AssignSeniorView(LoginRequiredMixin, UserPassesTestMixin, FormView):
+class AssignTeachView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     template_name = "training/teachassign.html"
-    formset_class = AssignSeniorFormset
+    formset_class = AssignTeachFormset
 
     # For UserPassesTestMixin
     def test_func(self):
@@ -194,6 +199,45 @@ class AssignSeniorView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         if formset.is_valid():
             formset.save()
             night_id = teach_instance.get_night_id()
+            return redirect("trainingnight", night_id=night_id)
+        else:
+            return render(
+                request,
+                self.template_name,
+                {"formset": formset},
+            )
+
+
+class AssignNightView(FormView):
+    template_name = "training/nightassign.html"
+    formset_class = AssignNightFormset
+
+    def init_form(self, night_id, night_instance, *args, **kwargs):
+        senior_queryset = Senior.get_all()
+        senior_choices = [(senior.id, str(senior)) for senior in senior_queryset]
+        formset = self.formset_class(
+            *args,
+            form_kwargs={"night_id": night_id, "senior_choices": senior_choices},
+            instance=night_instance,
+            **kwargs
+        )
+        return formset
+
+    def get(self, request, night_id, *args, **kwargs):
+        night_instance = TrainingNight.get(night_id)
+        formset = self.init_form(night_id, night_instance)
+        return render(
+            request,
+            self.template_name,
+            {"formset": formset},
+        )
+    
+    def post(self, request, night_id, *args, **kwargs):
+        self.object = None
+        night_instance = TrainingNight.get(night_id)
+        formset = self.init_form(night_id, night_instance, self.request.POST)
+        if formset.is_valid():
+            formset.save()
             return redirect("trainingnight", night_id=night_id)
         else:
             return render(

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<form action="" method="post">
+    <div class="flex flex-col items-center">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        {% for hidden in form.hidden_fields %}
+            {{ hidden }}
+        {% endfor %}
+        <div class="w-full max-w-xs">
+            <div class="bg-clr-1 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                {% for title, value in teach %}
+                    <p><strong>{{ title }}: </strong>{{ value }}</p>
+                {% endfor %}
+            </div>
+            {% for form in formset.forms %}
+            <div class="bg-clr-1 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                {{ form }}
+            </div>
+            {% endfor %}
+            <input type="submit" name="submit" value="Submit"
+                class="text-white bg-clr-3 hover:bg-clr-4 focus:outline-none focus:bg-clr-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3 md:mr-0">
+            </input>
+        </div>
+    </div>
+</form>
+{% endblock %}

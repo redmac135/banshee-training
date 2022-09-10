@@ -7,6 +7,7 @@ register_converter(DateConverter, "date")
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
     path("plan/<int:night_id>", TrainingNightView.as_view(), name="trainingnight"),
+    path("plan/assign/<int:night_id>", AssignNightView.as_view(), name="night-assign"),
     path("dashboard/<str:view>", DashboardView.as_view(), name="dashboard"),
     path(
         "teach/edit/<int:night_id>/<int:form_id>",
@@ -14,7 +15,7 @@ urlpatterns = [
         name="teach-form",
     ),
     path(
-        "teach/assign/<int:teach_id>", AssignSeniorView.as_view(), name="teach-assign"
+        "teach/assign/<int:teach_id>", AssignTeachView.as_view(), name="teach-assign"
     ),
     path("teach/<int:teachid>", TeachView.as_view(), name="teach"),
     path(
@@ -22,5 +23,5 @@ urlpatterns = [
         EditTrainingNightView.as_view(),
         name="api-trainingnight",
     ),
-    path("example/<int:teach_id>", AssignSeniorView.as_view(), name="example"),
+    path("example", ExampleView.as_view(), name="example"),
 ]
