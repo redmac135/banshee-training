@@ -130,7 +130,7 @@ class Teach(models.Model):
         return str(self.content)
 
     class Meta:
-        ordering = ["teach_id"]
+        ordering = ["teach_id", "id"]
         indexes = [models.Index(fields=["content_type", "object_id"])]
 
     @classmethod
@@ -152,7 +152,6 @@ class Teach(models.Model):
         if content == None:
             content = EmptyLesson.create()
 
-        print(id)
         instance = cls.objects.create(teach_id=id, content=content, level=level)
         return instance
 
@@ -162,8 +161,12 @@ class Teach(models.Model):
     def get_content_type(self):
         name = type(self.content).__name__
         return name
+    
+    def get_night_id(self):
+        return self.trainingperiod_set.all()[0].night.id
 
     def format_html_block(self):
+        self = self.get_parent_instance()
         content_class = self.get_content_type()
 
         if content_class == "Lesson":
@@ -175,11 +178,15 @@ class Teach(models.Model):
         return "UNKNOWN CONTENT CLASS NAME"
 
     @classmethod
-    def get_by_teach_id(cls, teachid):
-        instances = cls.objects.filter(teach_id=teachid)
+    def get_by_teach_id(cls, teach_id):
+        instances = cls.objects.filter(teach_id=teach_id)
         return instances.first()
 
+    def get_parent_instance(self):
+        return self.get_by_teach_id(self.teach_id)
+
     def get_content_attributes(self):
+        self = self.get_parent_instance()
         content_class = self.get_content_type()
 
         if content_class == "Lesson":
@@ -259,8 +266,8 @@ class Lesson(models.Model):
         )
 
         instructors = ""
-        for instructor in MapSeniorTeach.get_instructors(teach):
-            instructors += f"{instructor}<br>"
+        for role, instructor in MapSeniorTeach.get_instructors(teach):
+            instructors += f"{role}: {instructor}<br>"
         block += f"<p class='font-normal text-gray-400'>{instructors}</p>"
 
         return block
@@ -321,7 +328,7 @@ class MapSeniorTeach(models.Model):
     role = models.CharField(max_length=32)
 
     def __str__(self):
-        return str(self.teach) + " " + str(self.senior)
+        return str(self.teach.teach_id) + " " + str(self.senior)
 
     @classmethod
     def get_ic(cls, teach: Teach):
