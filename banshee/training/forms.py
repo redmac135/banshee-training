@@ -1,5 +1,6 @@
 from django import forms
 from django.forms import inlineformset_factory, ModelForm
+from django.db.models.fields import BLANK_CHOICE_DASH
 from django.core.exceptions import ValidationError
 
 import re
@@ -17,6 +18,9 @@ from .models import (
 
 # Edit Senior Form
 class AssignSeniorForm(ModelForm):
+    BLANK_CHOICE_SENIOR = [("", "Senior")]
+    BLANK_CHOICE_DASH = BLANK_CHOICE_DASH
+
     role = forms.CharField(max_length=32)
     senior = forms.ChoiceField(choices=[])
 
@@ -24,7 +28,7 @@ class AssignSeniorForm(ModelForm):
         super(AssignSeniorForm, self).__init__(*args, **kwargs)
 
         self.teach_id = teach_id
-        self.fields["senior"].choices = senior_choices
+        self.fields["senior"].choices = self.BLANK_CHOICE_SENIOR + self.BLANK_CHOICE_DASH + senior_choices
 
     class Meta:
         model = MapSeniorTeach
@@ -37,7 +41,6 @@ class AssignSeniorForm(ModelForm):
         cleaned_data.update({"senior": senior_instance})
 
         return cleaned_data
-
 
 AssignSeniorFormset = inlineformset_factory(
     Teach, MapSeniorTeach, form=AssignSeniorForm, extra=2
@@ -105,12 +108,14 @@ class BaseTeachForm(forms.Form):
         teach_list = self.get_teach_list()
         content = self.get_content_instance()
         location = self.cleaned_data["location"]
-        lesson_id = Teach.get_next_lesson_id()
+        teach_id = Teach.get_next_teach_id()
+
+        self.teach_id = teach_id # Used for future reference
 
         for teach in teach_list:
             teach.change_content(content)
             teach.location = location
-            teach.lesson_id = lesson_id
+            teach.teach_id = teach_id
             teach.save()
 
     def content_fields(self):

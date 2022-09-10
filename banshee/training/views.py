@@ -144,7 +144,8 @@ class TeachFormView(FormView):
         form = self.init_form(levels, night_id, form_id, data=request.POST)
         if form.is_valid():
             form.save()
-            return redirect("trainingnight", night_id=night_id)
+            teach_id = form.teach_id # Created in form.save() Method
+            return redirect("example", teach_id=teach_id)
         return render(
             request,
             self.template_name,
@@ -153,11 +154,10 @@ class TeachFormView(FormView):
 
 
 class AssignSeniorView(FormView):
-    template_name = "training/example.html"
+    template_name = "training/teachassign.html"
     formset_class = AssignSeniorFormset
 
-    def init_form(self, teach_id, *args, **kwargs):
-        teach_instance = Teach.get_by_lessonid(teach_id)
+    def init_form(self, teach_id, teach_instance, *args, **kwargs):
         senior_queryset = Senior.get_all()
         senior_choices = [(senior.id, str(senior)) for senior in senior_queryset]
         formset = self.formset_class(
@@ -169,19 +169,23 @@ class AssignSeniorView(FormView):
         return formset
 
     def get(self, request, teach_id, *args, **kwargs):
-        formset = self.init_form(teach_id)
+        teach_instance = Teach.get_by_teach_id(teach_id)
+        formset = self.init_form(teach_id, teach_instance)
+        teach_attrs = teach_instance.get_content_attributes()
         return render(
             request,
             self.template_name,
-            {"formset": formset},
+            {"formset": formset, "teach": teach_attrs},
         )
 
     def post(self, request, teach_id, *args, **kwargs):
         self.object = None
-        formset = self.init_form(teach_id, self.request.POST)
+        teach_instance: Teach = Teach.get_by_teach_id(teach_id)
+        formset = self.init_form(teach_id, teach_instance, self.request.POST)
         if formset.is_valid():
-            assigned_seniors = formset.save()
-            return redirect("example", teach_id=teach_id)
+            formset.save()
+            night_id = teach_instance.get_night_id()
+            return redirect("trainingnight", night_id=night_id)
         else:
             return render(
                 request,
@@ -196,7 +200,7 @@ class TeachView(TemplateView):
 
     def get_context_data(self, teachid, **kwargs):
         context = super().get_context_data(**kwargs)
-        instance = Teach.get_by_lessonid(teachid)
+        instance = Teach.get_by_teach_id(teachid)
 
         content_details = instance.get_content_attributes()
         content_type = instance.get_content_type()
