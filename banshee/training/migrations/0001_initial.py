@@ -10,118 +10,289 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('contenttypes', '0002_remove_content_type_name'),
+        ("contenttypes", "0002_remove_content_type_name"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Activity',
+            name="Activity",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('title', models.CharField(default='Squadron-Organized Event', max_length=256)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "title",
+                    models.CharField(
+                        default="Squadron-Organized Event", max_length=256
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='EmptyLesson',
+            name="EmptyLesson",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Level',
+            name="Level",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=2)),
-                ('number', models.IntegerField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("name", models.CharField(max_length=2)),
+                ("number", models.IntegerField()),
             ],
         ),
         migrations.CreateModel(
-            name='PerformanceObjective',
+            name="PerformanceObjective",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('po', models.CharField(max_length=3, unique=True)),
-                ('po_title', models.CharField(blank=True, max_length=256, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("po", models.CharField(max_length=3, unique=True)),
+                ("po_title", models.CharField(blank=True, max_length=256, null=True)),
             ],
         ),
         migrations.CreateModel(
-            name='Senior',
+            name="Senior",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('rank', models.IntegerField()),
-                ('permission_level', models.IntegerField(choices=[(1, 'Standard Instructor'), (2, 'Training Manager')], default=1)),
-                ('level', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='training.level')),
-                ('user', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("rank", models.IntegerField()),
+                (
+                    "permission_level",
+                    models.IntegerField(
+                        choices=[(1, "Standard Instructor"), (2, "Training Manager")],
+                        default=1,
+                    ),
+                ),
+                (
+                    "level",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="training.level",
+                    ),
+                ),
+                (
+                    "user",
+                    models.OneToOneField(
+                        null=True,
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'ordering': ['level', 'rank'],
+                "ordering": ["level", "rank"],
             },
         ),
         migrations.CreateModel(
-            name='TrainingNight',
+            name="TrainingNight",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('date', models.DateField(unique=True)),
-                ('excused', models.ManyToManyField(to='training.senior')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("date", models.DateField(unique=True)),
+                ("excused", models.ManyToManyField(to="training.senior")),
             ],
             options={
-                'ordering': ['-date'],
+                "ordering": ["-date"],
             },
         ),
         migrations.CreateModel(
-            name='TrainingPeriod',
+            name="TrainingPeriod",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('order', models.PositiveSmallIntegerField()),
-                ('night', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='training.trainingnight')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("order", models.PositiveSmallIntegerField()),
+                (
+                    "night",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="training.trainingnight",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Teach',
+            name="Teach",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('teach_id', models.PositiveIntegerField()),
-                ('object_id', models.PositiveIntegerField()),
-                ('location', models.CharField(max_length=128)),
-                ('finished', models.BooleanField(default=False)),
-                ('plan', models.CharField(blank=True, default='', max_length=1000)),
-                ('content_type', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.contenttype')),
-                ('level', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='training.level')),
-                ('period', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='training.trainingperiod')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("teach_id", models.PositiveIntegerField()),
+                ("object_id", models.PositiveIntegerField()),
+                ("location", models.CharField(max_length=128)),
+                ("finished", models.BooleanField(default=False)),
+                ("plan", models.CharField(blank=True, default="", max_length=1000)),
+                (
+                    "content_type",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="contenttypes.contenttype",
+                    ),
+                ),
+                (
+                    "level",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="training.level",
+                    ),
+                ),
+                (
+                    "period",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="training.trainingperiod",
+                    ),
+                ),
             ],
             options={
-                'ordering': ['teach_id', 'id'],
+                "ordering": ["teach_id", "id"],
             },
         ),
         migrations.CreateModel(
-            name='MapSeniorTeach',
+            name="MapSeniorTeach",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('role', models.CharField(max_length=32)),
-                ('senior', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='training.senior')),
-                ('teach', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='training.teach')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("role", models.CharField(max_length=32)),
+                (
+                    "senior",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="training.senior",
+                    ),
+                ),
+                (
+                    "teach",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="training.teach"
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='MapSeniorNight',
+            name="MapSeniorNight",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('role', models.CharField(max_length=32)),
-                ('night', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='training.trainingnight')),
-                ('senior', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='training.senior')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("role", models.CharField(max_length=32)),
+                (
+                    "night",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="training.trainingnight",
+                    ),
+                ),
+                (
+                    "senior",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="training.senior",
+                    ),
+                ),
             ],
         ),
         migrations.CreateModel(
-            name='Lesson',
+            name="Lesson",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('eocode', models.CharField(max_length=64, unique=True)),
-                ('title', models.CharField(max_length=256)),
-                ('po', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='training.performanceobjective')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("eocode", models.CharField(max_length=64, unique=True)),
+                ("title", models.CharField(max_length=256)),
+                (
+                    "po",
+                    models.ForeignKey(
+                        null=True,
+                        on_delete=django.db.models.deletion.SET_NULL,
+                        to="training.performanceobjective",
+                    ),
+                ),
             ],
         ),
         migrations.AddIndex(
-            model_name='teach',
-            index=models.Index(fields=['content_type', 'object_id'], name='training_te_content_626850_idx'),
+            model_name="teach",
+            index=models.Index(
+                fields=["content_type", "object_id"],
+                name="training_te_content_626850_idx",
+            ),
         ),
     ]

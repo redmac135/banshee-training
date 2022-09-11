@@ -11,7 +11,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import MapSeniorNight, MapSeniorTeach, TrainingNight, Level, Teach, Senior
-from .forms import AssignTeachFormset, AssignNightFormset, LessonTeachForm, ActivityTeachForm
+from .forms import (
+    AssignTeachFormset,
+    AssignNightFormset,
+    LessonTeachForm,
+    ActivityTeachForm,
+)
 from .utils import (
     DashboardCalendar,
     TrainingDaySchedule,
@@ -81,9 +86,13 @@ class DashboardView(LoginRequiredMixin, View):
         context["calendar"] = mark_safe(html_cal)
         context["monthname"] = str(calendar.month_name[d.month]) + " " + str(d.year)
 
-        teach_assignments = MapSeniorTeach.get_senior_queryset_after_date(request.user.senior, date.today())
+        teach_assignments = MapSeniorTeach.get_senior_queryset_after_date(
+            request.user.senior, date.today()
+        )
         context["teach_assignments"] = teach_assignments
-        night_assignments = MapSeniorNight.get_senior_queryset_after_date(request.user.senior, date.today())
+        night_assignments = MapSeniorNight.get_senior_queryset_after_date(
+            request.user.senior, date.today()
+        )
         context["night_assignments"] = night_assignments
 
         context["view"] = view
@@ -176,7 +185,11 @@ class AssignTeachView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         senior_choices = [(senior.id, str(senior)) for senior in senior_queryset]
         formset = self.formset_class(
             *args,
-            form_kwargs={"teach_id": teach_id, "senior_choices": senior_choices},
+            form_kwargs={
+                "teach_id": teach_id,
+                "senior_choices": senior_choices,
+                "parent_instance": teach_instance,
+            },
             instance=teach_instance,
             **kwargs
         )
@@ -231,7 +244,7 @@ class AssignNightView(FormView):
             self.template_name,
             {"formset": formset},
         )
-    
+
     def post(self, request, night_id, *args, **kwargs):
         self.object = None
         night_instance = TrainingNight.get(night_id)

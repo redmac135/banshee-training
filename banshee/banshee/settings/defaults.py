@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "jquery",
     "training",
     "users",
+    "emails",
     "rest_framework",
 ]
 

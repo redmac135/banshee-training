@@ -1,7 +1,9 @@
 from django import forms
-from django.forms import inlineformset_factory, ModelForm
+from django.forms import inlineformset_factory, ModelForm, BaseInlineFormSet
 from django.db.models.fields import BLANK_CHOICE_DASH
 from django.core.exceptions import ValidationError
+
+from emails.models import Email
 
 import re
 
@@ -13,7 +15,7 @@ from .models import (
     EmptyLesson,
     Teach,
     MapSeniorTeach,
-    MapSeniorNight
+    MapSeniorNight,
 )
 
 
@@ -25,10 +27,11 @@ class AssignTeachForm(ModelForm):
     role = forms.CharField(max_length=32)
     senior = forms.ChoiceField(choices=[])
 
-    def __init__(self, *args, teach_id, senior_choices, **kwargs):
+    def __init__(self, *args, teach_id, senior_choices, parent_instance, **kwargs):
         super(AssignTeachForm, self).__init__(*args, **kwargs)
 
         self.teach_id = teach_id
+        self.parent_instance = parent_instance
         self.fields["senior"].choices = (
             self.BLANK_CHOICE_SENIOR + self.BLANK_CHOICE_DASH + senior_choices
         )
@@ -45,10 +48,20 @@ class AssignTeachForm(ModelForm):
 
         return cleaned_data
 
+    def save(self, commit: bool = True):
+        cleaned_data = self.cleaned_data
+        Email.send_assignment_email(
+            user=cleaned_data.get("senior").user,
+            teach=self.parent_instance,
+            role=cleaned_data.get("role"),
+        )
+        return super(AssignTeachForm, self).save(commit)
+
 
 AssignTeachFormset = inlineformset_factory(
     Teach, MapSeniorTeach, form=AssignTeachForm, extra=2
 )
+
 
 class AssignNightForm(ModelForm):
     BLANK_CHOICE_SENIOR = [("", "Senior")]
@@ -76,6 +89,7 @@ class AssignNightForm(ModelForm):
         cleaned_data.update({"senior": senior_instance})
 
         return cleaned_data
+
 
 AssignNightFormset = inlineformset_factory(
     TrainingNight, MapSeniorNight, form=AssignNightForm, extra=2

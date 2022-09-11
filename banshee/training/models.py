@@ -123,6 +123,8 @@ class Senior(models.Model):
             return True
         else:
             return False
+
+
 class TrainingNight(models.Model):
     date = models.DateField(unique=True)
     excused = models.ManyToManyField(Senior)
@@ -157,7 +159,7 @@ class TrainingNight(models.Model):
     @classmethod
     def get_by_date(cls, date: datetime):
         return cls.objects.get(date=date)
-    
+
     def get_absolute_url(self):
         return reverse("trainingnight", args=[self.id])
 
@@ -198,6 +200,7 @@ class TrainingPeriod(models.Model):
             Teach.create(level, instance, id=teach_id)
         return instance
 
+
 # Managing Lessons
 class Teach(models.Model):
     teach_id = (
@@ -234,7 +237,7 @@ class Teach(models.Model):
 
         largest_id = largest.teach_id
         return largest_id + 1
-    
+
     @classmethod
     def get_by_period(cls, period: TrainingPeriod):
         queryset = cls.objects.filter(period=period)
@@ -248,7 +251,9 @@ class Teach(models.Model):
         if content == None:
             content = EmptyLesson.create()
 
-        instance = cls.objects.create(teach_id=id, period=period, content=content, level=level)
+        instance = cls.objects.create(
+            teach_id=id, period=period, content=content, level=level
+        )
         return instance
 
     def get_absolute_url(self):
@@ -260,7 +265,7 @@ class Teach(models.Model):
 
     def get_night_id(self):
         return self.period.night.id
-    
+
     def get_date(self):
         return self.period.night.date
 
@@ -283,23 +288,23 @@ class Teach(models.Model):
 
     def get_parent_instance(self):
         return self.get_by_teach_id(self.teach_id)
-    
+
     @classmethod
     def get_neighbour_instances(cls, teach_id):
         return cls.objects.filter(teach_id=teach_id)
-    
+
     def get_level_list(self):
         queryset = self.get_neighbour_instances(self.teach_id)
         instances = queryset.values_list("level", flat=True)
         unique_instances = list(set(instances))
         return unique_instances
-    
+
     def get_period_list(self):
         queryset = self.get_neighbour_instances(self.teach_id)
         instances = queryset.values_list("period__order", flat=True)
         unique_instances = list(set(instances))
         return unique_instances
-    
+
     def get_status(self):
         if self.finished == True:
             return "Submitted"
@@ -313,7 +318,6 @@ class Teach(models.Model):
             return "Not Submitted"
         else:
             return "Missing"
-
 
     def get_content_attributes(self):
         self = self.get_parent_instance()
@@ -490,6 +494,7 @@ class MapSeniorTeach(models.Model):
         )
         return queryset
 
+
 class MapSeniorNight(models.Model):
     night = models.ForeignKey(TrainingNight, on_delete=models.CASCADE)
     senior = models.ForeignKey(Senior, on_delete=models.CASCADE)
@@ -497,7 +502,7 @@ class MapSeniorNight(models.Model):
 
     def __str__(self):
         return self.role + " for " + str(self.night.date) + " " + str(self.senior)
-    
+
     @classmethod
     def get_night_queryset(cls, night: TrainingNight):
         queryset = cls.objects.filter(night=night)
@@ -512,7 +517,7 @@ class MapSeniorNight(models.Model):
             instructors.append((object.role, object.senior))
 
         return instructors
-    
+
     @classmethod
     def get_senior_queryset_after_date(cls, senior: Senior, date: date):
         queryset = cls.objects.filter(
