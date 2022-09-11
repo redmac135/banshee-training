@@ -4,11 +4,14 @@ DEBUG = False
 
 DATABASES = {
     'default': {
-        'ENGINE': env('DATABASE_ENGINE'),
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': env("DATABASE_NAME"),
         'USER': env("DATABASE_USER"),
         'PASSWORD': env("DATABASE_PASSWORD"),
         'HOST': env("DATABASE_HOST"),
+        'OPTIONS': {
+            'sql_mode': 'traditional',
+        }
     }
 }
 
