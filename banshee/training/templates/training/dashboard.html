@@ -154,6 +154,8 @@
                         </div>
                     </a>
                 </div>
+            {% empty %}
+            <p class="text-clr-5 font-light">No upcoming teach assignments.</p>
             {% endfor %}
             <p class="text-3xl text-clr-5 font-bold mb-2 w-max">SQUADRON ASSIGNMENTS</p>
             {% for assignment in night_assignments %}
@@ -171,6 +173,8 @@
                         </div>
                     </a>
                 </div>
+            {% empty %}
+            <p class="text-clr-5 font-light">No upcoming night assignments.</p>
             {% endfor %}
         </div>
     </div>
