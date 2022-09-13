@@ -111,7 +111,13 @@ class Senior(models.Model):
 
     @classmethod
     def get_by_id(cls, id: int):
-        return cls.objects.get(id=id)
+        instance = cls.get_all()
+        return instance.get(id=id)
+
+    @classmethod
+    def get_by_username(cls, username: str):
+        instance = cls.get_all()
+        return instance.get(user__username=username)
 
     @classmethod
     def rank_to_str(cls, number):
@@ -123,6 +129,10 @@ class Senior(models.Model):
             return True
         else:
             return False
+
+    def change_permission(self, permission: int):
+        self.permission_level = permission
+        return self.save()
 
 
 class TrainingNight(models.Model):
