@@ -6,24 +6,73 @@
     <div class="flex flex-col items-center">
         {% csrf_token %}
         {{ formset.management_form }}
-        {% for hidden in form.hidden_fields %}
-            {{ hidden }}
-        {% endfor %}
-        <div class="w-full max-w-xs">
-            <div class="bg-clr-1 shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                {% for title, value in teach %}
-                    <p><strong>{{ title }}: </strong>{{ value }}</p>
-                {% endfor %}
-            </div>
-            {% for form in formset.forms %}
-            <div class="bg-clr-1 shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                {{ form }}
-            </div>
+        {% for form in formset.forms %}
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
             {% endfor %}
-            <input type="submit" name="submit" value="Submit"
-                class="text-white bg-clr-3 hover:bg-clr-4 focus:outline-none focus:bg-clr-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3 md:mr-0">
-            </input>
-        </div>
+            <div class="w-full max-w-sm bg-clr-1 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+                <div class="md:flex md:items-center mb-6">
+                    <div class="md:w-1/3">
+                        <label class="block text-clr-5 font-bold md:text-right mb-1 md:mb-0 pr-4" for="{{ form.senior.id_for_label }}">
+                            {{ form.senior.label_tag }}
+                        </label>
+                    </div>
+                    {% if form.senior.errors %}
+                    <div class="md:w-2/3">
+                        {{ form.senior|addclass:'bg-gray-200 appearance-none rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-red-300 border-red-600 border border-solid border-2' }}
+                        {% for error in form.senior.errors %}
+                            <p class="mb-4 text-red-600 font-thin italic">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="md:w-2/3">
+                        {{ form.senior|addclass:'bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white' }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="md:flex md:items-center mb-6">
+                    <div class="md:w-1/3">
+                        <label class="block text-clr-5 font-bold md:text-right mb-1 md:mb-0 pr-4" for="{{ form.role.id_for_label }}">
+                            {{ form.role.label_tag }}
+                        </label>
+                    </div>
+                    {% if form.role.errors %}
+                    <div class="md:w-2/3" id="role">
+                        {{ form.role|addclass:'bg-gray-200 appearance-none rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-red-300 border-red-600 border border-solid border-2' }}
+                        {% for error in form.role.errors %}
+                            <p class="mb-4 text-red-600 font-thin italic">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="md:w-2/3">
+                        {{ form.role|addclass:'bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white' }}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="md:flex md:items-center">
+                    <div class="md:w-1/3"></div>
+                    <label class="md:w-2/3 block text-clr-5 font-bold">
+                        <span class="text-sm">
+                            {{ form.DELETE.label_tag }}
+                        </span>
+                        {{ form.DELETE }}
+                    </label>
+                </div>
+                {% if form.non_field_errors %}
+                    {% for error in form.non_field_errors %}
+                        <p class="mb-4 text-red-600 font-thin italic">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            {% if formset.non_form_errors %}
+                    {% for error in formset.non_form_errors %}
+                        <p class="mb-4 text-red-600 font-thin italic">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+            {% endfor %}
+        <input type="submit" name="submit" value="Submit"
+            class="text-white bg-clr-3 hover:bg-clr-4 focus:outline-none focus:bg-clr-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3 md:mr-0">
+        </input>
     </div>
 </form>
 {% endblock %}
