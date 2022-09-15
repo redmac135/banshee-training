@@ -11,6 +11,12 @@ class SigninView(LoginView):
     template_name = "users/login.html"
     form_class = LoginForm
 
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect("dashboard")
+        form = self.form_class()
+        return render(request, self.template_name, {"form": form})
+
     def post(self, request, *args, **kwargs):
         form = self.form_class(
             data=request.POST
@@ -32,6 +38,8 @@ class SignupView(FormView):
     form_class = SignupForm
 
     def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect("dashboard")
         form = self.form_class()
         return render(request, self.template_name, {"form": form})
 

@@ -3,6 +3,7 @@ from datetime import date, datetime, timedelta
 
 from django.views.generic import TemplateView, ListView, FormView
 from django.views import View
+from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
 
@@ -26,8 +27,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 # Create your views here.
 
 
-class HomeView(TemplateView):
+class HomeView(TemplateView, LoginRequiredMixin):
     template_name = "training/home.html"
+
+    def get(self, request, *args, **kwargs):
+        return redirect("dashboard", view="view")
 
 
 # Testing View
