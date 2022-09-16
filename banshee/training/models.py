@@ -88,7 +88,7 @@ class Senior(models.Model):
         (STANDARD_INSTRUCTOR, "Standard Instructor"),
         (TRAINING_MANAGER, "Training Manager"),
         (OFFICER, "Officer"),
-        (ADMIN, "Admin")
+        (ADMIN, "Admin"),
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
