@@ -29,6 +29,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "users",  # Put it before so templates get overridden correctly
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -38,7 +39,6 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "jquery",
     "training",
-    "users",
     "emails",
     "rest_framework",
 ]

@@ -10,7 +10,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .models import AuthorizedEmail
-from .forms import OfficerSignupForm, SignupForm, LoginForm, AuthorizedEmailForm
+from .forms import (
+    OfficerSignupForm,
+    SignupForm,
+    LoginForm,
+    AuthorizedEmailForm,
+    UserSettingsForm,
+)
 from training.models import Senior, Level
 
 
@@ -81,9 +87,11 @@ class SignupView(FormView):
 class OfficerSignupView(SignupView):
     form_class = OfficerSignupForm
 
+
 class AuthorizedEmailFormView(FormView):
     template_name = "users/authorizedemailform.html"
     form_class = AuthorizedEmailForm
+
 
 class AuthorizedEmailDetailView(LoginRequiredMixin, UserPassesTestMixin, APIView):
     http_method_names = ["delete"]
@@ -96,3 +104,30 @@ class AuthorizedEmailDetailView(LoginRequiredMixin, UserPassesTestMixin, APIView
         AuthorizedEmail.unauthorize_pk(pk)
         messages.success(request, f"Object Deleted")
         return Response(status.HTTP_200_OK)
+
+
+class SettingsView(LoginRequiredMixin, FormView):
+    template_name = "users/settings.html"
+    form_class = UserSettingsForm
+
+    def get_initial(self):
+        initial = super(SettingsView, self).get_initial()
+        initial["email"] = self.request.user.email
+        initial["first_name"] = self.request.user.first_name
+        initial["last_name"] = self.request.user.last_name
+        initial["username"] = self.request.user.username
+        initial["rank"] = Senior.rank_to_str(self.request.user.senior.rank)
+        initial["level"] = self.request.user.senior.level
+
+        return initial
+
+    def get_form_kwargs(self):
+        kwargs = super(SettingsView, self).get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        if form.has_changed():
+            form.save()
+            messages.success(self.request, "User Updated Successfully")
+        return redirect("settings")
