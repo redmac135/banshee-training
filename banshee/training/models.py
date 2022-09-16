@@ -83,10 +83,12 @@ class Senior(models.Model):
     STANDARD_INSTRUCTOR = 1
     TRAINING_MANAGER = 2
     OFFICER = 3
+    ADMIN = 4
     PERMISSION_CHOICES = [
         (STANDARD_INSTRUCTOR, "Standard Instructor"),
         (TRAINING_MANAGER, "Training Manager"),
-        (OFFICER, "Officer")
+        (OFFICER, "Officer"),
+        (ADMIN, "Admin")
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
