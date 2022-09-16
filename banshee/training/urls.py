@@ -8,6 +8,7 @@ urlpatterns = [
     path("", HomeView.as_view(), name="home"),
     path("plan/<int:night_id>", TrainingNightView.as_view(), name="trainingnight"),
     path("plan/assign/<int:night_id>", AssignNightView.as_view(), name="night-assign"),
+    path("dashboard", DashboardView.as_view(), name="dashboard"),
     path("dashboard/<str:view>", DashboardView.as_view(), name="dashboard"),
     path(
         "teach/edit/<int:night_id>/<int:form_id>",

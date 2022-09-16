@@ -6,6 +6,7 @@ from django.views import View
 from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
+from django.contrib import messages
 
 from rest_framework import status
 from rest_framework.response import Response
@@ -72,11 +73,11 @@ class DashboardView(LoginRequiredMixin, View):
     model = TrainingNight
     template_name = "training/dashboard.html"
 
-    def get(self, request, view, *args, **kwargs):
-        context = self.get_context_data(view, request, **kwargs)
+    def get(self, request, view:str="view", *args, **kwargs):
+        context = self.get_context_data(request, view, **kwargs)
         return render(request, self.template_name, context)
 
-    def get_context_data(self, view, request, **kwargs):
+    def get_context_data(self, request, view:str="view", **kwargs):
         context = {}
 
         d = get_date(self.request.GET.get("month", None))
@@ -168,6 +169,7 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         if form.is_valid():
             form.save()
             teach_id = form.teach_id  # Created in form.save() Method
+            messages.success(request, "Teach Created Successfully.")
             return redirect("teach-assign", teach_id=teach_id)
         return render(
             request,
@@ -216,6 +218,7 @@ class AssignTeachView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         if formset.is_valid():
             formset.save()
             night_id = teach_instance.get_night_id()
+            messages.success(request, "Seniors Assigned Successfully.")
             return redirect("trainingnight", night_id=night_id)
         else:
             return render(
@@ -255,6 +258,7 @@ class AssignNightView(FormView):
         formset = self.init_form(night_id, night_instance, self.request.POST)
         if formset.is_valid():
             formset.save()
+            messages.success(request, "Seniors Assigned Successfully.")
             return redirect("trainingnight", night_id=night_id)
         else:
             return render(
@@ -295,10 +299,12 @@ class EditTrainingNightView(LoginRequiredMixin, UserPassesTestMixin, APIView):
     def get(self, request, year, month, day, *args, **kwargs):
         day = date(year, month, day)
         TrainingNight.create(day)
+        messages.success(request, "Training Day Created.")
         return Response(status=status.HTTP_200_OK)
 
     def delete(self, request, year, month, day, *args, **kwargs):
         day = date(year, month, day)
         instance = TrainingNight.get_by_date(day)
         instance.delete()
+        messages.success(request, "Training Day Deleted.")
         return Response(status=status.HTTP_200_OK)

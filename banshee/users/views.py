@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect
 from django.views.generic.edit import FormView
+from django.contrib import messages
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -36,6 +37,7 @@ class SigninView(LoginView):
             login(request, user)
 
             # redirect user to home page
+            messages.success(request, f"Welcome Back {str(user.senior)}!")
             return redirect("home")
         return render(request, self.template_name, {"form": form})
 
@@ -71,6 +73,7 @@ class SignupView(FormView):
             login(request, user)
 
             # redirect user to home page
+            messages.success(request, f"Signup Successful, Welcome {str(user.senior)}!")
             return redirect("home")
         return render(request, self.template_name, {"form": form})
 
@@ -91,4 +94,5 @@ class AuthorizedEmailDetailView(LoginRequiredMixin, UserPassesTestMixin, APIView
 
     def delete(self, request, pk, *args, **kwargs):
         AuthorizedEmail.unauthorize_pk(pk)
+        messages.success(request, f"Object Deleted")
         return Response(status.HTTP_200_OK)
