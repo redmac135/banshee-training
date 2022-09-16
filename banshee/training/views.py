@@ -1,7 +1,7 @@
 import calendar
 from datetime import date, datetime, timedelta
 
-from django.views.generic import TemplateView, ListView, FormView
+from django.views.generic import TemplateView, FormView
 from django.views import View
 from django.urls import reverse
 from django.shortcuts import render, redirect

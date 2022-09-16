@@ -67,6 +67,7 @@ class Level(models.Model):
 
 class Senior(models.Model):
     RANK_CHOICES = [
+        (0, "officer"),
         (1, "Cdt"),
         (2, "Lac"),
         (3, "Cpl"),
@@ -76,12 +77,16 @@ class Senior(models.Model):
         (7, "WO2"),
         (8, "WO1"),
     ]
+    CADET_RANK_CHOICES = RANK_CHOICES[1:]
+    OFFICER_RANK = RANK_CHOICES[0]
 
     STANDARD_INSTRUCTOR = 1
     TRAINING_MANAGER = 2
+    OFFICER = 3
     PERMISSION_CHOICES = [
         (STANDARD_INSTRUCTOR, "Standard Instructor"),
         (TRAINING_MANAGER, "Training Manager"),
+        (OFFICER, "Officer")
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
@@ -125,7 +130,7 @@ class Senior(models.Model):
         return ranks[number]
 
     def is_training(self):
-        if self.permission_level == 2:
+        if self.permission_level >= 2:
             return True
         else:
             return False

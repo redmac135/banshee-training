@@ -2,9 +2,16 @@ from django.shortcuts import render, redirect
 from django.views.generic.edit import FormView
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import authenticate, login
-from .forms import SignupForm, LoginForm
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .models import AuthorizedEmail
+from .forms import OfficerSignupForm, SignupForm, LoginForm, AuthorizedEmailForm
 from training.models import Senior, Level
+
 
 # Create your views here.
 class SigninView(LoginView):
@@ -66,3 +73,22 @@ class SignupView(FormView):
             # redirect user to home page
             return redirect("home")
         return render(request, self.template_name, {"form": form})
+
+
+class OfficerSignupView(SignupView):
+    form_class = OfficerSignupForm
+
+class AuthorizedEmailFormView(FormView):
+    template_name = "users/authorizedemailform.html"
+    form_class = AuthorizedEmailForm
+
+class AuthorizedEmailDetailView(LoginRequiredMixin, UserPassesTestMixin, APIView):
+    http_method_names = ["delete"]
+
+    # For UserPassesTestMixin
+    def test_func(self):
+        return self.request.user.senior.is_training()
+
+    def delete(self, request, pk, *args, **kwargs):
+        AuthorizedEmail.unauthorize_pk(pk)
+        return Response(status.HTTP_200_OK)
