@@ -1,11 +1,12 @@
 from django import forms
 from django.core.validators import validate_email, EMPTY_VALUES
 
+
 class CommaSeparatedEmailField(forms.Field):
-    description = 'Email addresses'
+    description = "Email addresses"
 
     def __init__(self, *args, **kwargs):
-        self.token = kwargs.pop('token', ',')
+        self.token = kwargs.pop("token", ",")
         super(CommaSeparatedEmailField, self).__init__(*args, **kwargs)
 
     def to_python(self, value):
@@ -24,16 +25,18 @@ class CommaSeparatedEmailField(forms.Field):
         value = self.to_python(value)
 
         if value in EMPTY_VALUES and self.required:
-            raise forms.ValidationError('This field is required.')
+            raise forms.ValidationError("This field is required.")
 
         for email in value:
             try:
                 validate_email(email)
             except forms.ValidationError:
-                raise forms.ValidationError("'%s' is not a valid email address." % email)
+                raise forms.ValidationError(
+                    "'%s' is not a valid email address." % email
+                )
         return value
 
     def prepare_value(self, value):
         if value in EMPTY_VALUES:
             return None
-        return ', '.join([str(s) for s in value])
+        return ", ".join([str(s) for s in value])

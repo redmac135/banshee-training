@@ -73,11 +73,11 @@ class DashboardView(LoginRequiredMixin, View):
     model = TrainingNight
     template_name = "training/dashboard.html"
 
-    def get(self, request, view:str="view", *args, **kwargs):
+    def get(self, request, view: str = "view", *args, **kwargs):
         context = self.get_context_data(request, view, **kwargs)
         return render(request, self.template_name, context)
 
-    def get_context_data(self, request, view:str="view", **kwargs):
+    def get_context_data(self, request, view: str = "view", **kwargs):
         context = {}
 
         d = get_date(self.request.GET.get("month", None))
