@@ -29,7 +29,8 @@ class TrainingDaySchedule:
             schedule += self.formatperiod(number, period)
 
         return schedule
-    
+
+
 class EditTrainingDaySchedule(TrainingDaySchedule):
     def formatlesson(self, lesson: Teach):
         return f"<td><a href='{lesson.get_absolute_edit_url()}' class='block p-2 m-2 w-auto min-h-24 bg-blue-700 hover:bg-blue-900 rounded-lg shadow-md'>{lesson.format_html_block()}</a></td>"

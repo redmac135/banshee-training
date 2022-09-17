@@ -130,11 +130,11 @@ class TrainingNightView(LoginRequiredMixin, View):
         title["day"] = date.day
 
         context = {
-                "schedule": mark_safe(schedule),
-                "nightid": night.pk,
-                "roles": roles,
-                "title": title,
-            }
+            "schedule": mark_safe(schedule),
+            "nightid": night.pk,
+            "roles": roles,
+            "title": title,
+        }
         context.update(self.get_context_data())
 
         return render(
@@ -142,12 +142,13 @@ class TrainingNightView(LoginRequiredMixin, View):
             self.template_name,
             context,
         )
-    
+
     def get_context_data(self, **kwargs):
         context = {}
         context["view"] = "view"
         return context
-    
+
+
 class EditTrainingNightView(TrainingNightView):
     schedule_class = EditTrainingDaySchedule
 
@@ -185,7 +186,14 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, View):
         return render(
             request,
             self.template_name,
-            {"form": form, "levels": levels, "nightid": night_id, "formid": form_id, "slot_initial": slot_initial, "teach_id": teach_id},
+            {
+                "form": form,
+                "levels": levels,
+                "nightid": night_id,
+                "formid": form_id,
+                "slot_initial": slot_initial,
+                "teach_id": teach_id,
+            },
         )
 
     def post(self, request, night_id, form_id, teach_id=None, *args, **kwargs):
@@ -195,7 +203,9 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, View):
         else:
             teach_instance = Teach.get_by_teach_id(teach_id)
             initial = teach_instance.get_form_initial()
-            form = self.init_form(levels, night_id, form_id, initial=initial, data=request.POST)
+            form = self.init_form(
+                levels, night_id, form_id, initial=initial, data=request.POST
+            )
         if form.is_valid():
             form.save()
             teach_id = form.teach_id  # Created in form.save() Method
