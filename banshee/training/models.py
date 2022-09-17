@@ -382,6 +382,14 @@ class Teach(models.Model):
         else:
             return "Missing"
 
+    def update_plan(self, plan: str):
+        self.plan = plan
+        if plan == "":
+            self.finished = False
+        else:
+            self.finished = True
+        return self.save()
+
     def get_content_attributes(self):
         self = self.get_parent_instance()
         content_class = self.get_content_type()

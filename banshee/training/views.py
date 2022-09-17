@@ -18,6 +18,7 @@ from .forms import (
     AssignNightFormset,
     LessonTeachForm,
     ActivityTeachForm,
+    TeachPlanForm,
 )
 from .utils import (
     DashboardCalendar,
@@ -309,12 +310,13 @@ class AssignNightView(FormView):
 
 
 # Teach Specific Views
-class TeachView(LoginRequiredMixin, TemplateView):
+class TeachView(LoginRequiredMixin, View):
     template_name = "training/teach.html"
+    form_class = TeachPlanForm
 
-    def get_context_data(self, teachid, **kwargs):
-        context = super().get_context_data(**kwargs)
-        instance = Teach.get_by_teach_id(teachid)
+    def get_context_data(self, teach_id, **kwargs):
+        context = {}
+        instance = Teach.get_by_teach_id(teach_id)
 
         content_details = instance.get_content_attributes()
         content_type = instance.get_content_type()
@@ -326,6 +328,23 @@ class TeachView(LoginRequiredMixin, TemplateView):
             context["plan"]["link"] = instance.plan
 
         return context
+
+    def get(self, request, teach_id, *args, **kwargs):
+        form = self.form_class(teach_id)
+        context = self.get_context_data(teach_id)
+        context.update({"form": form})
+        return render(request, self.template_name, context)
+
+    def post(self, request, teach_id, *args, **kwargs):
+        form = self.form_class(teach_id, request.POST)
+        context = self.get_context_data(teach_id)
+        context.update({"form": form})
+        if form.is_valid():
+            if form.has_changed():
+                form.save()
+                messages.success(request, "Plan Uploaded Successfully.")
+            return render(request, self.template_name, context)
+        return render(request, self.template_name, context)
 
 
 # Utility Views (views that do things but don't actually have a template)

@@ -15,7 +15,7 @@
             {% endfor %}
         </div>
     </div>
-    <div class="w-full min-w-sm max-w-fit">
+    <div class="w-full max-w-fit">
         <div class="bg-clr-1 shadow-md rounded px-8 pt-6 pb-8 mb-4">
             <div class="font-bold text-2xl text-white">Plan</div>
             {% if plan.finished %}
@@ -26,4 +26,9 @@
         </div>
     </div>
 </div>
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form.as_table }}
+    <input type="submit" value="Submit">
+</form>
 {% endblock %}

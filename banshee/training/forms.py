@@ -217,3 +217,33 @@ class ActivityTeachForm(BaseTeachForm):
         data = self.cleaned_data
 
         return Activity.create(data["title"])
+
+
+class TeachPlanForm(ModelForm):
+    URL_REGEX = re.compile(
+        "^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$",
+        re.IGNORECASE,
+    )
+
+    def __init__(self, teach_id: int, *args, **kwargs):
+        super(TeachPlanForm, self).__init__(*args, **kwargs)
+
+        self.instance = Teach.get_by_teach_id(teach_id)
+
+    class Meta:
+        model = Teach
+        fields = ["plan"]
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        plan = cleaned_data.get("plan")
+
+        if plan:
+            if not self.URL_REGEX.match(plan):
+                raise ValidationError({"plan": "Please enter a Valid URL."})
+
+    def save(self, commit=False):
+        cleaned_data = self.cleaned_data
+        plan = cleaned_data.get("plan")
+
+        self.instance.update_plan(plan)
