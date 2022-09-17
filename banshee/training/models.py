@@ -572,7 +572,7 @@ class MapSeniorTeach(models.Model):
     def get_senior_queryset_after_date(cls, senior: Senior, date: date):
         queryset = cls.objects.filter(
             senior=senior,
-            teach__period__night__date__gte=date,  # teach > trainingperiod > trainingnight date is before date
+            teach__period__night__date__gte=date,  # teach > trainingperiod > trainingnight date is after date
         )
         return queryset
 

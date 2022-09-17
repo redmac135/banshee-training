@@ -6,8 +6,8 @@
 {% endblock %}
 
 {% block content %}
-<div class="p-4">
-    <div class="w-full min-w-sm max-w-fit">
+<div class="p-4 grid grid-cols-2 gap-4 max-w-fit mx-auto">
+    <div class="w-full max-w-sm">
         <div class="bg-clr-1 shadow-md rounded px-8 pt-6 pb-8 mb-4">
             <div class="font-bold text-2xl text-white">{{ content.type }}</div>
             {% for key, value in content.attributes %}
@@ -15,7 +15,7 @@
             {% endfor %}
         </div>
     </div>
-    <div class="w-full max-w-fit">
+    <div class="w-full max-w-sm">
         <div class="bg-clr-1 shadow-md rounded px-8 pt-6 pb-8 mb-4">
             <div class="font-bold text-2xl text-white">Plan</div>
             {% if plan.finished %}
@@ -25,10 +25,41 @@
             {% endif %}
         </div>
     </div>
+    <div class="w-full max-w-sm">
+        <div class="bg-clr-1 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <div class="font-bold text-2xl text-white">Update Plan</div>
+            <form action="" method="post" class="text-clr-5">
+                {% csrf_token %}
+                {% for field in form %}
+                    {% if field.errors %}
+                    <div class="w-full px-3 mb-6">
+                        <label class="block uppercase tracking-wide text-xs font-bold mb-2" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        <input class="appearance-none block w-full bg-white text-gray-700 border border-red-600 shadow-inner rounded-md py-3 px-4 leading-tight focus:outline-none  focus:border-red-400" type="text" id="{{ field.id_for_label }}" name="{{ field.name }}" required>
+                        {% for error in field.errors %}
+                        <p class="text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="w-full px-3 mb-6">
+                        <label class="block uppercase tracking-wide text-xs font-bold mb-2" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        <input class="appearance-none block w-full bg-white text-gray-700 border border-gray-400 shadow-inner rounded-md py-3 px-4 leading-tight focus:outline-none  focus:border-gray-500" type="text" id="{{ field.id_for_label }}" name="{{ field.name }}" required>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+                <input type="submit" class="bg-transparent hover:bg-banshee-green-400 text-clr-3 font-semibold hover:text-white py-2 px-4 border border-clr-3 hover:border-transparent rounded" value="Submit">
+            </form>
+        </div>
+    </div>
+    <div class="w-full max-w-sm">
+        <div class="bg-clr-1 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <div class="font-bold text-2xl text-white">Assignments</div>
+            {% for role, senior in assignments %}
+            <p class="font-normal text-white"><strong>{{ role }}:</strong> {{ senior }}</p>
+            {% empty %}
+            <p class="font-normal text-white">No Seniors Assigned.</p>
+            {% endfor %}
+        </div>
+    </div>
 </div>
-<form action="" method="post">
-    {% csrf_token %}
-    {{ form.as_table }}
-    <input type="submit" value="Submit">
-</form>
+
 {% endblock %}

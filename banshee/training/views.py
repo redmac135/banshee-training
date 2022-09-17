@@ -326,6 +326,8 @@ class TeachView(LoginRequiredMixin, View):
         context["plan"] = {"finished": finished}
         if finished:
             context["plan"]["link"] = instance.plan
+        
+        context["assignments"] = MapSeniorTeach.get_instructors(instance)
 
         return context
 
