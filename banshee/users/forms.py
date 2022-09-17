@@ -3,6 +3,7 @@ from django.db.models.fields import BLANK_CHOICE_DASH
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 
 from .models import AuthorizedEmail, TrainingSetting
 from .fields import CommaSeparatedEmailField
@@ -23,12 +24,15 @@ class LoginForm(AuthenticationForm):
     def clean(self):
         cleaned_data = self.cleaned_data
         username = cleaned_data.get("username")
+        password = cleaned_data.get("password")
 
-        if username:
-            user = User.objects.get(username=username)
+        if username and password:
+            user = authenticate(self.request, username=username, password=password)
+            if user is None:   
+                raise ValidationError("Incorrect Username or Password")
             if user.senior.email_confirmed == False:
                 raise ValidationError("Activate your email before logging in.")
-
+        
         return cleaned_data
 
 
