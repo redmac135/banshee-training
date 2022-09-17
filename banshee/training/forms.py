@@ -49,13 +49,13 @@ class AssignTeachForm(ModelForm):
         return cleaned_data
 
     def save(self, commit: bool = True):
+        super(AssignTeachForm, self).save(commit)
         cleaned_data = self.cleaned_data
         Email.send_assignment_email(
             user=cleaned_data.get("senior").user,
             teach=self.parent_instance,
             role=cleaned_data.get("role"),
         )
-        return super(AssignTeachForm, self).save(commit)
 
 
 AssignTeachFormset = inlineformset_factory(
