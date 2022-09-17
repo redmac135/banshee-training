@@ -391,7 +391,6 @@ class Teach(models.Model):
         settings = TrainingSetting.create()
         offset = settings.duedateoffset
         teach_date = self.get_date()
-        print(today + timedelta(days=offset))
 
         if teach_date < today + timedelta(days=offset):
             return "Missing"
