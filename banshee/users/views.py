@@ -9,12 +9,13 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import AuthorizedEmail
+from .models import AuthorizedEmail, TrainingSetting
 from .forms import (
     OfficerSignupForm,
     SignupForm,
     LoginForm,
     AuthorizedEmailForm,
+    TrainingSettingsForm,
     UserSettingsForm,
 )
 from training.models import Senior, Level
@@ -88,9 +89,19 @@ class OfficerSignupView(SignupView):
     form_class = OfficerSignupForm
 
 
-class AuthorizedEmailFormView(FormView):
+class AuthorizedEmailFormView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     template_name = "users/authorizedemailform.html"
     form_class = AuthorizedEmailForm
+
+    # For UserPassesTestMixin
+    def test_func(self):
+        return self.request.user.senior.is_training()
+
+    def form_valid(self, form):
+        if form.has_changed():
+            form.save()
+            messages.success(self.request, "Emails Added Successfully.")
+        return redirect("authemail")
 
 
 class AuthorizedEmailDetailView(LoginRequiredMixin, UserPassesTestMixin, APIView):
@@ -131,3 +142,28 @@ class SettingsView(LoginRequiredMixin, FormView):
             form.save()
             messages.success(self.request, "User Updated Successfully")
         return redirect("settings")
+
+
+class TrainingSettingsView(LoginRequiredMixin, UserPassesTestMixin, FormView):
+    template_name = "users/trainingsettings.html"
+    form_class = TrainingSettingsForm
+
+    # For UserPassesTestMixin
+    def test_func(self):
+        return self.request.user.senior.is_training()
+
+    def get_initial(self):
+        initial = super(TrainingSettingsView, self).get_initial()
+        initial["duedateoffset"] = TrainingSetting.get_duedateoffset()
+        return initial
+
+    def form_valid(self, form):
+        if form.has_changed():
+            form.save()
+            messages.success(self.request, "Setting Updated Successfully")
+        return redirect("trainingsettings")
+
+    def get_context_data(self, **kwargs):
+        context = super(TrainingSettingsView, self).get_context_data(**kwargs)
+        context["authorizedemails"] = AuthorizedEmail.get_list_of_emails()
+        return context

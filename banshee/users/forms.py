@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 
-from .models import AuthorizedEmail
+from .models import AuthorizedEmail, TrainingSetting
 from .fields import CommaSeparatedEmailField
 from training.models import Senior, Level
 
@@ -163,8 +163,24 @@ class UserSettingsForm(forms.Form):
         user_instance.save()
 
 
+class TrainingSettingsForm(forms.ModelForm):
+    duedateoffset = forms.IntegerField(
+        label="How many days before lessons are lesson plans due?"
+    )
+
+    class Meta:
+        model = TrainingSetting
+        fields = ["duedateoffset"]
+
+    def save(self, commit=True):
+        cleaned_data = self.cleaned_data
+        instance = TrainingSetting.create()
+        instance.duedateoffset = cleaned_data.get("duedateoffset")
+        instance.save()
+
+
 class AuthorizedEmailForm(forms.Form):
-    is_officer = forms.BooleanField()
+    is_officer = forms.BooleanField(required=False)
     emails = CommaSeparatedEmailField()
 
     class Meta:

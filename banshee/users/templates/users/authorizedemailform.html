@@ -1,3 +1,57 @@
+{% extends "base.html" %}
+
 {% block content %}
-{{ form.as_table }}
+<div class="bg-clr-2 min-h-screen pt-2 font-mono">
+    <div class="container mx-auto">
+        <div class="inputs w-full max-w-2xl p-6 mx-auto">
+            <h2 class="text-2xl text-clr-5">Account Setting</h2>
+            <form action="" method="post" class="mt-6 border-t border-gray-400 text-clr-5 pt-4">
+                {% csrf_token %}
+                <div class="flex flex-wrap -mx-3 mb-6">
+                    {% if form.emails.errors %}
+                    <div class="w-full md:w-full px-3 mb-6">
+                        <label class="block uppercase tracking-wide text-sm font-bold mb-2"
+                            for="{{ form.emails.id_for_label }}">{{ form.emails.label }}</label>
+                        <input
+                            class="appearance-none block w-full bg-white text-gray-700 border border-red-600 shadow-inner rounded-md py-3 px-4 leading-tight focus:outline-none  focus:border-red-400"
+                            id="{{ form.emails.id_for_label }}" type="text" placeholder="{{ form.emails.placeholder }}"
+                            name="{{ form.emails.name }}" required>
+                        {% for error in form.emails.errors %}
+                        <p class="text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="w-full md:w-full px-3 mb-6">
+                        <label class="block uppercase tracking-tight text-sm font-bold mb-2"
+                            for="{{ form.emails.id_for_label }}">{{ form.emails.label }}</label>
+                        <input
+                            class="appearance-none block w-full bg-white text-gray-700 border border-gray-400 shadow-inner rounded-md py-3 px-4 leading-tight focus:outline-none  focus:border-gray-500"
+                            id="{{ form.emails.id_for_label }}" type="text" placeholder="email@gmail.com, nextcadet@place.com, etc."
+                            name="{{ form.emails.name }}" required>
+                    </div>
+                    {% endif %}
+                    <div class="flex px-3 mb-6">
+                        <div class="flex items-center h-5">
+                            <input id="{{ form.is_officer.id_for_label }}" name="{{ form.is_officer.name }}" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 rounded border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                        </div>
+                        <div class="ml-2 text-sm">
+                            <label for="{{ form.is_officer.id_for_label }}" class="font-medium">Is Officer</label>
+                            <p class="text-xs font-normal">If checked, will make all authorized emails assigned to the officer form.</p>
+                        </div>
+                        {% for error in form.is_officer.errors %}
+                        <p class="text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% for error in form.non_field_errors %}
+                        <p class="text-red-600">{{ error }}</p>
+                    {% endfor %}
+                    <div class="flex justify-end">
+                        <button type="submit"
+                            class="appearance-none bg-gray-200 text-gray-900 px-2 py-1 shadow-sm border border-gray-400 rounded-md mt-4">authorize emails</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -17,6 +17,11 @@ class TrainingSetting(models.Model):
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
 
+    @classmethod
+    def get_duedateoffset(cls):
+        instance = cls.create()
+        return instance.duedateoffset
+
 
 class AuthorizedEmail(models.Model):
     email = models.EmailField(unique=True)
@@ -26,7 +31,13 @@ class AuthorizedEmail(models.Model):
         return self.email
 
     def get_absolute_url(self):
-        return reverse("authemail-detail", pk=self.pk)
+        return reverse("authemail-detail", args=[self.pk])
+
+    def status_to_str(self):
+        if self.is_officer == False:
+            return "Cadet"
+        else:
+            return "Officer"
 
     @classmethod
     def authorize_email(cls, email: str, is_officer: bool = False):
@@ -47,4 +58,13 @@ class AuthorizedEmail(models.Model):
 
     @classmethod
     def get_list_of_emails(cls):
-        return cls.objects.all().values_list("email", "is_officer")
+        email_list = []
+        for obj in cls.objects.all():
+            email_list.append(
+                {
+                    "email": obj.email,
+                    "status": obj.status_to_str(),
+                    "detail_url": obj.get_absolute_url(),
+                }
+            )
+        return email_list

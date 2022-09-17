@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block links %}
+<script src="{% static 'users\js\deletecall.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="bg-clr-2 min-h-screen pt-2 font-mono">
+    <div class="container mx-auto">
+        <div class="inputs w-full max-w-2xl p-6 mx-auto">
+            <h2 class="text-2xl text-clr-5">Account Setting</h2>
+            <form action="" method="post" class="mt-6 border-t border-gray-400 text-clr-5 pt-4">
+                {% csrf_token %}
+                <div class="flex flex-wrap -mx-3 mb-6">
+                    {% for field in form %}
+                    {% if field.errors %}
+                    <div class="w-full md:w-full px-3 mb-6">
+                        <label class="block uppercase tracking-wide text-sm font-bold mb-2"
+                            for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        <input
+                            class="appearance-none block w-full bg-white text-gray-700 border border-red-600 shadow-inner rounded-md py-3 px-4 leading-tight focus:outline-none  focus:border-red-400"
+                            id="{{ field.id_for_label }}" type="text" placeholder="{{ field.placeholder }}"
+                            name="{{ field.name }}" value="{{ field.initial }}" required>
+                        {% for error in field.errors %}
+                        <p class="text-red-600">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="w-full md:w-full px-3 mb-6">
+                        <label class="block uppercase tracking-tight text-sm font-bold mb-2"
+                            for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        <input
+                            class="appearance-none block w-full bg-white text-gray-700 border border-gray-400 shadow-inner rounded-md py-3 px-4 leading-tight focus:outline-none  focus:border-gray-500"
+                            id="{{ field.id_for_label }}" type="text" placeholder="{{ field.placeholder }}"
+                            name="{{ field.name }}" value="{{ field.initial }}" required>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
+                    <div class="flex justify-end">
+                        <button type="submit"
+                            class="appearance-none bg-gray-200 text-gray-900 px-2 py-1 shadow-sm border border-gray-400 rounded-md mt-4">save changes</button>
+                    </div>
+                </div>
+            </form>
+            <h2 class="text-2xl text-clr-5 mb-4">Account Setting</h2>
+            <div class="mt-6 border-t border-gray-400 text-clr-5 pt-4">
+                <div class="overflow-x-auto relative shadow-md sm:rounded-lg">
+                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <tr>
+                                <th scope="col" class="py-3 px-6">
+                                    Email
+                                </th>
+                                <th scope="col" class="py-3 px-6">
+                                    Status
+                                </th>
+                                <th scope="col" class="py-3 px-6">
+                                    Delete
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for authorizedemail in authorizedemails %}
+                            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                <th scope="row" class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                                    {{ authorizedemail.email }}
+                                </th>
+                                <td class="py-4 px-6">
+                                    {{ authorizedemail.status }}
+                                </td>
+                                <td class="py-4 px-6">
+                                    <button type="button" class="font-medium text-blue-600 hover:underline" onclick="fetch_delete('{{ authorizedemail.detail_url }}')">Delete</button>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                <th colspan="3" class="py-4 px-6 font-medium text-gray-900 whitespace-nowrap dark:text-white text-center">No Authorized Emails</th>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="w-full md:w-full px-3 mb-6 ">
+                    <a href="{% url 'authemail' %}">
+                        <button type="button"
+                            class="appearance-none bg-gray-200 text-gray-900 px-2 py-1 shadow-sm border border-gray-400 rounded-md mt-4">Add
+                            Authorized Emails</button>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
