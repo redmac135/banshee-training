@@ -53,11 +53,16 @@ class SignupView(FormView):
     template_name = "users/signup.html"
     form_class = SignupForm
 
+    def get_context_data(self, **kwargs):
+        context = super(SignupView, self).get_context_data(**kwargs)
+        context["title"] = "Cadet Signup Form"
+        return context
+
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             return redirect("dashboard")
-        form = self.form_class()
-        return render(request, self.template_name, {"form": form})
+        context = self.get_context_data()
+        return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
@@ -82,11 +87,20 @@ class SignupView(FormView):
             # redirect user to home page
             messages.success(request, f"Signup Successful, Welcome {str(user.senior)}!")
             return redirect("home")
+        context = self.get_context_data()
+        context.update(
+            {"form": form}
+        )  # override formclass from get_context_data as it doesn't contain request.POST data
         return render(request, self.template_name, {"form": form})
 
 
 class OfficerSignupView(SignupView):
     form_class = OfficerSignupForm
+
+    def get_context_data(self, **kwargs):
+        context = super(SignupView, self).get_context_data(**kwargs)
+        context["title"] = "Officer Signup Form"
+        return context
 
 
 class AuthorizedEmailFormView(LoginRequiredMixin, UserPassesTestMixin, FormView):

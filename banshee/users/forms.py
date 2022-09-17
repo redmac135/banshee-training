@@ -69,7 +69,7 @@ class SignupForm(UserCreationForm):
             "password2",
         ]
 
-    def check_email(email):
+    def check_email(self, email):
         return AuthorizedEmail.cadet_email_exists(email)
 
     def clean(self):
@@ -98,9 +98,15 @@ class SignupForm(UserCreationForm):
 
 
 class OfficerSignupForm(SignupForm):
-    rank = forms.ChoiceField(choices=Senior.OFFICER_RANK)
+    def __init__(self, *args, **kwargs):
+        super(SignupForm, self).__init__(*args, **kwargs)
 
-    def check_email(email):
+        self.fields["rank"].initial = Senior.OFFICER_RANK_NUMBER
+        self.fields["rank"].widget = forms.widgets.HiddenInput()
+        self.fields["level"].initial = Level.OFFICER_LEVEL_NUMBER
+        self.fields["level"].widget = forms.widgets.HiddenInput()
+
+    def check_email(self, email):
         return AuthorizedEmail.officer_email_exists(email)
 
 

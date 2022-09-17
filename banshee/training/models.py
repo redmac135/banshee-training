@@ -11,7 +11,10 @@ from users.models import TrainingSetting
 
 # Important: users.forms requires senior numbers be unique
 class Level(models.Model):
+    MASTER_LEVEL_NUMBER = 0
     MASTER_LEVEL_NAME = "ms"  # must be 2 characters
+    OFFICER_LEVEL_NUMBER = 7
+    OFFICER_LEVEL_NAME = "oo"
 
     name = models.CharField(max_length=2)
     number = models.IntegerField()
@@ -28,12 +31,21 @@ class Level(models.Model):
             return cls.objects.create(name=cls.MASTER_LEVEL_NAME, number=0)
 
     @classmethod
+    def get_officer(cls):
+        if cls.objects.filter(number=cls.OFFICER_LEVEL_NUMBER).exists():
+            return cls.objects.get(number=cls.OFFICER_LEVEL_NUMBER)
+        else:
+            return cls.objects.create(
+                name=cls.MASTER_LEVEL_NAME, number=cls.MASTER_LEVEL_NUMBER
+            )
+
+    @classmethod
     def get_juniors(cls):
         return cls.objects.filter(number__lte=4, number__gte=1)
 
     @classmethod
     def get_seniors(cls):
-        return cls.objects.filter(number__gte=5)
+        return cls.objects.filter(number__lte=6, number__gte=5)
 
     @classmethod
     def get_senior_level_choices(cls):
@@ -67,7 +79,7 @@ class Level(models.Model):
 
 class Senior(models.Model):
     RANK_CHOICES = [
-        (0, "officer"),
+        (0, "Officer"),
         (1, "Cdt"),
         (2, "Lac"),
         (3, "Cpl"),
@@ -78,7 +90,7 @@ class Senior(models.Model):
         (8, "WO1"),
     ]
     CADET_RANK_CHOICES = RANK_CHOICES[1:]
-    OFFICER_RANK = RANK_CHOICES[0]
+    OFFICER_RANK_NUMBER = RANK_CHOICES[0][0]
 
     STANDARD_INSTRUCTOR = 1
     TRAINING_MANAGER = 2
