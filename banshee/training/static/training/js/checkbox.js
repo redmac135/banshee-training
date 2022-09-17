@@ -1,7 +1,6 @@
 function checkChild(element) {
     let child = $(element).children("input")[0];
     let label = $(element).find("label");
-    console.log(typeof(label))
     child.checked = !child.checked;
     if (child.checked) {
         label.removeClass("shadow-md");
