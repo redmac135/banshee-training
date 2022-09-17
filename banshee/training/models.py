@@ -363,7 +363,7 @@ class Teach(models.Model):
     def can_edit_plan(self, senior: Senior):
         if senior.is_training():
             return True
-        instructors = MapSeniorTeach.get_instructors()
+        instructors = MapSeniorTeach.get_instructors(self)
         allowed_list = [instructor[1] for instructor in instructors]
         if senior in allowed_list:
             return True
