@@ -15,6 +15,11 @@ urlpatterns = [
         TeachFormView.as_view(),
         name="teach-form",
     ),
+    path(
+        "teach/edit/<int:night_id>/<int:form_id>/<int:teach_id>",
+        TeachFormView.as_view(),
+        name="teach-form",
+    ),
     path("teach/assign/<int:teach_id>", AssignTeachView.as_view(), name="teach-assign"),
     path("teach/<int:teachid>", TeachView.as_view(), name="teach"),
     path(

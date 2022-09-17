@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load zip %}
 
 {% block links %}
 <script src="{% static 'training/js/checkbox.js' %}"></script>
@@ -13,22 +14,38 @@
                 Lesson
             </button>
         {% else %}
-        <a href="{% url 'teach-form' nightid 0 %}">
-            <button class="bg-clr-3 hover:bg-clr-4 text-white font-bold py-2 px-4 mx-2 mb-4 rounded">
-                Lesson
-            </button>
-        </a>
+            {% if teach_id %}
+            <a href="{% url 'teach-form' nightid 0 teach_id %}">
+                <button class="bg-clr-3 hover:bg-clr-4 text-white font-bold py-2 px-4 mx-2 mb-4 rounded">
+                    Lesson
+                </button>
+            </a>
+            {% else %}
+            <a href="{% url 'teach-form' nightid 0 %}">
+                <button class="bg-clr-3 hover:bg-clr-4 text-white font-bold py-2 px-4 mx-2 mb-4 rounded">
+                    Lesson
+                </button>
+            </a>
+            {% endif %}
         {% endif %}
         {% if formid == 1 %}
             <button class="bg-clr-3 text-white font-bold py-2 px-4 mx-2 mb-4 rounded opacity-50 cursor-not-allowed">
                 Activity
             </button>
         {% else %}
-        <a href="{% url 'teach-form' nightid 1 %}">
-            <button class="bg-clr-3 hover:bg-clr-4 text-white font-bold py-2 px-4 mx-2 mb-4 rounded">
-                Activity
-            </button>
-        </a>
+            {% if teach_id %}
+            <a href="{% url 'teach-form' nightid 1 teach_id %}">
+                <button class="bg-clr-3 hover:bg-clr-4 text-white font-bold py-2 px-4 mx-2 mb-4 rounded">
+                    Activity
+                </button>
+            </a>
+            {% else %}
+            <a href="{% url 'teach-form' nightid 1 %}">
+                <button class="bg-clr-3 hover:bg-clr-4 text-white font-bold py-2 px-4 mx-2 mb-4 rounded">
+                    Activity
+                </button>
+            </a>
+            {% endif %}
         {% endif %}
     </div>
     <form action="" method="post">
@@ -41,7 +58,7 @@
                         <label class="block text-clr-5 text-sm font-bold mb-2" for="{{ field.id_for_label }}">
                         {{ field.name }}
                         </label>
-                        <input class="shadow appearance-none border {% if field.errors %}border-red-500{% endif %} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="{{ field.id_for_label }}" name="{{ field.name }}">
+                        <input class="shadow appearance-none border {% if field.errors %}border-red-500{% endif %} rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="{{ field.id_for_label }}" name="{{ field.name }}" value="{{ field.initial|default_if_none:'' }}">
                     </div>
                     {% if field.errors %}
                         {% for error in field.errors %}
@@ -62,14 +79,14 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% for field in form.slot_fields %}
+                        {% for field, period_initial in form.slot_fields|zip:slot_initial %}
                             <tr class="h-[50px]" id="id_{{ field.name }}">
                                 <th>P{{ forloop.counter }}</th>
-                                {% for subwidget in field %}
+                                {% for subwidget, teach_initial in field|zip:period_initial %}
                                 <td class="w-[50px]">
                                     <div onclick="checkChild(this)">
                                         <label for="{{ subwidget.id_for_label }}" class="block p-4 m-2 bg-clr-3 hover:bg-yellow-500 rounded-lg shadow-md"></label>
-                                        <input type="checkbox" class="hidden" id="{{ subwidget.id_for_label }}" name="{{ field.name }}" value="{{ forloop.counter0 }}">
+                                        <input type="checkbox" id="{{ subwidget.id_for_label }}" name="{{ field.name }}" value="{{ forloop.counter0 }}" {{ teach_initial }}>
                                     </div>
                                 </td>
                             {% endfor %}

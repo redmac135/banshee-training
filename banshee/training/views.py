@@ -139,7 +139,7 @@ class TrainingNightView(LoginRequiredMixin, View):
         )
 
 
-class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, FormView):
+class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, View):
     template_name = "training/teachform.html"
     form_class = [
         ("Lesson", LessonTeachForm),
@@ -154,18 +154,39 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         form = self.form_class[form_id][1](levels, night_id, *args, **kwargs)
         return form
 
-    def get(self, request, night_id, form_id, *args, **kwargs):
+    def get(self, request, night_id, form_id, teach_id=None, *args, **kwargs):
         levels = Level.get_juniors()
-        form = self.init_form(levels, night_id, form_id)
+        if teach_id == None:
+            form = self.init_form(levels, night_id, form_id)
+            slot_initial = None
+        else:
+            teach_instance = Teach.get_by_teach_id(teach_id)
+            content_initial = teach_instance.get_form_content_initial()
+            slot_initial = teach_instance.get_form_slot_initial()
+            form = self.init_form(levels, night_id, form_id, initial=content_initial)
         return render(
             request,
             self.template_name,
-            {"form": form, "levels": levels, "nightid": night_id, "formid": form_id},
+            {
+                "form": form,
+                "levels": levels,
+                "nightid": night_id,
+                "formid": form_id,
+                "slot_initial": slot_initial,
+                "teach_id": teach_id,
+            },
         )
 
-    def post(self, request, night_id, form_id, *args, **kwargs):
+    def post(self, request, night_id, form_id, teach_id=None, *args, **kwargs):
         levels = Level.get_juniors()
-        form = self.init_form(levels, night_id, form_id, data=request.POST)
+        if teach_id == None:
+            form = self.init_form(levels, night_id, form_id, data=request.POST)
+        else:
+            teach_instance = Teach.get_by_teach_id(teach_id)
+            initial = teach_instance.get_form_initial()
+            form = self.init_form(
+                levels, night_id, form_id, initial=initial, data=request.POST
+            )
         if form.is_valid():
             form.save()
             teach_id = form.teach_id  # Created in form.save() Method
