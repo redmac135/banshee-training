@@ -388,11 +388,12 @@ class Teach(models.Model):
         settings = TrainingSetting.create()
         offset = settings.duedateoffset
         teach_date = self.get_date()
+        print(today + timedelta(days=offset))
 
         if teach_date < today + timedelta(days=offset):
-            return "Not Submitted"
-        else:
             return "Missing"
+        else:
+            return "Not Submitted"
 
     def update_plan(self, plan: str):
         self.plan = plan
@@ -483,7 +484,7 @@ class Lesson(models.Model):
 
     # This method is for the utils.trainingdayschedule class
     def format_html_block(self, teach: Teach):
-        block = "<p class='tracking-tight text-gray-400 leading-none'>Lesson</p>"
+        block = "<p class='tracking-tight leading-none'>Lesson</p>"
         block += (
             f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.eocode}</p>"
         )
@@ -491,7 +492,7 @@ class Lesson(models.Model):
         instructors = ""
         for role, instructor in MapSeniorTeach.get_instructors(teach):
             instructors += f"{role}: {instructor}<br>"
-        block += f"<p class='font-normal text-gray-400'>{instructors}</p>"
+        block += f"<p class='font-normal'>{instructors}</p>"
 
         return block
 
@@ -518,13 +519,13 @@ class Activity(models.Model):
 
     # This method is for the utils.trainingdayschedule class
     def format_html_block(self, teach: Teach):
-        block = "<p class='tracking-tight text-gray-400 leading-none'>Activity</p>"
+        block = "<p class='tracking-tight leading-none'>Activity</p>"
         block += f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.title}</p>"
 
         instructors = ""
         for instructor in MapSeniorTeach.get_instructors(teach):
             instructors += f"{instructor}<br>"
-        block += f"<p class='font-normal text-gray-400'>{instructors}</p>"
+        block += f"<p class='font-normal'>{instructors}</p>"
 
         return block
 
@@ -545,7 +546,7 @@ class EmptyLesson(models.Model):
 
     @classmethod
     def format_html_block(self):
-        return "<div class='text-center h-full font-bold text-lg tracking-tight text-gray-400'>UNASSIGNED</div>"
+        return "<div class='text-center h-full font-bold text-lg tracking-tight'>UNASSIGNED</div>"
 
 
 class MapSeniorTeach(models.Model):

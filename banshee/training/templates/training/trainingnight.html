@@ -14,22 +14,31 @@
     <div>
         <div class="flex justify-between">
             <div class="font-bold text-2xl text-white">{{ title.month }} {{ title.day|ordinal }} Training Night</div>
-            {% if user.senior.is_training %}
-                {% if view == "view" %}
-                    <form action="{% url 'edit-trainingnight' nightid %}">
-                        <input type="submit" value="Edit"
-                            class="text-white bg-clr-3 hover:bg-clr-4 focus:outline-none focus:bg-clr-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3 md:mr-0">
-                        </input>
-                    </form>
+            <div class="flex">
+                {% if user.senior.is_training %}
+                    {% if view != "view" %}
+                        <form action="{% url 'trainingnight' nightid %}" class="mx-1">
+                            <input type="submit" value="View"
+                                class="text-white bg-clr-3 hover:bg-clr-4 focus:outline-none focus:bg-clr-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3">
+                            </input>
+                        </form>
+                    {% endif %}
+                    {% if view != "edit" %}
+                        <form action="{% url 'edit-trainingnight' nightid %}" class="mx-1">
+                            <input type="submit" value="Edit"
+                                class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3">
+                            </input>
+                        </form>
+                    {% endif %}
+                    {% if view != "due" %} 
+                        <form action="{% url 'due-trainingnight' nightid %}" class="mx-1">
+                            <input type="submit" value="Due"
+                                class="text-white bg-red-600 hover:bg-red-800 focus:outline-none focus:bg-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3">
+                            </input>
+                        </form>
+                    {% endif %}
                 {% endif %}
-                {% if view == "edit" %} 
-                    <form action="{% url 'trainingnight' nightid %}">
-                        <input type="submit" value="View"
-                            class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3 md:mr-0">
-                        </input>
-                    </form>
-                {% endif %}
-            {% endif %}
+            </div>
         </div>
         {% for role in roles %}
             <p class="font-normal text-white"><strong>{{ role.0 }}: </strong>{{ role.1 }}</p>
@@ -38,7 +47,7 @@
     
     <div class="pt-8 overflow-x-auto mx-auto">
         <table class="plan-wrapper table-fixed min-w-[1000px]">
-            <tbody>
+            <tbody class="text-gray-400">
                 {{ schedule }}
             </tbody>
         </table>

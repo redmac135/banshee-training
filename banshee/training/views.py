@@ -22,6 +22,7 @@ from .forms import (
 )
 from .utils import (
     DashboardCalendar,
+    DueTrainingDaySchedule,
     EditTrainingDaySchedule,
     TrainingDaySchedule,
 )
@@ -156,6 +157,14 @@ class EditTrainingNightView(TrainingNightView):
     def get_context_data(self, **kwargs):
         context = {}
         context["view"] = "edit"
+        return context
+
+class DueTrainingNightView(TrainingNightView):
+    schedule_class = DueTrainingDaySchedule
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        context["view"] = "due"
         return context
 
 

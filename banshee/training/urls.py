@@ -12,6 +12,11 @@ urlpatterns = [
         EditTrainingNightView.as_view(),
         name="edit-trainingnight",
     ),
+    path(
+        "plan/due/<int:night_id>",
+        DueTrainingNightView.as_view(),
+        name="due-trainingnight",
+    ),
     path("plan/assign/<int:night_id>", AssignNightView.as_view(), name="night-assign"),
     path("dashboard", DashboardView.as_view(), name="dashboard"),
     path("dashboard/<str:view>", DashboardView.as_view(), name="dashboard"),
