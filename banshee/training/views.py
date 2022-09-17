@@ -186,14 +186,19 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, View):
 
     def get(self, request, night_id, form_id, teach_id=None, *args, **kwargs):
         levels = Level.get_juniors()
+        content_initial = {}
         if teach_id == None:
-            form = self.init_form(levels, night_id, form_id)
             slot_initial = None
         else:
             teach_instance = Teach.get_by_teach_id(teach_id)
-            content_initial = teach_instance.get_form_content_initial()
+            content_initial.update(teach_instance.get_form_content_initial())
             slot_initial = teach_instance.get_form_slot_initial()
-            form = self.init_form(levels, night_id, form_id, initial=content_initial)
+
+        # As get_form_content_initial will override with blank string
+        if content_initial["location"] == "":
+            content_initial["location"] = Teach.DEFAULT_LOCATION
+        
+        form = self.init_form(levels, night_id, form_id, initial=content_initial)
         return render(
             request,
             self.template_name,

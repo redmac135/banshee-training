@@ -28,11 +28,11 @@ class LoginForm(AuthenticationForm):
 
         if username and password:
             user = authenticate(self.request, username=username, password=password)
-            if user is None:   
+            if user is None:
                 raise ValidationError("Incorrect Username or Password")
             if user.senior.email_confirmed == False:
                 raise ValidationError("Activate your email before logging in.")
-        
+
         return cleaned_data
 
 

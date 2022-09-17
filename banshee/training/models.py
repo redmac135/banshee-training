@@ -234,6 +234,8 @@ class TrainingPeriod(models.Model):
 
 # Managing Lessons
 class Teach(models.Model):
+    DEFAULT_LOCATION = "Classroom"
+
     teach_id = (
         models.PositiveIntegerField()
     )  # For joining 2 period lessons or mulilevel lessons
