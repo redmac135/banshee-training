@@ -334,6 +334,7 @@ class TeachView(LoginRequiredMixin, View):
             context["plan"]["link"] = instance.plan
         
         context["assignments"] = MapSeniorTeach.get_instructors(instance)
+        context["can_edit_plan"] = instance.can_edit_plan(self.request.user.senior)
 
         context["night_id"] = instance.get_night_id()
 
@@ -346,14 +347,16 @@ class TeachView(LoginRequiredMixin, View):
         return render(request, self.template_name, context)
 
     def post(self, request, teach_id, *args, **kwargs):
-        form = self.form_class(teach_id, request.POST)
-        context = self.get_context_data(teach_id)
-        context.update({"form": form})
-        if form.is_valid():
-            if form.has_changed():
-                form.save()
-                messages.success(request, "Plan Uploaded Successfully.")
-            return render(request, self.template_name, context)
+        teach_instance = Teach.get_by_teach_id(teach_id)
+        if teach_instance.can_edit_plan(request.user.senior):
+            form = self.form_class(teach_id, request.POST)
+            context = self.get_context_data(teach_id)
+            context.update({"form": form})
+            if form.is_valid():
+                if form.has_changed():
+                    form.save()
+                    messages.success(request, "Plan Uploaded Successfully.")
+                return render(request, self.template_name, context)
         return render(request, self.template_name, context)
 
 

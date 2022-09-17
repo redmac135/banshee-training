@@ -358,6 +358,15 @@ class Teach(models.Model):
                     initial.append("")
             slot_initial.append(initial)
         return slot_initial
+    
+    def can_edit_plan(self, senior: Senior):
+        if senior.is_training():
+            return True
+        instructors = MapSeniorTeach.get_instructors()
+        allowed_list = [instructor[1] for instructor in instructors]
+        if senior in allowed_list:
+            return True
+        return False
 
     def get_level_list(self):
         queryset = self.get_neighbour_instances(self.teach_id)
