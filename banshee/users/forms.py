@@ -4,6 +4,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.contrib import messages
 
 from .models import AuthorizedEmail, TrainingSetting
 from .fields import CommaSeparatedEmailField
@@ -204,12 +205,11 @@ class AuthorizedEmailForm(forms.Form):
     is_officer = forms.BooleanField(required=False)
     emails = CommaSeparatedEmailField()
 
-    class Meta:
-        model = AuthorizedEmail
-
-    def save(self):
+    def save(self, request):
         is_officer = self.cleaned_data.get("is_officer")
         emails = self.cleaned_data.get("emails")
 
         for email in emails:
-            AuthorizedEmail.authorize_email(email, is_officer)
+            obj, created = AuthorizedEmail.authorize_email(email, is_officer)
+            if not created:
+                messages.warning(request, u"Email %s already exists so has been skipped" % str(obj))

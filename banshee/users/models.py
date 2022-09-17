@@ -49,7 +49,7 @@ class AuthorizedEmail(models.Model):
 
     @classmethod
     def authorize_email(cls, email: str, is_officer: bool = False):
-        return cls.objects.create(email=email, is_officer=is_officer)
+        return cls.objects.get_or_create(email=email, is_officer=is_officer)
 
     @classmethod
     def unauthorize_pk(cls, pk):

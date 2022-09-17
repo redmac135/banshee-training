@@ -116,7 +116,8 @@ class AuthorizedEmailFormView(LoginRequiredMixin, UserPassesTestMixin, FormView)
 
     def form_valid(self, form):
         if form.has_changed():
-            form.save()
+            # form.save method was expanded to include request for messaging
+            form.save(self.request)
             messages.success(self.request, "Emails Added Successfully.")
         return redirect("authemail")
 
