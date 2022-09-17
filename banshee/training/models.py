@@ -276,6 +276,10 @@ class Teach(models.Model):
     def get_absolute_url(self):
         return reverse("teach", args=[self.teach_id])
 
+    def get_absolute_edit_url(self):
+        night_id = self.get_night_id()
+        return reverse("teach-form", args=[night_id, 0, self.teach_id])
+
     def get_content_type(self):
         name = type(self.content).__name__
         return name
@@ -324,7 +328,7 @@ class Teach(models.Model):
 
     def get_form_slot_initial(self):
         instances = Teach.get_neighbour_instances(self.teach_id)
-        positions = instances.values_list("period__order", "level__number")
+        positions = instances.values_list("period__order", "level__name")
         night_instance = self.period.night
         levels = Level.get_juniors()
 
@@ -333,7 +337,7 @@ class Teach(models.Model):
         for num, period in enumerate(night_instance.get_periods(), 1):
             initial = []
             for level in levels:
-                if (num, level.number) in positions:
+                if (num, level.name) in positions:
                     initial.append("checked")
                 else:
                     initial.append("")

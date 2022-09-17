@@ -21,6 +21,7 @@ from .forms import (
 )
 from .utils import (
     DashboardCalendar,
+    EditTrainingDaySchedule,
     TrainingDaySchedule,
 )
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -108,6 +109,7 @@ class DashboardView(LoginRequiredMixin, View):
 # View for specific training night
 class TrainingNightView(LoginRequiredMixin, View):
     model = TrainingNight
+    schedule_class = TrainingDaySchedule
     template_name = "training/trainingnight.html"
 
     def get(self, request, night_id, *args, **kwargs):
@@ -116,7 +118,7 @@ class TrainingNightView(LoginRequiredMixin, View):
         level_objects = Level.get_juniors()
         levels = [level_object.name for level_object in level_objects]
 
-        schedule_obj = TrainingDaySchedule()
+        schedule_obj = self.schedule_class()
         schedule = schedule_obj.formatschedule(night, levels)
         mark_safe(schedule)
 
@@ -127,16 +129,32 @@ class TrainingNightView(LoginRequiredMixin, View):
         title["month"] = date.strftime("%B")
         title["day"] = date.day
 
-        return render(
-            request,
-            self.template_name,
-            {
+        context = {
                 "schedule": mark_safe(schedule),
                 "nightid": night.pk,
                 "roles": roles,
                 "title": title,
-            },
+            }
+        context.update(self.get_context_data())
+
+        return render(
+            request,
+            self.template_name,
+            context,
         )
+    
+    def get_context_data(self, **kwargs):
+        context = {}
+        context["view"] = "view"
+        return context
+    
+class EditTrainingNightView(TrainingNightView):
+    schedule_class = EditTrainingDaySchedule
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        context["view"] = "edit"
+        return context
 
 
 class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, View):
@@ -167,14 +185,7 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, View):
         return render(
             request,
             self.template_name,
-            {
-                "form": form,
-                "levels": levels,
-                "nightid": night_id,
-                "formid": form_id,
-                "slot_initial": slot_initial,
-                "teach_id": teach_id,
-            },
+            {"form": form, "levels": levels, "nightid": night_id, "formid": form_id, "slot_initial": slot_initial, "teach_id": teach_id},
         )
 
     def post(self, request, night_id, form_id, teach_id=None, *args, **kwargs):
@@ -184,9 +195,7 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, View):
         else:
             teach_instance = Teach.get_by_teach_id(teach_id)
             initial = teach_instance.get_form_initial()
-            form = self.init_form(
-                levels, night_id, form_id, initial=initial, data=request.POST
-            )
+            form = self.init_form(levels, night_id, form_id, initial=initial, data=request.POST)
         if form.is_valid():
             form.save()
             teach_id = form.teach_id  # Created in form.save() Method
@@ -310,7 +319,7 @@ class TeachView(LoginRequiredMixin, TemplateView):
 
 
 # Utility Views (views that do things but don't actually have a template)
-class EditTrainingNightView(LoginRequiredMixin, UserPassesTestMixin, APIView):
+class TrainingNightDetailView(LoginRequiredMixin, UserPassesTestMixin, APIView):
     http_method_names = ["get", "delete"]
 
     # For UserPassesTestMixin
