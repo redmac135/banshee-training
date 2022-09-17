@@ -78,7 +78,8 @@
                             {% endfor %}
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="slot_checkbox_table">
+                        <!-- slot_checkbox_table class is used in checkbox.js -->
                         {% for field, period_initial in form.slot_fields|zip:slot_initial %}
                             <tr class="h-[50px]" id="id_{{ field.name }}">
                                 <th>P{{ forloop.counter }}</th>
@@ -86,7 +87,7 @@
                                 <td class="w-[50px]">
                                     <div onclick="checkChild(this)">
                                         <label for="{{ subwidget.id_for_label }}" class="block p-4 m-2 bg-clr-3 hover:bg-yellow-500 rounded-lg shadow-md"></label>
-                                        <input type="checkbox" id="{{ subwidget.id_for_label }}" name="{{ field.name }}" value="{{ forloop.counter0 }}" {{ teach_initial }}>
+                                        <input type="checkbox" class="hidden" id="{{ subwidget.id_for_label }}" name="{{ field.name }}" value="{{ forloop.counter0 }}" {{ teach_initial }}>
                                     </div>
                                 </td>
                             {% endfor %}
