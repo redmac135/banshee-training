@@ -310,6 +310,36 @@ class Teach(models.Model):
     def get_neighbour_instances(cls, teach_id):
         return cls.objects.filter(teach_id=teach_id)
 
+    def get_form_content_initial(self):
+        initial = {}
+        initial["location"] = self.location
+        content_class = self.get_content_type()
+
+        if content_class == "Lesson":
+            initial.update(self.content.get_form_initial())
+        if content_class == "Activity":
+            initial.update(self.content.get_form_initial())
+
+        return initial
+
+    def get_form_slot_initial(self):
+        instances = Teach.get_neighbour_instances(self.teach_id)
+        positions = instances.values_list("period__order", "level__number")
+        night_instance = self.period.night
+        levels = Level.get_juniors()
+
+        slot_initial = []
+
+        for num, period in enumerate(night_instance.get_periods(), 1):
+            initial = []
+            for level in levels:
+                if (num, level.number) in positions:
+                    initial.append("checked")
+                else:
+                    initial.append("")
+            slot_initial.append(initial)
+        return slot_initial
+
     def get_level_list(self):
         queryset = self.get_neighbour_instances(self.teach_id)
         instances = queryset.values_list("level", flat=True)
@@ -405,6 +435,12 @@ class Lesson(models.Model):
             return instance.title
         return False
 
+    def get_form_initial(self):
+        initial = {}
+        initial["eocode"] = self.eocode
+        initial["title"] = self.title
+        return initial
+
     def change_title(self, title):
         self.title = title
         self.save()
@@ -438,6 +474,11 @@ class Activity(models.Model):
     def create(cls, title: str):
         instance = cls.objects.create(title=title)
         return instance
+
+    def get_form_initial(self):
+        initial = {}
+        initial["title"] = self.title
+        return initial
 
     # This method is for the utils.trainingdayschedule class
     def format_html_block(self, teach: Teach):
