@@ -108,14 +108,15 @@ class Senior(models.Model):
     rank = models.IntegerField()
     level = models.ForeignKey(Level, on_delete=models.SET_NULL, null=True)
     permission_level = models.IntegerField(choices=PERMISSION_CHOICES, default=1)
+    email_confirmed = models.BooleanField(default=False)
 
     def __str__(self):
         return (
-            self.rank_to_str(self.rank)
+            self.rank_to_str(int(self.rank))
             + ". "
-            + self.user.last_name
+            + self.user.last_name.capitalize()
             + ", "
-            + self.user.first_name
+            + self.user.first_name.capitalize()
         )
 
     class Meta:
@@ -358,7 +359,7 @@ class Teach(models.Model):
                     initial.append("")
             slot_initial.append(initial)
         return slot_initial
-    
+
     def can_edit_plan(self, senior: Senior):
         if senior.is_training():
             return True

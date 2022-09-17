@@ -159,6 +159,7 @@ class EditTrainingNightView(TrainingNightView):
         context["view"] = "edit"
         return context
 
+
 class DueTrainingNightView(TrainingNightView):
     schedule_class = DueTrainingDaySchedule
 
@@ -227,7 +228,13 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, View):
         return render(
             request,
             self.template_name,
-            {"form": form, "levels": levels, "nightid": night_id, "formid": form_id, 'slot_initial': slot_initial},
+            {
+                "form": form,
+                "levels": levels,
+                "nightid": night_id,
+                "formid": form_id,
+                "slot_initial": slot_initial,
+            },
         )
 
 
@@ -341,7 +348,7 @@ class TeachView(LoginRequiredMixin, View):
         context["plan"] = {"finished": finished}
         if finished:
             context["plan"]["link"] = instance.plan
-        
+
         context["assignments"] = MapSeniorTeach.get_instructors(instance)
         context["can_edit_plan"] = instance.can_edit_plan(self.request.user.senior)
 

@@ -1,15 +1,20 @@
 from django.shortcuts import render, redirect
 from django.views.generic.edit import FormView
+from django.views.generic import View
 from django.contrib import messages
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.utils.encoding import force_str
+from django.utils.http import urlsafe_base64_decode
 
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import AuthorizedEmail, TrainingSetting
+from .tokens import account_activation_token
+from .models import AccountActivation, AuthorizedEmail, TrainingSetting
 from .forms import (
     OfficerSignupForm,
     SignupForm,
@@ -77,15 +82,13 @@ class SignupView(FormView):
                 user=user, level=level_instance, rank=rank
             )
             user.save()
-
-            raw_password = form.cleaned_data.get("password1")
-
-            # login user after signing up
-            user = authenticate(username=user.username, password=raw_password)
-            login(request, user)
+            AccountActivation.send_activation_email(user, request)
+            messages.info(
+                request,
+                "Activation Email Sent, please activate your email before signing in",
+            )
 
             # redirect user to home page
-            messages.success(request, f"Signup Successful, Welcome {str(user.senior)}!")
             return redirect("home")
         context = self.get_context_data()
         context.update(
@@ -181,3 +184,25 @@ class TrainingSettingsView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         context = super(TrainingSettingsView, self).get_context_data(**kwargs)
         context["authorizedemails"] = AuthorizedEmail.get_list_of_emails()
         return context
+
+
+class ActivateAccountView(View):
+    def get(self, request, uidb64, token, *args, **kwargs):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            user = User.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+            user = None
+
+        if user is not None and account_activation_token.check_token(user, token):
+            user.senior.email_confirmed = True
+            user.senior.save()
+            messages.success(request, ("Your account have been confirmed."))
+        else:
+            messages.warning(
+                request,
+                (
+                    "The confirmation link was invalid, possibly because it has already been used."
+                ),
+            )
+        return redirect("login")

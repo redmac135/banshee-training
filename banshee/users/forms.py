@@ -20,6 +20,17 @@ class LoginForm(AuthenticationForm):
     class Meta:
         fields = ["username", "password"]
 
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        username = cleaned_data.get("username")
+
+        if username:
+            user = User.objects.get(username=username)
+            if user.senior.email_confirmed == False:
+                raise ValidationError("Activate your email before logging in.")
+
+        return cleaned_data
+
 
 class SignupForm(UserCreationForm):
     BLANK_CHOICE_RANK = [("", "Rank")]

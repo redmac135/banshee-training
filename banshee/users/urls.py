@@ -14,5 +14,6 @@ urlpatterns = [
         AuthorizedEmailDetailView.as_view(),
         name="authemail-detail",
     ),
+    path("activate/<uidb64>/<token>/", ActivateAccountView.as_view(), name="activate"),
     path("", include("django.contrib.auth.urls")),
 ]
