@@ -146,11 +146,11 @@ class UserSettingsForm(forms.Form):
         return [field for field in self if field.name in field_list]
 
     def active_fields(self):
-        field_list = ["first_name", "last_name"]
+        field_list = ["username", "first_name", "last_name"]
         return [field for field in self if field.name in field_list]
 
     def inactive_fields(self):
-        field_list = ["username", "rank", "level"]
+        field_list = ["level", "rank"]
         return [field for field in self if field.name in field_list]
 
     def clean(self):
