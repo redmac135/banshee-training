@@ -1,6 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
+<form action="{% url 'trainingsettings' %}">
+    <input type="submit" value="Back to Training Settings" class="text-white bg-clr-1 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 mt-2 ml-2"></input>
+</form>
 <div class="bg-clr-2 min-h-screen pt-2 font-mono">
     <div class="container mx-auto">
         <div class="inputs w-full max-w-2xl p-6 mx-auto">

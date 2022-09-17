@@ -188,7 +188,7 @@ class LessonTeachForm(BaseTeachForm):
         return Lesson.create(data["eocode"], data["title"])
 
     def clean(self):
-        cleaned_data = super().clean()
+        cleaned_data = super(LessonTeachForm, self).clean()
         eocode = cleaned_data.get("eocode")
         title = cleaned_data.get("title")
 

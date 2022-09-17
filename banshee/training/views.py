@@ -201,21 +201,24 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, View):
         levels = Level.get_juniors()
         if teach_id == None:
             form = self.init_form(levels, night_id, form_id, data=request.POST)
+            slot_initial = None
         else:
             teach_instance = Teach.get_by_teach_id(teach_id)
-            initial = teach_instance.get_form_initial()
+            initial = teach_instance.get_form_content_initial()
+            slot_initial = teach_instance.get_form_slot_initial()
             form = self.init_form(
                 levels, night_id, form_id, initial=initial, data=request.POST
             )
         if form.is_valid():
-            form.save()
-            teach_id = form.teach_id  # Created in form.save() Method
-            messages.success(request, "Teach Created Successfully.")
+            if form.has_changed():
+                form.save()
+                teach_id = form.teach_id  # Created in form.save() Method
+                messages.success(request, "Teach Created Successfully.")
             return redirect("teach-assign", teach_id=teach_id)
         return render(
             request,
             self.template_name,
-            {"form": form, "levels": levels, "nightid": night_id, "formid": form_id},
+            {"form": form, "levels": levels, "nightid": night_id, "formid": form_id, 'slot_initial': slot_initial},
         )
 
 
@@ -246,15 +249,18 @@ class AssignTeachView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         teach_instance = Teach.get_by_teach_id(teach_id)
         formset = self.init_form(teach_id, teach_instance)
         teach_attrs = teach_instance.get_content_attributes()
+        teach_url = teach_instance.get_absolute_edit_url()
         return render(
             request,
             self.template_name,
-            {"formset": formset, "teach": teach_attrs},
+            {"formset": formset, "teach": teach_attrs, "teach_url": teach_url},
         )
 
     def post(self, request, teach_id, *args, **kwargs):
         self.object = None
         teach_instance: Teach = Teach.get_by_teach_id(teach_id)
+        teach_attrs = teach_instance.get_content_attributes()
+        teach_url = teach_instance.get_absolute_edit_url()
         formset = self.init_form(teach_id, teach_instance, self.request.POST)
         if formset.is_valid():
             formset.save()
@@ -265,7 +271,7 @@ class AssignTeachView(LoginRequiredMixin, UserPassesTestMixin, FormView):
             return render(
                 request,
                 self.template_name,
-                {"formset": formset},
+                {"formset": formset, "teach": teach_attrs, "teach_url": teach_url},
             )
 
 
@@ -328,6 +334,8 @@ class TeachView(LoginRequiredMixin, View):
             context["plan"]["link"] = instance.plan
         
         context["assignments"] = MapSeniorTeach.get_instructors(instance)
+
+        context["night_id"] = instance.get_night_id()
 
         return context
 

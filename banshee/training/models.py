@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
 
 from users.models import TrainingSetting
 
@@ -317,6 +318,8 @@ class Teach(models.Model):
     @classmethod
     def get_by_teach_id(cls, teach_id):
         instances = cls.objects.filter(teach_id=teach_id)
+        if not instances.exists():
+            raise ObjectDoesNotExist("Teach ID not Found")
         return instances.first()
 
     def get_parent_instance(self):
