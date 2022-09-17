@@ -311,9 +311,9 @@ class Teach(models.Model):
         content_class = self.get_content_type()
 
         if content_class == "Lesson":
-            return Lesson.format_html_block(self.content, self)
+            return Lesson.format_html_block(self.content, self, self.location)
         if content_class == "Activity":
-            return Activity.format_html_block(self.content, self)
+            return Activity.format_html_block(self.content, self, self.location)
         if content_class == "EmptyLesson":
             return EmptyLesson.format_html_block()
         return "UNKNOWN CONTENT CLASS NAME"
@@ -486,8 +486,8 @@ class Lesson(models.Model):
         self.save()
 
     # This method is for the utils.trainingdayschedule class
-    def format_html_block(self, teach: Teach):
-        block = "<p class='tracking-tight leading-none'>Lesson</p>"
+    def format_html_block(self, teach: Teach, location: str):
+        block = f"<p class='tracking-tight leading-none'>Lesson at {location}</p>"
         block += (
             f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.eocode}</p>"
         )
@@ -521,8 +521,8 @@ class Activity(models.Model):
         return initial
 
     # This method is for the utils.trainingdayschedule class
-    def format_html_block(self, teach: Teach):
-        block = "<p class='tracking-tight leading-none'>Activity</p>"
+    def format_html_block(self, teach: Teach, location: str):
+        block = f"<p class='tracking-tight leading-none'>Activity at {location}</p>"
         block += f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.title}</p>"
 
         instructors = ""
