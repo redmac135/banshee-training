@@ -73,7 +73,7 @@ class SignupView(FormView):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
-            self.form_valid()
+            self.form_valid(form)
         context = self.get_context_data()
         context.update(
             {"form": form}
