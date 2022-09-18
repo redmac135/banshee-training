@@ -17,6 +17,7 @@ from .tokens import account_activation_token
 from .models import AccountActivation, AuthorizedEmail, TrainingSetting
 from .forms import (
     OfficerSignupForm,
+    ResendActivationEmailForm,
     SignupForm,
     LoginForm,
     AuthorizedEmailForm,
@@ -60,7 +61,7 @@ class SignupView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super(SignupView, self).get_context_data(**kwargs)
-        context["title"] = "Cadet Signup Form"
+        context["title"] = "Cadet Signup"
         return context
 
     def get(self, request, *args, **kwargs):
@@ -102,7 +103,7 @@ class OfficerSignupView(SignupView):
 
     def get_context_data(self, **kwargs):
         context = super(SignupView, self).get_context_data(**kwargs)
-        context["title"] = "Officer Signup Form"
+        context["title"] = "Officer Signup"
         return context
 
 
@@ -186,6 +187,28 @@ class TrainingSettingsView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         context["authorizedemails"] = AuthorizedEmail.get_list_of_emails()
         return context
 
+class ResendActivationEmailView(View):
+    form_class = ResendActivationEmailForm
+    template_name = 'users/resend_activation_email.html'
+
+    def get(self, request, *args, **kwargs):
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            cleaned_data = form.cleaned_data
+            email = cleaned_data.get('email')
+
+            user = User.objects.get(email=email)
+
+            AccountActivation.send_activation_email(user, request)
+            messages.success(request, ('Activation Email Successfully Sent.'))
+
+            return redirect('login')
+
+        return render(request, self.template_name, {'form': form})
 
 class ActivateAccountView(View):
     def get(self, request, uidb64, token, *args, **kwargs):

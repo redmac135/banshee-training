@@ -17,7 +17,7 @@
                     src="{% static 'base/img/778crest.png' %}"
                     alt="logo"
                   />
-                  <h4 class="text-xl font-semibold mt-1 mb-12 pb-1">Login</h4>
+                  <h4 class="text-xl font-semibold mt-1 mb-12 pb-1">Resend Activation Email</h4>
                 </div>
                 <form method="post">
                   {% csrf_token %}
@@ -54,8 +54,8 @@
                     </button>
                   </div>
                   <div class="flex items-center justify-between pb-6">
-                    <p class="mb-0 mr-2">Don't have an account?</p>
-                    <a class="text-blue-600" href="{% url 'signup' %}#main">Register Here</a>
+                    <p class="mb-0 mr-2">Already Activated?</p>
+                    <a class="text-blue-600" href="{% url 'signup' %}#main">Login Here</a>
                   </div>
                 </form>
               </div>
@@ -64,9 +64,9 @@
               class="lg:w-6/12 flex items-center lg:rounded-r-lg rounded-b-lg lg:rounded-bl-none bg-clr-2"
             >
               <div class="text-white px-4 py-6 md:p-12 md:mx-6">
-                <h4 class="text-xl font-semibold mb-6">Welcome back!</h4>
+                <h4 class="text-xl font-semibold mb-6">Be Nice.</h4>
                 <p class="text-sm">
-                  Hope you're having a great day :D
+                  Please don't spam this form, that would be annoying. If after using this form once, you still can't find the email, you probably entered the wrong email.
                 </p>
               </div>
             </div>

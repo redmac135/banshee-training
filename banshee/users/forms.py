@@ -201,6 +201,23 @@ class TrainingSettingsForm(forms.ModelForm):
         instance.save()
 
 
+class ResendActivationEmailForm(forms.Form):
+    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={"placeholder": "Email"}))
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        email = cleaned_data.get('email')
+
+        if email:
+            if not User.objects.filter(email=email).exists():
+                raise ValidationError({'email': "An Account with this Email Address does not Exist"})
+            user = User.objects.get(email=email)
+            senior = Senior.objects.get(user=user)
+            if senior.email_confirmed == True:
+                raise ValidationError({'email': "Your Email is Already Active!"})
+                
+        return cleaned_data
+
 class AuthorizedEmailForm(forms.Form):
     is_officer = forms.BooleanField(required=False)
     emails = CommaSeparatedEmailField()
