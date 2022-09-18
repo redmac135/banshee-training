@@ -73,29 +73,30 @@ class SignupView(FormView):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
-            user = form.save()
-
-            level = form.cleaned_data.get("level")
-            level_instance = Level.senior_numbertoinstance(level)
-            rank = form.cleaned_data.get("rank")
-
-            senior = Senior.objects.get_or_create(
-                user=user, level=level_instance, rank=rank
-            )
-            user.save()
-            AccountActivation.send_activation_email(user, request)
-            messages.info(
-                request,
-                "Activation Email Sent, please activate your email before signing in",
-            )
-
-            # redirect user to home page
-            return redirect("home")
+            self.form_valid()
         context = self.get_context_data()
         context.update(
             {"form": form}
         )  # override formclass from get_context_data as it doesn't contain request.POST data
         return render(request, self.template_name, {"form": form})
+
+    def form_valid(self, form):
+        user = form.save()
+
+        level = form.cleaned_data.get("level")
+        level_instance = Level.senior_numbertoinstance(level)
+        rank = form.cleaned_data.get("rank")
+
+        senior = Senior.objects.get_or_create(
+            user=user, level=level_instance, rank=rank
+        )
+        user.save()
+        AccountActivation.send_activation_email(user, self.request)
+        messages.info(
+            self.request,
+            "Activation Email Sent, please activate your email before signing in",
+        )
+        return redirect("home")
 
 
 class OfficerSignupView(SignupView):
@@ -105,6 +106,25 @@ class OfficerSignupView(SignupView):
         context = super(SignupView, self).get_context_data(**kwargs)
         context["title"] = "Officer Signup"
         return context
+
+    def form_valid(self, form):
+        user = form.save()
+
+        level = form.cleaned_data.get("level")
+        level_instance = Level.senior_numbertoinstance(level)
+        rank = form.cleaned_data.get("rank")
+
+        # permission_level = 3 for officers
+        senior = Senior.objects.get_or_create(
+            user=user, level=level_instance, rank=rank, permission_level=3
+        )
+        user.save()
+        AccountActivation.send_activation_email(user, self.request)
+        messages.info(
+            self.request,
+            "Activation Email Sent, please activate your email before signing in",
+        )
+        return redirect("home")
 
 
 class AuthorizedEmailFormView(LoginRequiredMixin, UserPassesTestMixin, FormView):
