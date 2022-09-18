@@ -197,7 +197,7 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, View):
         # As get_form_content_initial will override with blank string
         if content_initial["location"] == "":
             content_initial["location"] = Teach.DEFAULT_LOCATION
-        
+
         form = self.init_form(levels, night_id, form_id, initial=content_initial)
         return render(
             request,
@@ -252,7 +252,7 @@ class AssignTeachView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         return self.request.user.senior.is_training()
 
     def init_form(self, teach_id, teach_instance, *args, **kwargs):
-        senior_queryset = Senior.get_all()
+        senior_queryset = Senior.get_all_instructors()
         senior_choices = [(senior.id, str(senior)) for senior in senior_queryset]
         formset = self.formset_class(
             *args,
@@ -301,7 +301,7 @@ class AssignNightView(FormView):
     formset_class = AssignNightFormset
 
     def init_form(self, night_id, night_instance, *args, **kwargs):
-        senior_queryset = Senior.get_all()
+        senior_queryset = Senior.get_all_instructors()
         senior_choices = [(senior.id, str(senior)) for senior in senior_queryset]
         formset = self.formset_class(
             *args,

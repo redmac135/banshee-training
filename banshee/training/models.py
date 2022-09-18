@@ -124,21 +124,27 @@ class Senior(models.Model):
 
     @classmethod
     def by_level(cls, level):
-        return cls.objects.filter(level=level)
+        queryset = cls.get_all()
+        return queryset.filter(level=level)
 
     @classmethod
     def get_all(cls):
-        return cls.objects.all()
+        return cls.objects.filter(permission_level__lte=2)
+
+    @classmethod
+    def get_all_instructors(cls):
+        queryset = cls.get_all()
+        return queryset.filter(permission_level=1)
 
     @classmethod
     def get_by_id(cls, id: int):
-        instance = cls.get_all()
-        return instance.get(id=id)
+        queryset = cls.get_all()
+        return queryset.get(id=id)
 
     @classmethod
     def get_by_username(cls, username: str):
-        instance = cls.get_all()
-        return instance.get(user__username=username)
+        queryset = cls.get_all()
+        return queryset.get(user__username=username)
 
     @classmethod
     def rank_to_str(cls, number):

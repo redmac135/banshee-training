@@ -202,21 +202,26 @@ class TrainingSettingsForm(forms.ModelForm):
 
 
 class ResendActivationEmailForm(forms.Form):
-    email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={"placeholder": "Email"}))
+    email = forms.EmailField(
+        required=True, widget=forms.EmailInput(attrs={"placeholder": "Email"})
+    )
 
     def clean(self):
         cleaned_data = self.cleaned_data
-        email = cleaned_data.get('email')
+        email = cleaned_data.get("email")
 
         if email:
             if not User.objects.filter(email=email).exists():
-                raise ValidationError({'email': "An Account with this Email Address does not Exist"})
+                raise ValidationError(
+                    {"email": "An Account with this Email Address does not Exist"}
+                )
             user = User.objects.get(email=email)
             senior = Senior.objects.get(user=user)
             if senior.email_confirmed == True:
-                raise ValidationError({'email': "Your Email is Already Active!"})
-                
+                raise ValidationError({"email": "Your Email is Already Active!"})
+
         return cleaned_data
+
 
 class AuthorizedEmailForm(forms.Form):
     is_officer = forms.BooleanField(required=False)
@@ -229,4 +234,6 @@ class AuthorizedEmailForm(forms.Form):
         for email in emails:
             obj, created = AuthorizedEmail.authorize_email(email, is_officer)
             if not created:
-                messages.warning(request, u"Email %s already exists so has been skipped" % str(obj))
+                messages.warning(
+                    request, "Email %s already exists so has been skipped" % str(obj)
+                )

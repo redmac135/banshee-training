@@ -187,28 +187,30 @@ class TrainingSettingsView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         context["authorizedemails"] = AuthorizedEmail.get_list_of_emails()
         return context
 
+
 class ResendActivationEmailView(View):
     form_class = ResendActivationEmailForm
-    template_name = 'users/resend_activation_email.html'
+    template_name = "users/resend_activation_email.html"
 
     def get(self, request, *args, **kwargs):
         form = self.form_class()
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {"form": form})
 
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
             cleaned_data = form.cleaned_data
-            email = cleaned_data.get('email')
+            email = cleaned_data.get("email")
 
             user = User.objects.get(email=email)
 
             AccountActivation.send_activation_email(user, request)
-            messages.success(request, ('Activation Email Successfully Sent.'))
+            messages.success(request, ("Activation Email Successfully Sent."))
 
-            return redirect('login')
+            return redirect("login")
 
-        return render(request, self.template_name, {'form': form})
+        return render(request, self.template_name, {"form": form})
+
 
 class ActivateAccountView(View):
     def get(self, request, uidb64, token, *args, **kwargs):
