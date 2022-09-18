@@ -74,7 +74,7 @@ class AssignNightForm(AssignTeachForm):
     class Meta:
         model = MapSeniorNight
         fields = ["role", "senior"]
-    
+
     def save(self, commit: bool = True):
         ModelForm.save(self, commit)
         cleaned_data = self.cleaned_data

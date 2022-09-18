@@ -309,7 +309,11 @@ class AssignNightView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         senior_choices = [(senior.id, str(senior)) for senior in senior_queryset]
         formset = self.formset_class(
             *args,
-            form_kwargs={"night_id": night_id, "senior_choices": senior_choices, "parent_instance": night_instance},
+            form_kwargs={
+                "night_id": night_id,
+                "senior_choices": senior_choices,
+                "parent_instance": night_instance,
+            },
             instance=night_instance,
             **kwargs
         )

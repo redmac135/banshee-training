@@ -6,14 +6,25 @@ from django.core.mail import send_mail
 
 # Create your models here.
 class Email(models.Model):
-    sent_from = models.EmailField(default=settings.EMAIL_HOST_USER)
+    sent_from = models.EmailField()
     sent_to = models.EmailField()
     subject = models.CharField(max_length=255)
     message = models.TextField()
 
     @classmethod
-    def create(cls, sent_to: str, subject: str, message: str):
-        return cls.objects.create(sent_to=sent_to, subject=subject, message=message)
+    def create(
+        cls,
+        sent_to: str,
+        subject: str,
+        message: str,
+        sent_from=settings.EMAIL_HOST_USER,
+    ):
+        return cls.objects.create(
+            sent_to=sent_to,
+            subject=subject,
+            sent_from=sent_from,
+            message=message,
+        )
 
     @classmethod
     def send_training_email(cls, subject, message, sent_to):
@@ -30,7 +41,7 @@ class Email(models.Model):
 
         message = render_to_string(template, context)
         return cls.send_training_email(subject, message, user.email)
-    
+
     @classmethod
     def send_night_assignment_email(cls, user, night, role: str):
         template = "emails/night_assignment_email.html"
