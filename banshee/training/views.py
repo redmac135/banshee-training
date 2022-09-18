@@ -279,7 +279,7 @@ class AssignTeachView(LoginRequiredMixin, UserPassesTestMixin, FormView):
 
     def post(self, request, teach_id, *args, **kwargs):
         self.object = None
-        teach_instance: Teach = Teach.get_by_teach_id(teach_id)
+        teach_instance = Teach.get_by_teach_id(teach_id)
         teach_attrs = teach_instance.get_content_attributes()
         teach_url = teach_instance.get_absolute_edit_url()
         formset = self.init_form(teach_id, teach_instance, self.request.POST)
@@ -296,16 +296,20 @@ class AssignTeachView(LoginRequiredMixin, UserPassesTestMixin, FormView):
             )
 
 
-class AssignNightView(FormView):
+class AssignNightView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     template_name = "training/nightassign.html"
     formset_class = AssignNightFormset
+
+    # For UserPassesTestMixin
+    def test_func(self):
+        return self.request.user.senior.is_training()
 
     def init_form(self, night_id, night_instance, *args, **kwargs):
         senior_queryset = Senior.get_all_instructors()
         senior_choices = [(senior.id, str(senior)) for senior in senior_queryset]
         formset = self.formset_class(
             *args,
-            form_kwargs={"night_id": night_id, "senior_choices": senior_choices},
+            form_kwargs={"night_id": night_id, "senior_choices": senior_choices, "parent_instance": night_instance},
             instance=night_instance,
             **kwargs
         )

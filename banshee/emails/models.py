@@ -23,10 +23,19 @@ class Email(models.Model):
         )
 
     @classmethod
-    def send_assignment_email(cls, user, teach, role: str):
-        template = "emails/assignment_email.html"
+    def send_teach_assignment_email(cls, user, teach, role: str):
+        template = "emails/teach_assignment_email.html"
         subject = "Banshee Teach Assignment Notification"
         context = {"user": user, "teach": teach, "role": role}
+
+        message = render_to_string(template, context)
+        return cls.send_training_email(subject, message, user.email)
+    
+    @classmethod
+    def send_night_assignment_email(cls, user, night, role: str):
+        template = "emails/night_assignment_email.html"
+        subject = "Banshee Night Assignment Notification"
+        context = {"user": user, "night": night, "role": role}
 
         message = render_to_string(template, context)
         return cls.send_training_email(subject, message, user.email)

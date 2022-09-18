@@ -46,34 +46,27 @@ class AssignTeachForm(ModelForm):
         senior_instance = Senior.get_by_id(senior_id)
         cleaned_data.update({"senior": senior_instance})
 
+        if senior_instance.permission_level > 1:
+            raise ValidationError({"senior": "You can't assign this senior."})
+
         return cleaned_data
 
     def save(self, commit: bool = True):
         super(AssignTeachForm, self).save(commit)
         cleaned_data = self.cleaned_data
-        Email.send_assignment_email(
+        Email.send_teach_assignment_email(
             user=cleaned_data.get("senior").user,
             teach=self.parent_instance,
             role=cleaned_data.get("role"),
         )
 
 
-AssignTeachFormset = inlineformset_factory(
-    Teach, MapSeniorTeach, form=AssignTeachForm, extra=2
-)
-
-
-class AssignNightForm(ModelForm):
-    BLANK_CHOICE_SENIOR = [("", "Senior")]
-    BLANK_CHOICE_DASH = BLANK_CHOICE_DASH
-
-    role = forms.CharField(max_length=32)
-    senior = forms.ChoiceField(choices=[])
-
-    def __init__(self, *args, night_id, senior_choices, **kwargs):
-        super(AssignNightForm, self).__init__(*args, **kwargs)
+class AssignNightForm(AssignTeachForm):
+    def __init__(self, *args, night_id, senior_choices, parent_instance, **kwargs):
+        ModelForm.__init__(self, *args, **kwargs)
 
         self.night_id = night_id
+        self.parent_instance = parent_instance
         self.fields["senior"].choices = (
             self.BLANK_CHOICE_SENIOR + self.BLANK_CHOICE_DASH + senior_choices
         )
@@ -81,14 +74,20 @@ class AssignNightForm(ModelForm):
     class Meta:
         model = MapSeniorNight
         fields = ["role", "senior"]
-
-    def clean(self):
+    
+    def save(self, commit: bool = True):
+        ModelForm.save(self, commit)
         cleaned_data = self.cleaned_data
-        senior_id = cleaned_data.get("senior")
-        senior_instance = Senior.get_by_id(senior_id)
-        cleaned_data.update({"senior": senior_instance})
+        Email.send_night_assignment_email(
+            user=cleaned_data.get("senior").user,
+            night=self.parent_instance,
+            role=cleaned_data.get("role"),
+        )
 
-        return cleaned_data
+
+AssignTeachFormset = inlineformset_factory(
+    Teach, MapSeniorTeach, form=AssignTeachForm, extra=2
+)
 
 
 AssignNightFormset = inlineformset_factory(
