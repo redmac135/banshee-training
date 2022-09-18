@@ -29,4 +29,4 @@ class Email(models.Model):
         context = {"user": user, "teach": teach, "role": role}
 
         message = render_to_string(template, context)
-        return cls.send_training_email(subject, message, [user.email])
+        return cls.send_training_email(subject, message, user.email)
