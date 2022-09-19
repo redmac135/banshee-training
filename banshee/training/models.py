@@ -300,6 +300,10 @@ class Teach(models.Model):
 
     def get_absolute_edit_url(self):
         night_id = self.get_night_id()
+        content_class = self.get_content_type()
+        # Render activity form if it's an activity
+        if content_class == "Activity":
+            return reverse("teach-form", args=[night_id, 1, self.teach_id])
         return reverse("teach-form", args=[night_id, 0, self.teach_id])
 
     def get_content_type(self):
