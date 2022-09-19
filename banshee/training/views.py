@@ -292,7 +292,11 @@ class AssignTeachView(LoginRequiredMixin, UserPassesTestMixin, FormView):
             return render(
                 request,
                 self.template_name,
-                {"formset": formset, "teach_attrs": teach_attrs, "teach_url": teach_url},
+                {
+                    "formset": formset,
+                    "teach_attrs": teach_attrs,
+                    "teach_url": teach_url,
+                },
             )
 
 
