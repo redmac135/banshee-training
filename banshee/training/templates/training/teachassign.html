@@ -12,7 +12,7 @@
         {{ formset.management_form }}
         <div class="w-full max-w-xs text-clr-5">
             <div class="bg-clr-1 shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                {% for title, value in teach %}
+                {% for title, value in teach_attrs %}
                     <p><strong>{{ title }}: </strong>{{ value }}</p>
                 {% endfor %}
             </div>

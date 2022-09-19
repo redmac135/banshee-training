@@ -538,7 +538,7 @@ class Activity(models.Model):
         return block
 
     def get_content_attributes(self):
-        return ["Title", self.title]
+        return [("Title", self.title)]
 
 
 # Blank object for empty teach instances
