@@ -105,16 +105,21 @@
                     {% endif %}
                 {% endfor %}
             </div>
-            <div class="block p-4 mb-4 min-h-min w-56 bg-clr-1 rounded-lg shadow-md">
-                <div class="flex flex-col items-center">
+            <div class="block p-4 mb-4 min-h-min w-56 bg-clr-1 rounded-lg shadow-md min-w-max">
+                <div class="">
                     {% if form.errors %}
                         {% for error in form.non_field_errors %}
                         <p class="text-red-500 text-xs pb-2">{{ error }}</p>
                         {% endfor %}
                     {% endif %}
-                    <input type="submit" name="submit" value="Submit"
-                        class="text-white bg-clr-3 hover:bg-clr-4 focus:outline-none focus:bg-clr-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3 md:mr-0">
-                    </input>
+                    <div class="flex">
+                        <input type="submit" name="saveteach" value="Save"
+                            class="text-white bg-clr-3 hover:bg-clr-4 focus:outline-none focus:bg-clr-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center mx-3">
+                        </input>
+                        <input type="submit" name="assignteach" value="Assign Seniors"
+                            class="text-white bg-clr-3 hover:bg-clr-4 focus:outline-none focus:bg-clr-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3">
+                        </input>
+                    </div>
                 </div>
             </div>
         </div>
