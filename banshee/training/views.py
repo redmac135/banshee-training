@@ -38,11 +38,6 @@ class HomeView(TemplateView, LoginRequiredMixin):
         return redirect("dashboard", view="view")
 
 
-# Testing View
-class ExampleView(TemplateView):
-    template_name = "training/example.html"
-
-
 # Functions for Calendar List Views
 def get_date(req_day):
     if req_day:
