@@ -57,6 +57,10 @@ class AuthorizedEmail(models.Model):
         return instance.delete()
 
     @classmethod
+    def email_exists(cls, email: str):
+        return cls.objects.filter(email=email).exists()
+
+    @classmethod
     def cadet_email_exists(cls, email: str):
         return cls.objects.filter(email=email, is_officer=False).exists()
 
