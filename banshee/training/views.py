@@ -225,7 +225,7 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, View):
                 teach_id = form.teach_id  # Created in form.save() Method
                 messages.success(request, "Teach Created Successfully.")
             if "saveteach" in request.POST:
-                return redirect("trainingnight", night_id=night_id)
+                return redirect("edit-trainingnight", night_id=night_id)
             if "assignteach" in request.POST:
                 return redirect("teach-assign", teach_id=teach_id)
             return redirect("teach-assign", teach_id=teach_id)
