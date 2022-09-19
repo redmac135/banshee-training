@@ -11,7 +11,7 @@
                     {% for field in form.settings_fields %}
                         {% if field.errors %}
                         <div class="w-full md:w-full px-3 mb-6">
-                            <label class="block uppercase tracking-wide text-xs font-bold mb-2" for="{{ field.id_for_label }}">{{ field.name }}</label>
+                            <label class="block uppercase tracking-wide text-xs font-bold mb-2" for="{{ field.id_for_label }}">{{ field.label }}</label>
                             <input class="appearance-none block w-full bg-white text-gray-700 border border-red-600 shadow-inner rounded-md py-3 px-4 leading-tight focus:outline-none  focus:border-red-400" id="{{ field.id_for_label }}" type="text" placeholder="{{ field.placeholder }}" name="{{ field.name }}" value="{{ field.initial }}" required>
                             {% for error in field.errors %}
                             <p class="text-red-600">{{ error }}</p>
@@ -19,7 +19,7 @@
                         </div>
                         {% else %}
                         <div class="w-full md:w-full px-3 mb-6">
-                            <label class="block uppercase tracking-wide text-xs font-bold mb-2" for="{{ field.id_for_label }}">{{ field.name }}</label>
+                            <label class="block uppercase tracking-wide text-xs font-bold mb-2" for="{{ field.id_for_label }}">{{ field.label }}</label>
                             <input class="appearance-none block w-full bg-white text-gray-700 border border-gray-400 shadow-inner rounded-md py-3 px-4 leading-tight focus:outline-none  focus:border-gray-500" id="{{ field.id_for_label }}" type="text" placeholder="{{ field.placeholder }}" name="{{ field.name }}" value="{{ field.initial }}" required>
                         </div>
                         {% endif %}
@@ -36,7 +36,7 @@
                             {% for field in form.active_fields %}
                                 {% if field.errors %}
                                 <div class="w-full md:w-1/2 px-3 mb-6">
-                                    <label class="block uppercase tracking-wide text-xs font-bold mb-2" for="{{ field.id_for_label }}">{{ field.name }}</label>
+                                    <label class="block uppercase tracking-wide text-xs font-bold mb-2" for="{{ field.id_for_label }}">{{ field.label }}</label>
                                     <input class="appearance-none block w-full bg-white text-gray-700 border border-red-600 shadow-inner rounded-md py-3 px-4 leading-tight focus:outline-none  focus:border-red-400" type="text" id="{{ field.id_for_label }}" name="{{ field.name }}" value="{{ field.initial }}" required>
                                     {% for error in field.errors %}
                                     <p class="text-red-600">{{ error }}</p>
@@ -44,7 +44,7 @@
                                 </div>
                                 {% else %}
                                 <div class="w-full md:w-1/2 px-3 mb-6">
-                                    <label class="block uppercase tracking-wide text-xs font-bold mb-2" for="{{ field.id_for_label }}">{{ field.name }}</label>
+                                    <label class="block uppercase tracking-wide text-xs font-bold mb-2" for="{{ field.id_for_label }}">{{ field.label }}</label>
                                     <input class="appearance-none block w-full bg-white text-gray-700 border border-gray-400 shadow-inner rounded-md py-3 px-4 leading-tight focus:outline-none  focus:border-gray-500" type="text" id="{{ field.id_for_label }}" name="{{ field.name }}" value="{{ field.initial }}" required>
                                 </div>
                                 {% endif %}
@@ -54,7 +54,7 @@
                             {% for field in form.inactive_fields %}
                                 {% if field.errors %}
                                 <div class="w-full md:w-1/2 px-3 mb-6">
-                                    <label class="block uppercase tracking-wide text-xs font-bold mb-2" >{{ field.name }}</label>
+                                    <label class="block uppercase tracking-wide text-xs font-bold mb-2" >{{ field.label }}</label>
                                     <input class="appearance-none block w-full bg-white text-gray-700 border border-gray-400 shadow-inner rounded-md py-3 px-4 leading-tight focus:outline-none  focus:border-gray-500" type="text" name="{{ field.name }}" required readonly value="{{ field.initial }}">
                                     {% for error in field.errors %}
                                     <p class="text-red-600">{{ error }}</p>
@@ -62,7 +62,7 @@
                                 </div>
                                 {% else %}
                                 <div class="w-full md:w-1/2 px-3 mb-6">
-                                    <label class="block uppercase tracking-wide text-xs font-bold mb-2" >{{ field.name }}</label>
+                                    <label class="block uppercase tracking-wide text-xs font-bold mb-2" >{{ field.label }}</label>
                                     <input class="appearance-none block w-full bg-white text-gray-700 border border-gray-400 shadow-inner rounded-md py-3 px-4 leading-tight focus:outline-none  focus:border-gray-500" type="text" name="{{ field.name }}" required readonly value="{{ field.initial }}">
                                 </div>
                                 {% endif %}
