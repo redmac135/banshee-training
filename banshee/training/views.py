@@ -287,7 +287,7 @@ class AssignTeachView(LoginRequiredMixin, UserPassesTestMixin, FormView):
             formset.save()
             night_id = teach_instance.get_night_id()
             messages.success(request, "Seniors Assigned Successfully.")
-            return redirect("trainingnight", night_id=night_id)
+            return redirect("edit-trainingnight", night_id=night_id)
         else:
             return render(
                 request,
