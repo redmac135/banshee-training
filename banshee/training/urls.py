@@ -36,6 +36,5 @@ urlpatterns = [
         "api/<int:year>/<int:month>/<int:day>/",
         TrainingNightDetailView.as_view(),
         name="api-trainingnight",
-    ),
-    path("example", ExampleView.as_view(), name="example"),
+    )
 ]
