@@ -17,7 +17,7 @@
                         {% if user.senior.is_training %}
                             {% if view != 'view' %}
                                 <a href="{% url 'dashboard' 'view' %}?{{ curr_month }}">
-                                    <button aria-label="calendar backward"
+                                    <button aria-label="calendar view"
                                         class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left"
                                             width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -29,7 +29,7 @@
                             {% endif %}
                             {% if view != 'create' %}
                                 <a href="{% url 'dashboard' 'create' %}?{{ curr_month }}">
-                                    <button aria-label="calendar backward"
+                                    <button aria-label="calendar create"
                                         class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left"
                                             width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
@@ -41,7 +41,7 @@
                             {% endif %}
                             {% if view != 'delete' %}
                                 <a href="{% url 'dashboard' 'delete' %}?{{ curr_month }}">
-                                    <button aria-label="calendar backward"
+                                    <button aria-label="calendar delete"
                                         class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
                                         <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px"
                                             width="24" height="24" viewBox="0 0 24 24"
