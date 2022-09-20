@@ -175,6 +175,7 @@ class BaseTeachForm(forms.Form):
 
 class LessonTeachForm(BaseTeachForm):
     EOCODE_REGEX = re.compile("^[a-zA-Z][a-zA-Z0-9_.-]\d\d\.\d\d$")
+    EXTENDED_EOCODE_REGEX = re.compile("^EO [a-zA-Z][a-zA-Z0-9_.-]\d\d\.\d\d$") # A code including the EO at the beginning
 
     eocode = forms.CharField(
         max_length=64, widget=forms.TextInput(attrs={"placeholder": "M000.00"})
@@ -192,9 +193,13 @@ class LessonTeachForm(BaseTeachForm):
         title = cleaned_data.get("title")
 
         if eocode:
+            # Remove "EO " from "EO M000.00" if it is in that form
+            if self.EXTENDED_EOCODE_REGEX.match(eocode):
+                cleaned_data["eocode"] = eocode[3:]
+            # Don't need to leave if-statement as the resulting string should be in form "M000.00"
             if not self.EOCODE_REGEX.match(eocode):
                 raise ValidationError(
-                    {"eocode": "Please enter the eocode in the format M000.00"}
+                    {"eocode": "Please enter the eocode in the format M000.00 or EO M000.00"}
                 )
 
         if not title:
