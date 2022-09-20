@@ -107,7 +107,7 @@ class DashboardView(LoginRequiredMixin, View):
 class TrainingNightView(LoginRequiredMixin, View):
     model = TrainingNight
     schedule_class = TrainingDaySchedule
-    template_name = "training/trainingnight.html"
+    template_name = "training/night.html"
 
     def get(self, request, night_id, *args, **kwargs):
         night: TrainingNight = TrainingNight.objects.get(pk=night_id)
