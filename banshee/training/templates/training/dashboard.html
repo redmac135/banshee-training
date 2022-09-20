@@ -17,7 +17,7 @@
                         {% if user.senior.is_training %}
                             {% if view != 'view' %}
                                 <a href="{% url 'dashboard' 'view' %}?{{ curr_month }}">
-                                    <button aria-label="calendar view"
+                                    <button aria-label="calendar edit"
                                         class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left"
                                             width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
