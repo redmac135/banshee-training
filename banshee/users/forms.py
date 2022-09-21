@@ -172,7 +172,11 @@ class UserSettingsForm(forms.Form):
             if email != curremail and User.objects.filter(email=email).exists():
                 raise ValidationError({"email": "Email already taken."})
             if not AuthorizedEmail.email_exists(email):
-                raise ValidationError({"email": "This email is not authorized, if you believe this to be an error, message the admin."})
+                raise ValidationError(
+                    {
+                        "email": "This email is not authorized, if you believe this to be an error, message the admin."
+                    }
+                )
 
         return cleaned_data
 

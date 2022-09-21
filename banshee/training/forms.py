@@ -24,7 +24,10 @@ class AssignTeachForm(ModelForm):
     BLANK_CHOICE_SENIOR = [("", "Senior")]
     BLANK_CHOICE_DASH = BLANK_CHOICE_DASH
 
-    role = forms.CharField(max_length=32)
+    # List attribute for datalist in template
+    role = forms.CharField(
+        max_length=32, widget=forms.TextInput(attrs={"list": "role_datalist"})
+    )
     senior = forms.ChoiceField(choices=[])
 
     def __init__(self, *args, teach_id, senior_choices, parent_instance, **kwargs):
@@ -175,7 +178,9 @@ class BaseTeachForm(forms.Form):
 
 class LessonTeachForm(BaseTeachForm):
     EOCODE_REGEX = re.compile("^[a-zA-Z][a-zA-Z0-9_.-]\d\d\.\d\d$")
-    EXTENDED_EOCODE_REGEX = re.compile("^EO [a-zA-Z][a-zA-Z0-9_.-]\d\d\.\d\d$") # A code including the EO at the beginning
+    EXTENDED_EOCODE_REGEX = re.compile(
+        "^EO [a-zA-Z][a-zA-Z0-9_.-]\d\d\.\d\d$"
+    )  # A code including the EO at the beginning
 
     eocode = forms.CharField(
         max_length=64, widget=forms.TextInput(attrs={"placeholder": "M000.00"})
@@ -200,7 +205,9 @@ class LessonTeachForm(BaseTeachForm):
             # Don't need to leave if-statement as the resulting string should be in form "M000.00"
             if not self.EOCODE_REGEX.match(eocode):
                 raise ValidationError(
-                    {"eocode": "Please enter the eocode in the format M000.00 or EO M000.00"}
+                    {
+                        "eocode": "Please enter the eocode in the format M000.00 or EO M000.00"
+                    }
                 )
 
         if not title:
