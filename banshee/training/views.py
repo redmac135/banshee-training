@@ -265,22 +265,29 @@ class AssignTeachView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         )
         return formset
 
+    def get_context_data(self, formset, teach_instance, **kwargs):
+        context = {}
+        context["formset"] = formset
+        context["teach_attrs"] = teach_instance.get_content_attributes()
+        context["teach_url"] = teach_instance.get_absolute_edit_url()
+        context["role_suggestions"] = MapSeniorTeach.DATALIST_SUGGESTIONS
+
+        return context
+
     def get(self, request, teach_id, *args, **kwargs):
         teach_instance = Teach.get_by_teach_id(teach_id)
         formset = self.init_form(teach_id, teach_instance)
-        teach_attrs = teach_instance.get_content_attributes()
-        teach_url = teach_instance.get_absolute_edit_url()
+        context = self.get_context_data(formset, teach_instance)
         return render(
             request,
             self.template_name,
-            {"formset": formset, "teach_attrs": teach_attrs, "teach_url": teach_url},
+            context,
         )
 
     def post(self, request, teach_id, *args, **kwargs):
         self.object = None
         teach_instance = Teach.get_by_teach_id(teach_id)
-        teach_attrs = teach_instance.get_content_attributes()
-        teach_url = teach_instance.get_absolute_edit_url()
+        context = self.get_context_data(formset, teach_instance)
         formset = self.init_form(teach_id, teach_instance, self.request.POST)
         if formset.is_valid():
             formset.save()
@@ -291,11 +298,7 @@ class AssignTeachView(LoginRequiredMixin, UserPassesTestMixin, FormView):
             return render(
                 request,
                 self.template_name,
-                {
-                    "formset": formset,
-                    "teach_attrs": teach_attrs,
-                    "teach_url": teach_url,
-                },
+                context,
             )
 
 
@@ -306,6 +309,13 @@ class AssignNightView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     # For UserPassesTestMixin
     def test_func(self):
         return self.request.user.senior.is_training()
+
+    def get_context_data(self, formset, **kwargs):
+        context = {}
+        context["formset"] = formset
+        context["role_suggestions"] = MapSeniorNight.DATALIST_SUGGESTIONS
+
+        return context
 
     def init_form(self, night_id, night_instance, *args, **kwargs):
         senior_queryset = Senior.get_all_instructors()
@@ -325,16 +335,18 @@ class AssignNightView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     def get(self, request, night_id, *args, **kwargs):
         night_instance = TrainingNight.get(night_id)
         formset = self.init_form(night_id, night_instance)
+        context = self.get_context_data(formset)
         return render(
             request,
             self.template_name,
-            {"formset": formset},
+            context,
         )
 
     def post(self, request, night_id, *args, **kwargs):
         self.object = None
         night_instance = TrainingNight.get(night_id)
         formset = self.init_form(night_id, night_instance, self.request.POST)
+        context = self.get_context_data(formset)
         if formset.is_valid():
             formset.save()
             messages.success(request, "Seniors Assigned Successfully.")
@@ -343,7 +355,7 @@ class AssignNightView(LoginRequiredMixin, UserPassesTestMixin, FormView):
             return render(
                 request,
                 self.template_name,
-                {"formset": formset},
+                context,
             )
 
 

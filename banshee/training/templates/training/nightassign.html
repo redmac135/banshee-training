@@ -29,18 +29,16 @@
                             {{ form.senior.label_tag }}
                         </label>
                     </div>
-                    {% if form.senior.errors %}
                     <div class="md:w-2/3">
-                        {{ form.senior|addclass:'select2 bg-gray-200 appearance-none rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-red-300 border-red-600 border border-solid border-2' }}
-                        {% for error in form.senior.errors %}
-                            <p class="mb-4 text-red-600 font-thin italic">{{ error }}</p>
-                        {% endfor %}
+                        {% if form.senior.errors %}
+                            {{ form.senior|addclass:'select2 bg-gray-200 appearance-none rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-red-300 border-red-600 border border-solid border-2' }}
+                            {% for error in form.senior.errors %}
+                                <p class="mb-4 text-red-600 font-thin italic">{{ error }}</p>
+                            {% endfor %}
+                        {% else %}
+                            {{ form.senior|addclass:'select2 bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white' }}
+                        {% endif %}
                     </div>
-                    {% else %}
-                    <div class="md:w-2/3">
-                        {{ form.senior|addclass:'select2 bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white' }}
-                    </div>
-                    {% endif %}
                 </div>
                 <div class="md:flex md:items-center mb-6 max-w-sm">
                     <div class="md:w-1/3">
@@ -48,18 +46,21 @@
                             {{ form.role.label_tag }}
                         </label>
                     </div>
-                    {% if form.role.errors %}
-                    <div class="md:w-2/3" id="role">
-                        {{ form.role|addclass:'bg-gray-200 appearance-none rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-red-300 border-red-600 border border-solid border-2' }}
-                        {% for error in form.role.errors %}
-                            <p class="mb-4 text-red-600 font-thin italic">{{ error }}</p>
-                        {% endfor %}
-                    </div>
-                    {% else %}
                     <div class="md:w-2/3">
-                        {{ form.role|addclass:'bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white' }}
+                        {% if form.role.errors %}
+                            {{ form.role|addclass:'bg-gray-200 appearance-none rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-red-300 border-red-600 border border-solid border-2' }}
+                            {% for error in form.role.errors %}
+                                <p class="mb-4 text-red-600 font-thin italic">{{ error }}</p>
+                            {% endfor %}
+                        {% else %}
+                            {{ form.role|addclass:'bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white' }}
+                        {% endif %}
+                        <datalist id="role_datalist">
+                            {% for suggestion in role_suggestions %}
+                            <option value="{{ suggestion }}"></option>
+                            {% endfor %}
+                        </datalist>
                     </div>
-                    {% endif %}
                 </div>
                 <div class="md:flex md:items-center max-w-sm">
                     <div class="md:w-1/3"></div>

@@ -566,6 +566,7 @@ class EmptyLesson(models.Model):
 
 class MapSeniorTeach(models.Model):
     IC_ROLE_NAME = "ic"
+    DATALIST_SUGGESTIONS = ["IC", "Mod", "ADI"]
 
     teach = models.ForeignKey(Teach, on_delete=models.CASCADE)
     senior = models.ForeignKey(Senior, on_delete=models.CASCADE)
@@ -606,6 +607,8 @@ class MapSeniorTeach(models.Model):
 
 
 class MapSeniorNight(models.Model):
+    DATALIST_SUGGESTIONS = ["Duty NCO", "Floater"]
+
     night = models.ForeignKey(TrainingNight, on_delete=models.CASCADE)
     senior = models.ForeignKey(Senior, on_delete=models.CASCADE)
     role = models.CharField(max_length=32)
