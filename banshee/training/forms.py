@@ -196,6 +196,7 @@ class LessonTeachForm(BaseTeachForm):
             # Remove "EO " from "EO M000.00" if it is in that form
             if self.EXTENDED_EOCODE_REGEX.match(eocode):
                 cleaned_data["eocode"] = eocode[3:]
+                eocode = eocode[3:]
             # Don't need to leave if-statement as the resulting string should be in form "M000.00"
             if not self.EOCODE_REGEX.match(eocode):
                 raise ValidationError(
