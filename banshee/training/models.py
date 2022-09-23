@@ -246,8 +246,136 @@ class TrainingPeriod(models.Model):
 
 
 # Managing Lessons
+class PerformanceObjective(models.Model):
+    po = models.CharField(max_length=3, unique=True)
+    po_title = models.CharField(max_length=256, blank=True, null=True)
+
+    def __str__(self):
+        return self.po
+
+    @classmethod
+    def create(cls, po: str, po_title: str):
+        if cls.objects.filter(po=po).exists():
+            return cls.objects.get(po=po)
+
+        instance = cls.objects.create(po=po, po_title=po_title)
+        return instance
+
+
+class Lesson(models.Model):
+    po = models.ForeignKey(PerformanceObjective, on_delete=models.SET_NULL, null=True)
+    eocode = models.CharField(
+        max_length=64, unique=True
+    )  # Should be in the format 'M336.04'
+    title = models.CharField(max_length=256)
+
+    def __str__(self):
+        return self.eocode
+
+    @classmethod
+    def create(cls, eocode: str, title: str, po_title: str = None, po: str = None):
+        if cls.objects.filter(eocode=eocode).exists():
+            instance = cls.objects.get(eocode=eocode)
+            if not instance.title == title:
+                instance.change_title(title)
+            return cls.objects.get(eocode=eocode)
+
+        if po == None:
+            po = eocode[1:4]
+
+        po_instance = PerformanceObjective.create(po, po_title)
+        instance = cls.objects.create(po=po_instance, eocode=eocode, title=title)
+        return instance
+
+    @classmethod
+    def get_title(cls, eocode: str):
+        if cls.objects.filter(eocode=eocode).exists():
+            instance = cls.objects.get(eocode=eocode)
+            return instance.title
+        return False
+
+    def get_form_initial(self):
+        initial = {}
+        initial["eocode"] = self.eocode
+        initial["title"] = self.title
+        return initial
+
+    def change_title(self, title):
+        self.title = title
+        self.save()
+
+    # This method is for the utils.trainingdayschedule class
+    def format_html_block(self, teach, location: str):
+        block = f"<p class='tracking-tight leading-none'>Lesson at {location}</p>"
+        block += (
+            f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.eocode}</p>"
+        )
+
+        instructors = ""
+        for role, instructor in MapSeniorTeach.get_instructors(teach):
+            instructors += f"{role}: {instructor}<br>"
+        block += f"<p class='font-normal'>{instructors}</p>"
+
+        return block
+
+    def get_content_attributes(self):
+        return [("EO Code", self.eocode), ("Title", self.title)]
+
+
+class Activity(models.Model):
+    title = models.CharField(max_length=256, default="Squadron-Organized Event")
+
+    def __str__(self):
+        return self.title
+
+    @classmethod
+    def create(cls, title: str):
+        instance = cls.objects.create(title=title)
+        return instance
+
+    def get_form_initial(self):
+        initial = {}
+        initial["title"] = self.title
+        return initial
+
+    # This method is for the utils.trainingdayschedule class
+    def format_html_block(self, teach, location: str):
+        block = f"<p class='tracking-tight leading-none'>Activity at {location}</p>"
+        block += f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.title}</p>"
+
+        instructors = ""
+        for instructor in MapSeniorTeach.get_instructors(teach):
+            instructors += f"{instructor}<br>"
+        block += f"<p class='font-normal'>{instructors}</p>"
+
+        return block
+
+    def get_content_attributes(self):
+        return [("Title", self.title)]
+
+
+# Blank object for empty teach instances
+class EmptyLesson(models.Model):
+    def __str__(self):
+        return "Empty Lesson Placeholder"
+
+    @classmethod
+    def create(cls):
+        return cls.objects.create()
+
+    @classmethod
+    def format_html_block(self, *args, **kwargs):
+        return "<div class='text-center h-full font-bold text-lg tracking-tight'>UNASSIGNED</div>"
+
+
 class Teach(models.Model):
     DEFAULT_LOCATION = "Classroom"
+    DEFAULT_CONTENT_CLASS = EmptyLesson
+    CONTENT_CLASSES_LIST = [
+        (0, Lesson),
+        (1, Activity),
+    ]
+    CONTENT_CLASSES = [x[1] for x in CONTENT_CLASSES_LIST]
 
     teach_id = (
         models.PositiveIntegerField()
@@ -302,6 +430,14 @@ class Teach(models.Model):
         )
         return instance
 
+    @classmethod
+    def get_by_teach_id(cls, teach_id):
+        instances = cls.objects.filter(teach_id=teach_id)
+        if not instances.exists():
+            raise ObjectDoesNotExist("Teach ID not Found")
+        return instances.first()
+
+    # Get Teach Attrs or Related Data
     def get_absolute_url(self):
         return reverse("teach", args=[self.teach_id])
 
@@ -313,34 +449,11 @@ class Teach(models.Model):
             return reverse("teach-form", args=[night_id, 1, self.teach_id])
         return reverse("teach-form", args=[night_id, 0, self.teach_id])
 
-    def get_content_type(self):
-        name = type(self.content).__name__
-        return name
-
     def get_night_id(self):
         return self.period.night.id
 
     def get_date(self):
         return self.period.night.date
-
-    def format_html_block(self):
-        self = self.get_parent_instance()
-        content_class = self.get_content_type()
-
-        if content_class == "Lesson":
-            return Lesson.format_html_block(self.content, self, self.location)
-        if content_class == "Activity":
-            return Activity.format_html_block(self.content, self, self.location)
-        if content_class == "EmptyLesson":
-            return EmptyLesson.format_html_block()
-        return "UNKNOWN CONTENT CLASS NAME"
-
-    @classmethod
-    def get_by_teach_id(cls, teach_id):
-        instances = cls.objects.filter(teach_id=teach_id)
-        if not instances.exists():
-            raise ObjectDoesNotExist("Teach ID not Found")
-        return instances.first()
 
     def get_parent_instance(self):
         return self.get_by_teach_id(self.teach_id)
@@ -414,6 +527,7 @@ class Teach(models.Model):
         else:
             return "Not Submitted"
 
+    # Updating Teach Attrs
     def update_plan(self, plan: str):
         self.plan = plan
         if plan == "":
@@ -421,17 +535,7 @@ class Teach(models.Model):
         else:
             self.finished = True
         return self.save()
-
-    def get_content_attributes(self):
-        self = self.get_parent_instance()
-        content_class = self.get_content_type()
-
-        if content_class == "Lesson":
-            return Lesson.get_content_attributes(self.content)
-        if content_class == "Activity":
-            return Activity.get_content_attributes(self.content)
-        return {}
-
+    
     def change_content(self, content):
         old_content = self.content
 
@@ -441,131 +545,25 @@ class Teach(models.Model):
         if type(old_content) == EmptyLesson:
             old_content.delete()
 
-
-class PerformanceObjective(models.Model):
-    po = models.CharField(max_length=3, unique=True)
-    po_title = models.CharField(max_length=256, blank=True, null=True)
-
-    def __str__(self):
-        return self.po
-
-    @classmethod
-    def create(cls, po: str, po_title: str):
-        if cls.objects.filter(po=po).exists():
-            return cls.objects.get(po=po)
-
-        instance = cls.objects.create(po=po, po_title=po_title)
-        return instance
-
-
-class Lesson(models.Model):
-    po = models.ForeignKey(PerformanceObjective, on_delete=models.SET_NULL, null=True)
-    eocode = models.CharField(
-        max_length=64, unique=True
-    )  # Should be in the format 'M336.04'
-    title = models.CharField(max_length=256)
-    teach = GenericRelation(Teach)
-
-    def __str__(self):
-        return self.eocode
-
-    @classmethod
-    def create(cls, eocode: str, title: str, po_title: str = None, po: str = None):
-        if cls.objects.filter(eocode=eocode).exists():
-            instance = cls.objects.get(eocode=eocode)
-            if not instance.title == title:
-                instance.change_title(title)
-            return cls.objects.get(eocode=eocode)
-
-        if po == None:
-            po = eocode[1:4]
-
-        po_instance = PerformanceObjective.create(po, po_title)
-        instance = cls.objects.create(po=po_instance, eocode=eocode, title=title)
-        return instance
-
-    @classmethod
-    def get_title(cls, eocode: str):
-        if cls.objects.filter(eocode=eocode).exists():
-            instance = cls.objects.get(eocode=eocode)
-            return instance.title
-        return False
-
-    def get_form_initial(self):
-        initial = {}
-        initial["eocode"] = self.eocode
-        initial["title"] = self.title
-        return initial
-
-    def change_title(self, title):
-        self.title = title
-        self.save()
-
-    # This method is for the utils.trainingdayschedule class
-    def format_html_block(self, teach: Teach, location: str):
-        block = f"<p class='tracking-tight leading-none'>Lesson at {location}</p>"
-        block += (
-            f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.eocode}</p>"
-        )
-
-        instructors = ""
-        for role, instructor in MapSeniorTeach.get_instructors(teach):
-            instructors += f"{role}: {instructor}<br>"
-        block += f"<p class='font-normal'>{instructors}</p>"
-
-        return block
+    def get_content_type(self):
+        class_name = type(self.content)
+        return class_name
 
     def get_content_attributes(self):
-        return [("EO Code", self.eocode), ("Title", self.title)]
+        self: Teach = self.get_parent_instance()
+        content_class = self.get_content_type()
 
+        if content_class in self.CONTENT_CLASSES:
+            return content_class.get_content_attributes(self.content)
+        return {}
 
-class Activity(models.Model):
-    title = models.CharField(max_length=256, default="Squadron-Organized Event")
-    teach = GenericRelation(Teach)
-
-    def __str__(self):
-        return self.title
-
-    @classmethod
-    def create(cls, title: str):
-        instance = cls.objects.create(title=title)
-        return instance
-
-    def get_form_initial(self):
-        initial = {}
-        initial["title"] = self.title
-        return initial
-
-    # This method is for the utils.trainingdayschedule class
-    def format_html_block(self, teach: Teach, location: str):
-        block = f"<p class='tracking-tight leading-none'>Activity at {location}</p>"
-        block += f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.title}</p>"
-
-        instructors = ""
-        for instructor in MapSeniorTeach.get_instructors(teach):
-            instructors += f"{instructor}<br>"
-        block += f"<p class='font-normal'>{instructors}</p>"
-
-        return block
-
-    def get_content_attributes(self):
-        return [("Title", self.title)]
-
-
-# Blank object for empty teach instances
-class EmptyLesson(models.Model):
-    teach = GenericRelation(Teach)
-
-    def __str__(self):
-        return "Empty Lesson Placeholder"
-
-    @classmethod
-    def create(cls):
-        return cls.objects.create()
-
-    @classmethod
     def format_html_block(self):
-        return "<div class='text-center h-full font-bold text-lg tracking-tight'>UNASSIGNED</div>"
+        self: Teach = self.get_parent_instance()
+        content_class = self.get_content_type()
+
+        if content_class in self.CONTENT_CLASSES + [self.DEFAULT_CONTENT_CLASS]:
+            return content_class.format_html_block(self.content, self, self.location)
+        return "UNKNOWN CONTENT CLASS NAME"
 
 
 class MapSeniorTeach(models.Model):
