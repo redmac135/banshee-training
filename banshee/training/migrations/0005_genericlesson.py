@@ -6,16 +6,24 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('training', '0004_alter_level_options'),
+        ("training", "0004_alter_level_options"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='GenericLesson',
+            name="GenericLesson",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('topic', models.CharField(max_length=255)),
-                ('title', models.CharField(max_length=255)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("topic", models.CharField(max_length=255)),
+                ("title", models.CharField(max_length=255)),
             ],
         ),
     ]

@@ -12,7 +12,9 @@ from emails.models import Email
 # Create your models here.
 class TrainingSetting(models.Model):
     duedateoffset = models.IntegerField(default=7)  # days before lesson
-    allow_senior_assignment = models.BooleanField(default=False) # Should assign senior allow permission level 2
+    allow_senior_assignment = models.BooleanField(
+        default=False
+    )  # Should assign senior allow permission level 2
 
     def save(self, *args, **kwargs):
         self.pk = 1
@@ -30,7 +32,7 @@ class TrainingSetting(models.Model):
     def get_duedateoffset(cls):
         instance = cls.create()
         return instance.duedateoffset
-    
+
     @classmethod
     def get_senior_assignment(cls):
         instance = cls.create()

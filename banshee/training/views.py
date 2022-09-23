@@ -206,7 +206,7 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, View):
                 "formid": form_id,
                 "slot_initial": slot_initial,
                 "teach_id": teach_id,
-                "form_classes": self.form_class
+                "form_classes": self.form_class,
             },
         )
 
@@ -242,7 +242,7 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, View):
                 "formid": form_id,
                 "slot_initial": slot_initial,
                 "teach_id": teach_id,
-                "form_classes": self.form_class
+                "form_classes": self.form_class,
             },
         )
 

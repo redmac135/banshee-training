@@ -365,13 +365,13 @@ class GenericLesson(models.Model):
     def create(cls, topic: str, title: str):
         instance = cls.objects.create(topic=topic, title=title)
         return instance
-    
+
     def get_form_initial(self):
         initial = {}
         initial["topic"] = self.topic
         initial["title"] = self.title
         return initial
-    
+
     def format_html_block(self, teach, location: str):
         block = f"<p class='tracking-tight leading-none'>Lesson at {location}</p>"
         block += f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.title}</p>"
@@ -382,9 +382,10 @@ class GenericLesson(models.Model):
         block += f"<p class='font-normal'>{instructors}</p>"
 
         return block
-    
+
     def get_content_attributes(self):
         return [("Topic", self.topic), ("Title", self.title)]
+
 
 # Blank object for empty teach instances
 class EmptyLesson(models.Model):
@@ -548,7 +549,7 @@ class Teach(models.Model):
         else:
             self.finished = True
         return self.save()
-    
+
     def change_content(self, content):
         old_content = self.content
 
@@ -570,7 +571,9 @@ class Teach(models.Model):
         # find link to form to render
         for content_tuple in self.CONTENT_CLASSES_LIST:
             if content_tuple[1] == content_class:
-                return reverse("teach-form", args=[night_id, content_tuple[0], self.teach_id])
+                return reverse(
+                    "teach-form", args=[night_id, content_tuple[0], self.teach_id]
+                )
         return reverse("teach-form", args=[night_id, 0, self.teach_id])
 
     def get_content_attributes(self):
@@ -588,7 +591,7 @@ class Teach(models.Model):
         if content_class in self.CONTENT_CLASSES + [self.DEFAULT_CONTENT_CLASS]:
             return content_class.format_html_block(self.content, self, self.location)
         return "UNKNOWN CONTENT CLASS NAME"
-    
+
     def get_form_content_initial(self):
         initial = {}
         initial["location"] = self.location

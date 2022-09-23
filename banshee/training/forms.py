@@ -238,6 +238,7 @@ class ActivityTeachForm(BaseTeachForm):
 
         return Activity.create(data["title"])
 
+
 class GenericLessonTeachForm(BaseTeachForm):
     topic = forms.CharField(max_length=256, required=True)
     title = forms.CharField(max_length=256, required=True)
