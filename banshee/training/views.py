@@ -287,8 +287,8 @@ class AssignTeachView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     def post(self, request, teach_id, *args, **kwargs):
         self.object = None
         teach_instance = Teach.get_by_teach_id(teach_id)
-        context = self.get_context_data(formset, teach_instance)
         formset = self.init_form(teach_id, teach_instance, self.request.POST)
+        context = self.get_context_data(formset, teach_instance)
         if formset.is_valid():
             formset.save()
             night_id = teach_instance.get_night_id()
