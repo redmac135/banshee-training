@@ -17,6 +17,7 @@ from .models import (
     MapSeniorTeach,
     MapSeniorNight,
 )
+from users.models import TrainingSetting
 
 
 # Edit Senior Form
@@ -49,8 +50,14 @@ class AssignTeachForm(ModelForm):
         senior_instance = Senior.get_by_id(senior_id)
         cleaned_data.update({"senior": senior_instance})
 
-        if senior_instance.permission_level > 1:
-            raise ValidationError({"senior": "You can't assign this senior."})
+        senior_assignment_setting = TrainingSetting.get_senior_assignment()
+
+        if senior_assignment_setting:
+            if senior_instance.permission_level > 2:
+                raise ValidationError({"senior": "You can't assign this senior."})
+        else:
+            if senior_instance.permission_level > 1:
+                raise ValidationError({"senior": "You can't assign this senior."})
 
         return cleaned_data
 

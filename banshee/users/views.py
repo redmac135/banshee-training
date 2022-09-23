@@ -194,6 +194,7 @@ class TrainingSettingsView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     def get_initial(self):
         initial = super(TrainingSettingsView, self).get_initial()
         initial["duedateoffset"] = TrainingSetting.get_duedateoffset()
+        initial["allow_senior_assignment"] = TrainingSetting.get_senior_assignment()
         return initial
 
     def form_valid(self, form):

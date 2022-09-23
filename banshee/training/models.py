@@ -137,7 +137,11 @@ class Senior(models.Model):
     @classmethod
     def get_all_instructors(cls):
         queryset = cls.get_all()
-        return queryset.filter(permission_level=1)
+        senior_assignment_setting = TrainingSetting.get_senior_assignment()
+        if senior_assignment_setting:
+            return queryset.filter(permission_level__lte=2)
+        else:
+            return queryset.filter(permission_level=1)
 
     @classmethod
     def get_by_id(cls, id: int):
