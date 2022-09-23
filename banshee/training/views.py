@@ -16,6 +16,7 @@ from .models import MapSeniorNight, MapSeniorTeach, TrainingNight, Level, Teach,
 from .forms import (
     AssignTeachFormset,
     AssignNightFormset,
+    GenericLessonTeachForm,
     LessonTeachForm,
     ActivityTeachForm,
     TeachPlanForm,
@@ -169,6 +170,7 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, View):
     form_class = [
         ("Lesson", LessonTeachForm),
         ("Activity", ActivityTeachForm),
+        ("Generic Lesson", GenericLessonTeachForm),
     ]
 
     # For UserPassesTestMixin
@@ -204,6 +206,7 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, View):
                 "formid": form_id,
                 "slot_initial": slot_initial,
                 "teach_id": teach_id,
+                "form_classes": self.form_class
             },
         )
 
@@ -238,6 +241,8 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, View):
                 "nightid": night_id,
                 "formid": form_id,
                 "slot_initial": slot_initial,
+                "teach_id": teach_id,
+                "form_classes": self.form_class
             },
         )
 

@@ -354,6 +354,38 @@ class Activity(models.Model):
         return [("Title", self.title)]
 
 
+class GenericLesson(models.Model):
+    topic = models.CharField(max_length=255)
+    title = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.topic + " " + self.title
+
+    @classmethod
+    def create(cls, topic: str, title: str):
+        instance = cls.objects.create(topic=topic, title=title)
+        return instance
+    
+    def get_form_initial(self):
+        initial = {}
+        initial["topic"] = self.topic
+        initial["title"] = self.title
+        return initial
+    
+    def format_html_block(self, teach, location: str):
+        block = f"<p class='tracking-tight leading-none'>Lesson at {location}</p>"
+        block += f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.title}</p>"
+
+        instructors = ""
+        for instructor in MapSeniorTeach.get_instructors(teach):
+            instructors += f"{instructor}<br>"
+        block += f"<p class='font-normal'>{instructors}</p>"
+
+        return block
+    
+    def get_content_attributes(self):
+        return [("Topic", self.topic), ("Title", self.title)]
+
 # Blank object for empty teach instances
 class EmptyLesson(models.Model):
     def __str__(self):
@@ -374,6 +406,7 @@ class Teach(models.Model):
     CONTENT_CLASSES_LIST = [
         (0, Lesson),
         (1, Activity),
+        (2, GenericLesson),
     ]
     CONTENT_CLASSES = [x[1] for x in CONTENT_CLASSES_LIST]
 
@@ -441,14 +474,6 @@ class Teach(models.Model):
     def get_absolute_url(self):
         return reverse("teach", args=[self.teach_id])
 
-    def get_absolute_edit_url(self):
-        night_id = self.get_night_id()
-        content_class = self.get_content_type()
-        # Render activity form if it's an activity
-        if content_class == "Activity":
-            return reverse("teach-form", args=[night_id, 1, self.teach_id])
-        return reverse("teach-form", args=[night_id, 0, self.teach_id])
-
     def get_night_id(self):
         return self.period.night.id
 
@@ -461,18 +486,6 @@ class Teach(models.Model):
     @classmethod
     def get_neighbour_instances(cls, teach_id):
         return cls.objects.filter(teach_id=teach_id)
-
-    def get_form_content_initial(self):
-        initial = {}
-        initial["location"] = self.location
-        content_class = self.get_content_type()
-
-        if content_class == "Lesson":
-            initial.update(self.content.get_form_initial())
-        if content_class == "Activity":
-            initial.update(self.content.get_form_initial())
-
-        return initial
 
     def get_form_slot_initial(self):
         instances = Teach.get_neighbour_instances(self.teach_id)
@@ -545,9 +558,20 @@ class Teach(models.Model):
         if type(old_content) == EmptyLesson:
             old_content.delete()
 
+    # managing content
     def get_content_type(self):
         class_name = type(self.content)
         return class_name
+
+    def get_absolute_edit_url(self):
+        night_id = self.get_night_id()
+        content_class = self.get_content_type()
+
+        # find link to form to render
+        for content_tuple in self.CONTENT_CLASSES_LIST:
+            if content_tuple[1] == content_class:
+                return reverse("teach-form", args=[night_id, content_tuple[0], self.teach_id])
+        return reverse("teach-form", args=[night_id, 0, self.teach_id])
 
     def get_content_attributes(self):
         self: Teach = self.get_parent_instance()
@@ -564,6 +588,16 @@ class Teach(models.Model):
         if content_class in self.CONTENT_CLASSES + [self.DEFAULT_CONTENT_CLASS]:
             return content_class.format_html_block(self.content, self, self.location)
         return "UNKNOWN CONTENT CLASS NAME"
+    
+    def get_form_content_initial(self):
+        initial = {}
+        initial["location"] = self.location
+        content_class = self.get_content_type()
+
+        if content_class in self.CONTENT_CLASSES:
+            initial.update(self.content.get_form_initial())
+
+        return initial
 
 
 class MapSeniorTeach(models.Model):

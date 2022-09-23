@@ -9,6 +9,7 @@ import re
 
 from .models import (
     Activity,
+    GenericLesson,
     Lesson,
     Senior,
     TrainingNight,
@@ -236,6 +237,15 @@ class ActivityTeachForm(BaseTeachForm):
         data = self.cleaned_data
 
         return Activity.create(data["title"])
+
+class GenericLessonTeachForm(BaseTeachForm):
+    topic = forms.CharField(max_length=256, required=True)
+    title = forms.CharField(max_length=256, required=True)
+
+    def get_content_instance(self):
+        data = self.cleaned_data
+
+        return GenericLesson.create(data["topic"], data["title"])
 
 
 class TeachPlanForm(ModelForm):

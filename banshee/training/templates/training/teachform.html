@@ -12,44 +12,27 @@
 </form>
 <div class="p-4 pt-0">
     <div class="flex justify-center">
-        {% if formid == 0 %}
-            <button class="bg-clr-3 text-white font-bold py-2 px-4 mx-2 mb-4 rounded opacity-50 cursor-not-allowed">
-                Lesson
-            </button>
-        {% else %}
-            {% if teach_id %}
-            <a href="{% url 'teach-form' nightid 0 teach_id %}">
-                <button class="bg-clr-3 hover:bg-clr-4 text-white font-bold py-2 px-4 mx-2 mb-4 rounded">
-                    Lesson
+        {% for form_name, form_class in form_classes %}
+            {% if formid == forloop.counter0 %}
+                <button class="bg-clr-3 text-white font-bold py-2 px-4 mx-2 mb-4 rounded opacity-50 cursor-not-allowed">
+                    {{ form_name }}
                 </button>
-            </a>
             {% else %}
-            <a href="{% url 'teach-form' nightid 0 %}">
-                <button class="bg-clr-3 hover:bg-clr-4 text-white font-bold py-2 px-4 mx-2 mb-4 rounded">
-                    Lesson
-                </button>
-            </a>
+                {% if teach_id %}
+                <a href="{% url 'teach-form' nightid forloop.counter0 teach_id %}">
+                    <button class="bg-clr-3 hover:bg-clr-4 text-white font-bold py-2 px-4 mx-2 mb-4 rounded">
+                        {{ form_name }}
+                    </button>
+                </a>
+                {% else %}
+                <a href="{% url 'teach-form' nightid forloop.counter0 %}">
+                    <button class="bg-clr-3 hover:bg-clr-4 text-white font-bold py-2 px-4 mx-2 mb-4 rounded">
+                        {{ form_name }}
+                    </button>
+                </a>
+                {% endif %}
             {% endif %}
-        {% endif %}
-        {% if formid == 1 %}
-            <button class="bg-clr-3 text-white font-bold py-2 px-4 mx-2 mb-4 rounded opacity-50 cursor-not-allowed">
-                Activity
-            </button>
-        {% else %}
-            {% if teach_id %}
-            <a href="{% url 'teach-form' nightid 1 teach_id %}">
-                <button class="bg-clr-3 hover:bg-clr-4 text-white font-bold py-2 px-4 mx-2 mb-4 rounded">
-                    Activity
-                </button>
-            </a>
-            {% else %}
-            <a href="{% url 'teach-form' nightid 1 %}">
-                <button class="bg-clr-3 hover:bg-clr-4 text-white font-bold py-2 px-4 mx-2 mb-4 rounded">
-                    Activity
-                </button>
-            </a>
-            {% endif %}
-        {% endif %}
+        {% endfor %}
     </div>
     <form action="" method="post">
     <div class="flex flex-col items-center">
