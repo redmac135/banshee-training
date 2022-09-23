@@ -344,8 +344,8 @@ class Activity(models.Model):
         block += f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.title}</p>"
 
         instructors = ""
-        for instructor in MapSeniorTeach.get_instructors(teach):
-            instructors += f"{instructor}<br>"
+        for role, instructor in MapSeniorTeach.get_instructors(teach):
+            instructors += f"{role}: {instructor}<br>"
         block += f"<p class='font-normal'>{instructors}</p>"
 
         return block
@@ -377,8 +377,8 @@ class GenericLesson(models.Model):
         block += f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.title}</p>"
 
         instructors = ""
-        for instructor in MapSeniorTeach.get_instructors(teach):
-            instructors += f"{instructor}<br>"
+        for role, instructor in MapSeniorTeach.get_instructors(teach):
+            instructors += f"{role}: {instructor}<br>"
         block += f"<p class='font-normal'>{instructors}</p>"
 
         return block
