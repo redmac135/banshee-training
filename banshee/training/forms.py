@@ -32,9 +32,18 @@ class AssignTeachForm(ModelForm):
     )
     senior = forms.ChoiceField(choices=[])
 
-    def __init__(self, *args, teach_id, senior_choices, parent_instance, **kwargs):
+    def __init__(
+        self,
+        *args,
+        teach_id: int,
+        senior_choices: list,
+        parent_instance,
+        send_email: bool = True,
+        **kwargs,
+    ):
         super(AssignTeachForm, self).__init__(*args, **kwargs)
 
+        self.send_email = send_email  # Should we send emails on save?
         self.teach_id = teach_id
         self.parent_instance = parent_instance
         self.fields["senior"].choices = (
@@ -64,18 +73,28 @@ class AssignTeachForm(ModelForm):
 
     def save(self, commit: bool = True):
         super(AssignTeachForm, self).save(commit)
-        cleaned_data = self.cleaned_data
-        Email.send_teach_assignment_email(
-            user=cleaned_data.get("senior").user,
-            teach=self.parent_instance,
-            role=cleaned_data.get("role"),
-        )
+        if self.send_email:
+            cleaned_data = self.cleaned_data
+            Email.send_teach_assignment_email(
+                user=cleaned_data.get("senior").user,
+                teach=self.parent_instance,
+                role=cleaned_data.get("role"),
+            )
 
 
 class AssignNightForm(AssignTeachForm):
-    def __init__(self, *args, night_id, senior_choices, parent_instance, **kwargs):
+    def __init__(
+        self,
+        *args,
+        night_id,
+        senior_choices,
+        parent_instance,
+        send_email: bool = True,
+        **kwargs,
+    ):
         ModelForm.__init__(self, *args, **kwargs)
 
+        self.send_email = send_email
         self.night_id = night_id
         self.parent_instance = parent_instance
         self.fields["senior"].choices = (
@@ -88,12 +107,13 @@ class AssignNightForm(AssignTeachForm):
 
     def save(self, commit: bool = True):
         ModelForm.save(self, commit)
-        cleaned_data = self.cleaned_data
-        Email.send_night_assignment_email(
-            user=cleaned_data.get("senior").user,
-            night=self.parent_instance,
-            role=cleaned_data.get("role"),
-        )
+        if self.send_email:
+            cleaned_data = self.cleaned_data
+            Email.send_night_assignment_email(
+                user=cleaned_data.get("senior").user,
+                night=self.parent_instance,
+                role=cleaned_data.get("role"),
+            )
 
 
 AssignTeachFormset = inlineformset_factory(
