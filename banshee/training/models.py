@@ -6,7 +6,7 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 
-from .managers import level_managers
+from .managers import level_managers, senior_managers
 
 from users.models import TrainingSetting
 
@@ -96,6 +96,11 @@ class Senior(models.Model):
     permission_level = models.IntegerField(choices=PERMISSION_CHOICES, default=1)
     email_confirmed = models.BooleanField(default=False)
 
+    # Managers
+    objects = models.Manager()
+    seniors = senior_managers.SeniorManager()
+    instructors = senior_managers.InstructorManager()
+
     def __str__(self):
         return (
             self.rank_to_str(int(self.rank))
@@ -107,34 +112,6 @@ class Senior(models.Model):
 
     class Meta:
         ordering = ["level", "rank"]
-
-    @classmethod
-    def by_level(cls, level):
-        queryset = cls.get_all()
-        return queryset.filter(level=level)
-
-    @classmethod
-    def get_all(cls):
-        return cls.objects.filter(permission_level__lte=2)
-
-    @classmethod
-    def get_all_instructors(cls):
-        queryset = cls.get_all()
-        senior_assignment_setting = TrainingSetting.get_senior_assignment()
-        if senior_assignment_setting:
-            return queryset.filter(permission_level__lte=2)
-        else:
-            return queryset.filter(permission_level=1)
-
-    @classmethod
-    def get_by_id(cls, id: int):
-        queryset = cls.get_all()
-        return queryset.get(id=id)
-
-    @classmethod
-    def get_by_username(cls, username: str):
-        queryset = cls.get_all()
-        return queryset.get(user__username=username)
 
     @classmethod
     def rank_to_str(cls, number):

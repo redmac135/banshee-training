@@ -258,7 +258,7 @@ class AssignTeachView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     def init_form(
         self, teach_id, teach_instance, *args, send_email: bool = True, **kwargs
     ):
-        senior_queryset = Senior.get_all_instructors()
+        senior_queryset = Senior.instructors.all()
         senior_choices = [(senior.id, str(senior)) for senior in senior_queryset]
         formset = self.formset_class(
             *args,
@@ -334,7 +334,7 @@ class AssignNightView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     def init_form(
         self, night_id, night_instance, *args, send_email: bool = True, **kwargs
     ):
-        senior_queryset = Senior.get_all_instructors()
+        senior_queryset = Senior.instructors.all()
         senior_choices = [(senior.id, str(senior)) for senior in senior_queryset]
         formset = self.formset_class(
             *args,

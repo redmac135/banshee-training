@@ -57,7 +57,7 @@ class AssignTeachForm(ModelForm):
     def clean(self):
         cleaned_data = self.cleaned_data
         senior_id = cleaned_data.get("senior")
-        senior_instance = Senior.get_by_id(senior_id)
+        senior_instance = Senior.seniors.get_by_id(senior_id)
         cleaned_data.update({"senior": senior_instance})
 
         senior_assignment_setting = TrainingSetting.get_senior_assignment()
