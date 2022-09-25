@@ -140,7 +140,7 @@ class BaseTeachForm(forms.Form):
 
         self.night_id = night_id
 
-        instance = TrainingNight.get(night_id)
+        instance = TrainingNight.nights.get(pk=night_id)
         for number, period in enumerate(instance.get_periods(), 1):
             self.fields[f"p{number}_choice"] = forms.MultipleChoiceField(
                 choices=level_choices,

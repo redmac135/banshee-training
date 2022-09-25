@@ -6,6 +6,8 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 
+from training.managers import managers
+
 from .managers import level_managers, senior_managers
 
 from users.models import TrainingSetting
@@ -15,7 +17,7 @@ from users.models import TrainingSetting
 # Important: users.forms requires senior numbers be unique
 class Level(models.Model):
     OFFICER_LEVEL_NUMBER = 7
-    OFFICER_LEVEL_NAME = "oo" # must be 2 characters
+    OFFICER_LEVEL_NAME = "oo"  # must be 2 characters
 
     name = models.CharField(max_length=2)
     number = models.IntegerField()
@@ -42,7 +44,7 @@ class Level(models.Model):
                 name=cls.MASTER_LEVEL_NAME, number=cls.MASTER_LEVEL_NUMBER
             )
 
-    # TODO: is the bottom two functions nesscary? 
+    # TODO: is the bottom two functions nesscary?
     def get_next(self):
         found = False
         levels = self.objects.all()
@@ -156,20 +158,12 @@ class TrainingNight(models.Model):
 
         return instance
 
-    @classmethod
-    def get(cls, id):
-        return cls.objects.get(pk=id)
-
-    @classmethod
-    def get_by_date(cls, date: datetime):
-        return cls.objects.get(date=date)
+    # Managers
+    objects = models.Manager()
+    nights = managers.NightManager()
 
     def get_absolute_url(self):
         return reverse("trainingnight", args=[self.id])
-
-    @classmethod
-    def get_nights(cls, **kwargs):
-        return cls.objects.filter(**kwargs)
 
     def get_periods(self):
         return self.trainingperiod_set.all().order_by("order")

@@ -85,7 +85,7 @@ class DashboardView(LoginRequiredMixin, View):
         context["next_month"] = next_month(d)
         cal = DashboardCalendar(view, d.year, d.month)
 
-        nights = self.model.get_nights(date__year=d.year, date__month=d.month)
+        nights = self.model.nights.filter(date__year=d.year, date__month=d.month)
         html_cal = cal.formatmonth(nights=nights, today=date.today(), withyear=True)
         context["calendar"] = mark_safe(html_cal)
         context["monthname"] = str(calendar.month_name[d.month]) + " " + str(d.year)
@@ -350,7 +350,7 @@ class AssignNightView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         return formset
 
     def get(self, request, night_id, *args, **kwargs):
-        night_instance = TrainingNight.get(night_id)
+        night_instance = TrainingNight.nights.get(pk=night_id)
         formset = self.init_form(night_id, night_instance)
         context = self.get_context_data(formset)
         return render(
@@ -361,7 +361,7 @@ class AssignNightView(LoginRequiredMixin, UserPassesTestMixin, FormView):
 
     def post(self, request, night_id, *args, **kwargs):
         self.object = None
-        night_instance = TrainingNight.get(night_id)
+        night_instance = TrainingNight.nights.get(pk=night_id)
         if "send_email" in request.POST:
             send_email = True
         else:
@@ -443,7 +443,7 @@ class TrainingNightDetailView(LoginRequiredMixin, UserPassesTestMixin, APIView):
 
     def delete(self, request, year, month, day, *args, **kwargs):
         day = date(year, month, day)
-        instance = TrainingNight.get_by_date(day)
+        instance = TrainingNight.nights.get_by_date(day)
         instance.delete()
         messages.success(request, "Training Day Deleted.")
         return Response(status=status.HTTP_200_OK)

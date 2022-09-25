@@ -14,9 +14,10 @@ class SeniorManager(models.Manager):
 
     def get_by_id(self, id: int):
         return self.get_queryset().get(id=id)
-    
+
     def get_by_username(self, username: str):
         return self.get_queryset().get(user__username=username)
+
 
 class InstructorManager(models.Manager):
     def get_queryset(self):
