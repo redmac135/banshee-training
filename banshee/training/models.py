@@ -6,19 +6,25 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 
+from .managers import level_managers
+
 from users.models import TrainingSetting
 
 # Managing People
 
 # Important: users.forms requires senior numbers be unique
 class Level(models.Model):
-    MASTER_LEVEL_NUMBER = 0
-    MASTER_LEVEL_NAME = "ms"  # must be 2 characters
     OFFICER_LEVEL_NUMBER = 7
-    OFFICER_LEVEL_NAME = "oo"
+    OFFICER_LEVEL_NAME = "oo" # must be 2 characters
 
     name = models.CharField(max_length=2)
     number = models.IntegerField()
+
+    # Managers
+    objects = models.Manager()
+    levels = level_managers.LevelManager()
+    seniors = level_managers.SeniorManager()
+    juniors = level_managers.JuniorManager()
 
     class Meta:
         ordering = ["name"]
@@ -26,14 +32,7 @@ class Level(models.Model):
     def __str__(self):
         return self.name
 
-    # The level for the teach instance attached to every training night for NCOs and OnCalls
-    @classmethod
-    def get_master(cls):
-        if cls.objects.filter(number=0).exists():
-            return cls.objects.get(number=0)
-        else:
-            return cls.objects.create(name=cls.MASTER_LEVEL_NAME, number=0)
-
+    # Not put into a manager as it's only 1 function
     @classmethod
     def get_officer(cls):
         if cls.objects.filter(number=cls.OFFICER_LEVEL_NUMBER).exists():
@@ -43,23 +42,7 @@ class Level(models.Model):
                 name=cls.MASTER_LEVEL_NAME, number=cls.MASTER_LEVEL_NUMBER
             )
 
-    @classmethod
-    def get_juniors(cls):
-        return cls.objects.filter(number__lte=4, number__gte=1)
-
-    @classmethod
-    def get_seniors(cls):
-        return cls.objects.filter(number__lte=6, number__gte=5)
-
-    @classmethod
-    def get_senior_level_choices(cls):
-        seniors = cls.get_seniors()
-        return [(level.number, level.name) for level in seniors]
-
-    @classmethod
-    def senior_numbertoinstance(cls, number):
-        return cls.objects.get(number=number)
-
+    # TODO: is the bottom two functions nesscary? 
     def get_next(self):
         found = False
         levels = self.objects.all()
@@ -230,7 +213,7 @@ class TrainingPeriod(models.Model):
     @classmethod
     def create_fulllesson(cls, night, order):
         instance = cls.objects.create(night=night, order=order)
-        levels = Level.get_juniors()
+        levels = Level.juniors.all()
         for level in levels:
             Teach.create(level, instance)
         return instance
@@ -238,7 +221,7 @@ class TrainingPeriod(models.Model):
     @classmethod
     def create_fullact(cls, night, order):
         instance = cls.objects.create(night=night, order=order)
-        levels = Level.get_juniors()
+        levels = Level.juniors.all()
         teach_id = Teach.get_next_teach_id()
         for level in levels:
             Teach.create(level, instance, id=teach_id)
@@ -492,7 +475,7 @@ class Teach(models.Model):
         instances = Teach.get_neighbour_instances(self.teach_id)
         positions = instances.values_list("period__order", "level__name")
         night_instance = self.period.night
-        levels = Level.get_juniors()
+        levels = Level.juniors.all()
 
         slot_initial = []
 

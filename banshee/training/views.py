@@ -113,7 +113,7 @@ class TrainingNightView(LoginRequiredMixin, View):
     def get(self, request, night_id, *args, **kwargs):
         night: TrainingNight = TrainingNight.objects.get(pk=night_id)
 
-        level_objects = Level.get_juniors()
+        level_objects = Level.juniors.all()
         levels = [level_object.name for level_object in level_objects]
 
         schedule_obj = self.schedule_class()
@@ -182,7 +182,7 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, View):
         return form
 
     def get(self, request, night_id, form_id, teach_id=None, *args, **kwargs):
-        levels = Level.get_juniors()
+        levels = Level.juniors.all()
         content_initial = {}
         if teach_id == None:
             slot_initial = None
@@ -211,7 +211,7 @@ class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, View):
         )
 
     def post(self, request, night_id, form_id, teach_id=None, *args, **kwargs):
-        levels = Level.get_juniors()
+        levels = Level.juniors.all()
         if teach_id == None:
             form = self.init_form(levels, night_id, form_id, data=request.POST)
             slot_initial = None

@@ -69,7 +69,7 @@ class SignupForm(UserCreationForm):
         self.fields["level"].choices = (
             self.BLANK_CHOICE_LEVEL
             + self.BLANK_CHOICE_DASH
-            + Level.get_senior_level_choices()
+            + Level.seniors.get_choices()
         )
 
     class Meta:

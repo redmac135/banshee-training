@@ -84,7 +84,7 @@ class SignupView(FormView):
         user = form.save()
 
         level = form.cleaned_data.get("level")
-        level_instance = Level.senior_numbertoinstance(level)
+        level_instance = Level.levels.get_by_number(level)
         rank = form.cleaned_data.get("rank")
 
         senior = Senior.objects.get_or_create(
@@ -111,7 +111,7 @@ class OfficerSignupView(SignupView):
         user = form.save()
 
         level = form.cleaned_data.get("level")
-        level_instance = Level.senior_numbertoinstance(level)
+        level_instance = Level.levels.get_by_number(level)
         rank = form.cleaned_data.get("rank")
 
         # permission_level = 3 for officers
