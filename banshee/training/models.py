@@ -6,19 +6,27 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 
+from training.managers import managers
+
+from .managers import level_managers, senior_managers
+
 from users.models import TrainingSetting
 
 # Managing People
 
 # Important: users.forms requires senior numbers be unique
 class Level(models.Model):
-    MASTER_LEVEL_NUMBER = 0
-    MASTER_LEVEL_NAME = "ms"  # must be 2 characters
     OFFICER_LEVEL_NUMBER = 7
-    OFFICER_LEVEL_NAME = "oo"
+    OFFICER_LEVEL_NAME = "oo"  # must be 2 characters
 
     name = models.CharField(max_length=2)
     number = models.IntegerField()
+
+    # Managers
+    objects = models.Manager()
+    levels = level_managers.LevelManager()
+    seniors = level_managers.SeniorManager()
+    juniors = level_managers.JuniorManager()
 
     class Meta:
         ordering = ["name"]
@@ -26,14 +34,7 @@ class Level(models.Model):
     def __str__(self):
         return self.name
 
-    # The level for the teach instance attached to every training night for NCOs and OnCalls
-    @classmethod
-    def get_master(cls):
-        if cls.objects.filter(number=0).exists():
-            return cls.objects.get(number=0)
-        else:
-            return cls.objects.create(name=cls.MASTER_LEVEL_NAME, number=0)
-
+    # Not put into a manager as it's only 1 function
     @classmethod
     def get_officer(cls):
         if cls.objects.filter(number=cls.OFFICER_LEVEL_NUMBER).exists():
@@ -42,43 +43,6 @@ class Level(models.Model):
             return cls.objects.create(
                 name=cls.MASTER_LEVEL_NAME, number=cls.MASTER_LEVEL_NUMBER
             )
-
-    @classmethod
-    def get_juniors(cls):
-        return cls.objects.filter(number__lte=4, number__gte=1)
-
-    @classmethod
-    def get_seniors(cls):
-        return cls.objects.filter(number__lte=6, number__gte=5)
-
-    @classmethod
-    def get_senior_level_choices(cls):
-        seniors = cls.get_seniors()
-        return [(level.number, level.name) for level in seniors]
-
-    @classmethod
-    def senior_numbertoinstance(cls, number):
-        return cls.objects.get(number=number)
-
-    def get_next(self):
-        found = False
-        levels = self.objects.all()
-        for level in levels:
-            if found:
-                return level
-            if self == level:
-                found = True
-        return None
-
-    def get_prev(self):
-        found = False
-        levels = self.objects.all().reverse()
-        for level in levels:
-            if found:
-                return level
-            if self == level:
-                found = True
-        return None
 
 
 class Senior(models.Model):
@@ -113,6 +77,11 @@ class Senior(models.Model):
     permission_level = models.IntegerField(choices=PERMISSION_CHOICES, default=1)
     email_confirmed = models.BooleanField(default=False)
 
+    # Managers
+    objects = models.Manager()
+    seniors = senior_managers.SeniorManager()
+    instructors = senior_managers.InstructorManager()
+
     def __str__(self):
         return (
             self.rank_to_str(int(self.rank))
@@ -124,34 +93,6 @@ class Senior(models.Model):
 
     class Meta:
         ordering = ["level", "rank"]
-
-    @classmethod
-    def by_level(cls, level):
-        queryset = cls.get_all()
-        return queryset.filter(level=level)
-
-    @classmethod
-    def get_all(cls):
-        return cls.objects.filter(permission_level__lte=2)
-
-    @classmethod
-    def get_all_instructors(cls):
-        queryset = cls.get_all()
-        senior_assignment_setting = TrainingSetting.get_senior_assignment()
-        if senior_assignment_setting:
-            return queryset.filter(permission_level__lte=2)
-        else:
-            return queryset.filter(permission_level=1)
-
-    @classmethod
-    def get_by_id(cls, id: int):
-        queryset = cls.get_all()
-        return queryset.get(id=id)
-
-    @classmethod
-    def get_by_username(cls, username: str):
-        queryset = cls.get_all()
-        return queryset.get(user__username=username)
 
     @classmethod
     def rank_to_str(cls, number):
@@ -196,20 +137,12 @@ class TrainingNight(models.Model):
 
         return instance
 
-    @classmethod
-    def get(cls, id):
-        return cls.objects.get(pk=id)
-
-    @classmethod
-    def get_by_date(cls, date: datetime):
-        return cls.objects.get(date=date)
+    # Managers
+    objects = models.Manager()
+    nights = managers.NightManager()
 
     def get_absolute_url(self):
         return reverse("trainingnight", args=[self.id])
-
-    @classmethod
-    def get_nights(cls, **kwargs):
-        return cls.objects.filter(**kwargs)
 
     def get_periods(self):
         return self.trainingperiod_set.all().order_by("order")
@@ -230,7 +163,7 @@ class TrainingPeriod(models.Model):
     @classmethod
     def create_fulllesson(cls, night, order):
         instance = cls.objects.create(night=night, order=order)
-        levels = Level.get_juniors()
+        levels = Level.juniors.all()
         for level in levels:
             Teach.create(level, instance)
         return instance
@@ -238,7 +171,7 @@ class TrainingPeriod(models.Model):
     @classmethod
     def create_fullact(cls, night, order):
         instance = cls.objects.create(night=night, order=order)
-        levels = Level.get_juniors()
+        levels = Level.juniors.all()
         teach_id = Teach.get_next_teach_id()
         for level in levels:
             Teach.create(level, instance, id=teach_id)
@@ -492,7 +425,7 @@ class Teach(models.Model):
         instances = Teach.get_neighbour_instances(self.teach_id)
         positions = instances.values_list("period__order", "level__name")
         night_instance = self.period.night
-        levels = Level.get_juniors()
+        levels = Level.juniors.all()
 
         slot_initial = []
 
