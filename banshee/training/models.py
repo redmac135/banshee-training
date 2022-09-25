@@ -44,27 +44,6 @@ class Level(models.Model):
                 name=cls.MASTER_LEVEL_NAME, number=cls.MASTER_LEVEL_NUMBER
             )
 
-    # TODO: is the bottom two functions nesscary?
-    def get_next(self):
-        found = False
-        levels = self.objects.all()
-        for level in levels:
-            if found:
-                return level
-            if self == level:
-                found = True
-        return None
-
-    def get_prev(self):
-        found = False
-        levels = self.objects.all().reverse()
-        for level in levels:
-            if found:
-                return level
-            if self == level:
-                found = True
-        return None
-
 
 class Senior(models.Model):
     RANK_CHOICES = [
