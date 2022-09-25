@@ -183,16 +183,11 @@ class PerformanceObjective(models.Model):
     po = models.CharField(max_length=3, unique=True)
     po_title = models.CharField(max_length=256, blank=True, null=True)
 
+    objects = models.Manager()
+    objectives = managers.ObjectiveManager()
+
     def __str__(self):
         return self.po
-
-    @classmethod
-    def create(cls, po: str, po_title: str):
-        if cls.objects.filter(po=po).exists():
-            return cls.objects.get(po=po)
-
-        instance = cls.objects.create(po=po, po_title=po_title)
-        return instance
 
 
 class Lesson(models.Model):
@@ -216,7 +211,7 @@ class Lesson(models.Model):
         if po == None:
             po = eocode[1:4]
 
-        po_instance = PerformanceObjective.create(po, po_title)
+        po_instance = PerformanceObjective.objectives.get_or_create(po, po_title)
         instance = cls.objects.create(po=po_instance, eocode=eocode, title=title)
         return instance
 
