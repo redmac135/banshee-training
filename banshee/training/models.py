@@ -561,9 +561,19 @@ class MapSeniorTeach(models.Model):
         instructors = []
         for object in queryset:
             instructors.append((object.role, object.senior))
+        
+        # Function for sorting
+        def role_priority(role: tuple):
+            roles = cls.DATALIST_SUGGESTIONS
+            # Role[0] is the role in the (role, senior) tuple
+            if role[0] in roles:
+                return roles.index(role[0])
+            else:
+                return len(roles) + 1
 
-        return instructors
-
+        # Sorting the list of tuples
+        return sorted(instructors, key=role_priority)
+    
     @classmethod
     def get_senior_queryset_after_date(cls, senior: Senior, date: date):
         queryset = cls.objects.filter(
@@ -596,7 +606,16 @@ class MapSeniorNight(models.Model):
         for object in queryset:
             instructors.append((object.role, object.senior))
 
-        return instructors
+        # Function for sorting
+        def role_priority(role: tuple):
+            roles = cls.DATALIST_SUGGESTIONS
+            # Role[0] is the role in the (role, senior) tuple
+            if role[0] in roles:
+                return roles.index(role[0])
+            else:
+                return len(roles) + 1
+
+        return sorted(instructors, key=role_priority)
 
     @classmethod
     def get_senior_queryset_after_date(cls, senior: Senior, date: date):
