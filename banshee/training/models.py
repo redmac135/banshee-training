@@ -561,7 +561,7 @@ class MapSeniorTeach(models.Model):
         instructors = []
         for object in queryset:
             instructors.append((object.role, object.senior))
-        
+
         # Function for sorting
         def role_priority(role: tuple):
             roles = cls.DATALIST_SUGGESTIONS
@@ -573,7 +573,7 @@ class MapSeniorTeach(models.Model):
 
         # Sorting the list of tuples
         return sorted(instructors, key=role_priority)
-    
+
     @classmethod
     def get_senior_queryset_after_date(cls, senior: Senior, date: date):
         queryset = cls.objects.filter(
