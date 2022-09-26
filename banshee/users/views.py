@@ -257,8 +257,12 @@ class ActivateAccountView(View):
 
 class PasswordResetRedirectView(View):
     def get(self, request, *args, **kwargs):
-        messages.success(request, "We've emailed you instructions for resetting your password. Be sure to check your spam folder!")
+        messages.success(
+            request,
+            "We've emailed you instructions for resetting your password. Be sure to check your spam folder!",
+        )
         return redirect("login")
+
 
 class PasswordResetCompleteRedirectView(View):
     def get(self, request, *args, **kwargs):
