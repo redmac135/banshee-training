@@ -456,6 +456,7 @@ class Teach(models.Model):
         return unique_instances
 
     def get_status(self):
+        self: Teach = self.get_parent_instance()
         if self.finished == True:
             return "Submitted"
 
