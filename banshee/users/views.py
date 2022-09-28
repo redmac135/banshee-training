@@ -84,7 +84,7 @@ class SignupView(FormView):
         user = form.save()
 
         level = form.cleaned_data.get("level")
-        level_instance = Level.senior_numbertoinstance(level)
+        level_instance = Level.levels.get_by_number(level)
         rank = form.cleaned_data.get("rank")
 
         senior = Senior.objects.get_or_create(
@@ -111,7 +111,7 @@ class OfficerSignupView(SignupView):
         user = form.save()
 
         level = form.cleaned_data.get("level")
-        level_instance = Level.senior_numbertoinstance(level)
+        level_instance = Level.levels.get_by_number(level)
         rank = form.cleaned_data.get("rank")
 
         # permission_level = 3 for officers
@@ -194,6 +194,7 @@ class TrainingSettingsView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     def get_initial(self):
         initial = super(TrainingSettingsView, self).get_initial()
         initial["duedateoffset"] = TrainingSetting.get_duedateoffset()
+        initial["allow_senior_assignment"] = TrainingSetting.get_senior_assignment()
         return initial
 
     def form_valid(self, form):
@@ -251,4 +252,19 @@ class ActivateAccountView(View):
                     "The confirmation link was invalid, possibly because it has already been used."
                 ),
             )
+        return redirect("login")
+
+
+class PasswordResetRedirectView(View):
+    def get(self, request, *args, **kwargs):
+        messages.success(
+            request,
+            "We've emailed you instructions for resetting your password. Be sure to check your spam folder!",
+        )
+        return redirect("login")
+
+
+class PasswordResetCompleteRedirectView(View):
+    def get(self, request, *args, **kwargs):
+        messages.success(request, "Password Reset Successfully!")
         return redirect("login")

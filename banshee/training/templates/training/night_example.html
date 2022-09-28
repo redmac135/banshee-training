@@ -6,99 +6,164 @@
 {% endblock %}
 
 {% block content %}
-<div class="p-4">
+<form action="/dashboard/view">
+    <input type="submit" value="Back to Dashboard"
+        class="text-white bg-clr-1 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 mt-2 ml-2">
+</form>
+<div class="p-4 pt-0">
     <div>
         <div class="flex justify-between">
-            <div class="font-bold text-2xl text-white">January 3<sup>rd</sup> Training Night</div>
-            <form action="">
-                <input type="submit" value="Edit"
-                    class="text-white bg-clr-3 hover:bg-clr-4 focus:outline-none focus:bg-clr-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3 md:mr-0">
-                </input>
-            </form>
+            <div class="flex">
+                <div class="font-bold text-2xl text-white">September 23rd Training Night</div>
+                <div class="grid items-center h-full px-2">
+                    <a href="/plan/assign/12">
+                        <button aria-label="calendar create" class="focus:text-clr-4 hover:text-clr-4 text-clr-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left"
+                                width="24" height="24" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
+                                fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M 18.414062 2 C 18.158062 2 17.902031 2.0979687 17.707031 2.2929688 L 15.707031 4.2929688 L 14.292969 5.7070312 L 3 17 L 3 21 L 7 21 L 21.707031 6.2929688 C 22.098031 5.9019687 22.098031 5.2689063 21.707031 4.8789062 L 19.121094 2.2929688 C 18.926094 2.0979687 18.670063 2 18.414062 2 z M 18.414062 4.4140625 L 19.585938 5.5859375 L 18.292969 6.8789062 L 17.121094 5.7070312 L 18.414062 4.4140625 z M 15.707031 7.1210938 L 16.878906 8.2929688 L 6.171875 19 L 5 19 L 5 17.828125 L 15.707031 7.1210938 z">
+                                </path>
+                            </svg>
+                        </button>
+                    </a>
+                </div>
+            </div>
+            <div class="flex">
+
+
+
+                <form action="/plan/edit/12" class="mx-1">
+                    <input type="submit" value="Edit"
+                        class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3">
+
+                </form>
+
+
+                <form action="/plan/due/12" class="mx-1">
+                    <input type="submit" value="Due"
+                        class="text-white bg-red-600 hover:bg-red-800 focus:outline-none focus:bg-red-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3">
+
+                </form>
+
+
+            </div>
         </div>
-        <p class="font-normal text-white"><strong>Duty NCOs: </strong>WO2 Lu, WO2 Pop</p>
-        <p class="font-normal text-white"><strong>Floaters: </strong>FSgt Zhao</p>        
+
     </div>
 
-    <div class="pt-8 overflow-x-auto">
-        <table class="plan-wrapper table-fixed overflow-x-scroll w-full">
-            <tbody>
+    <div class="pt-8 overflow-x-auto mx-auto">
+        <table class="plan-wrapper table-fixed">
+            <tbody class="text-gray-400">
                 <tr>
                     <th></th>
-                    <th>1</th>
+                    <th>1a</th>
+                    <th>1b</th>
                     <th>2a</th>
                     <th>2b</th>
-                    <th>3</th>
-                    <th>4</th>
+                    <th>3a</th>
+                    <th>4a</th>
+                    <th>4b</th>
                 </tr>
                 <tr>
                     <th>P1</th>
-                    <td><a href="AHHHH"
-                            class="block p-2 m-2 w-auto min-h-24 bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
-                            <p class='tracking-tight text-gray-400 leading-none'>Lesson</p>
-                            <p class='mb-2 font-bold tracking-tight text-clr-5'>M101.01</p>
-                            <p class='font-normal text-gray-400'>
-                                IC FSgt Zhao, Ethan <br>
-                                Mod WO2 Lu, Maggie <br>
-                            </p>
-                        </a>
-                    </td>
-                    <td><a href="#"
-                            class="block p-2 m-2 w-auto min-h-24 bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
-                                <div class="text-center h-full font-bold text-lg tracking-tight text-gray-400">UNASSIGNED</div>
-                        </a>
-                    </td>
-                    <td><a href="AHHHH"
-                            class="block p-2 m-2 w-auto min-h-24 bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
-                            <p class='tracking-tight text-gray-400 leading-none'>Activity</p>
-                            <p class='mb-2 font-bold tracking-tight text-clr-5'>Squadron-Organized Activity</p>
-                            <p class='font-normal text-gray-400'>
-                                IC FSgt Zhao, Ethan <br>
-                            </p>
-                        </a>
-                    </td>
-                    <td><a href="AHHHH"
-                            class="block p-2 m-2 w-auto h-24 min-h-full bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">UNASSIGNED</a>
-                    </td>
-                    <td><a href="AHHHH"
-                            class="block p-2 m-2 w-auto h-24 min-h-full bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">UNASSIGNED</a>
-                    </td>
+                    <td><a href="/teach/119"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <div class="text-center h-full font-bold text-lg tracking-tight">UNASSIGNED</div>
+                        </a></td>
+                    <td><a href="/teach/147"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <p class="tracking-tight leading-none">Lesson at Classroom</p>
+                            <p class="mb-2 font-bold tracking-tight text-clr-5">Drill Basics</p>
+                            <p class="font-normal"></p>
+                        </a></td>
+                    <td><a href="/teach/146"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <p class="tracking-tight leading-none">Lesson at Classroom</p>
+                            <p class="mb-2 font-bold tracking-tight text-clr-5">M407.01</p>
+                            <p class="font-normal">IC: WO2. Ke, Sam<br></p>
+                        </a></td>
+                    <td><a href="/teach/122"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <div class="text-center h-full font-bold text-lg tracking-tight">UNASSIGNED</div>
+                        </a></td>
+                    <td><a href="/teach/123"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <div class="text-center h-full font-bold text-lg tracking-tight">UNASSIGNED</div>
+                        </a></td>
+                    <td><a href="/teach/124"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <div class="text-center h-full font-bold text-lg tracking-tight">UNASSIGNED</div>
+                        </a></td>
+                    <td><a href="/teach/125"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <div class="text-center h-full font-bold text-lg tracking-tight">UNASSIGNED</div>
+                        </a></td>
                 </tr>
                 <tr>
                     <th>P2</th>
-                    <td><a href="AHHHH"
-                            class="block p-2 m-2 w-auto h-24 bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">UNASSIGNED</a>
-                    </td>
-                    <td><a href="AHHHH"
-                            class="block p-2 m-2 w-auto h-24 bg-blue-700 hover:bg-blue-900 rounded-lg shadow-md">UNASSIGNED</a>
-                    </td>
-                    <td><a href="AHHHH"
-                            class="block p-2 m-2 w-auto h-24 bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">UNASSIGNED</a>
-                    </td>
-                    <td><a href="AHHHH"
-                            class="block p-2 m-2 w-auto h-24 bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">UNASSIGNED</a>
-                    </td>
-                    <td><a href="AHHHH"
-                            class="block p-2 m-2 w-auto h-24 bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">UNASSIGNED</a>
-                    </td>
+                    <td><a href="/teach/126"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <div class="text-center h-full font-bold text-lg tracking-tight">UNASSIGNED</div>
+                        </a></td>
+                    <td><a href="/teach/127"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <div class="text-center h-full font-bold text-lg tracking-tight">UNASSIGNED</div>
+                        </a></td>
+                    <td><a href="/teach/128"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <div class="text-center h-full font-bold text-lg tracking-tight">UNASSIGNED</div>
+                        </a></td>
+                    <td><a href="/teach/152"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <p class="tracking-tight leading-none">Lesson at Classroom</p>
+                            <p class="mb-2 font-bold tracking-tight text-clr-5">YOUR RESPONSIBILITY AS A LEADER TO
+                                INFLUENCE POSITIVE SOCIAL RELATIONS</p>
+                            <p class="font-normal">IC: WO2. Ke, Sam<br>Mod: WO2. Ke, Sam<br></p>
+                        </a></td>
+                    <td><a href="/teach/130"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <div class="text-center h-full font-bold text-lg tracking-tight">UNASSIGNED</div>
+                        </a></td>
+                    <td><a href="/teach/131"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <div class="text-center h-full font-bold text-lg tracking-tight">UNASSIGNED</div>
+                        </a></td>
+                    <td><a href="/teach/132"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <div class="text-center h-full font-bold text-lg tracking-tight">UNASSIGNED</div>
+                        </a></td>
                 </tr>
                 <tr>
                     <th>P3</th>
-                    <td><a href="AHHHH"
-                            class="block p-2 m-2 w-auto h-24 bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">UNASSIGNED</a>
-                    </td>
-                    <td><a href="AHHHH"
-                            class="block p-2 m-2 w-auto h-24 bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">UNASSIGNED</a>
-                    </td>
-                    <td><a href="AHHHH"
-                            class="block p-2 m-2 w-auto h-24 bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">UNASSIGNED</a>
-                    </td>
-                    <td><a href="AHHHH"
-                            class="block p-2 m-2 w-auto h-24 bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">UNASSIGNED</a>
-                    </td>
-                    <td><a href="AHHHH"
-                            class="block p-2 m-2 w-auto h-24 bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">UNASSIGNED</a>
-                    </td>
+                    <td><a href="/teach/133"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <div class="text-center h-full font-bold text-lg tracking-tight">UNASSIGNED</div>
+                        </a></td>
+                    <td><a href="/teach/134"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <div class="text-center h-full font-bold text-lg tracking-tight">UNASSIGNED</div>
+                        </a></td>
+                    <td><a href="/teach/135"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <div class="text-center h-full font-bold text-lg tracking-tight">UNASSIGNED</div>
+                        </a></td>
+                    <td><a href="/teach/136"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <div class="text-center h-full font-bold text-lg tracking-tight">UNASSIGNED</div>
+                        </a></td>
+                    <td><a href="/teach/137"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <div class="text-center h-full font-bold text-lg tracking-tight">UNASSIGNED</div>
+                        </a></td>
+                    <td><a href="/teach/138"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <div class="text-center h-full font-bold text-lg tracking-tight">UNASSIGNED</div>
+                        </a></td>
+                    <td><a href="/teach/139"
+                            class="block p-2 w-auto min-h-24 h-l bg-clr-1 hover:bg-green-900 rounded-lg shadow-md">
+                            <div class="text-center h-full font-bold text-lg tracking-tight">UNASSIGNED</div>
+                        </a></td>
                 </tr>
             </tbody>
         </table>

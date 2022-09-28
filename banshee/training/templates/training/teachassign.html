@@ -85,11 +85,19 @@
                 {% endif %}
             </div>
             {% if formset.non_form_errors %}
-                    {% for error in formset.non_form_errors %}
-                        <p class="mb-4 text-red-600 font-thin italic">{{ error }}</p>
-                    {% endfor %}
-                {% endif %}
-            {% endfor %}
+                {% for error in formset.non_form_errors %}
+                    <p class="mb-4 text-red-600 font-thin italic">{{ error }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endfor %}
+        <div class="w-full max-w-sm bg-clr-1 shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <label class="md:w-2/3 block text-clr-5 font-bold">
+                <span class="text-sm">
+                    <label for="send_email">Send Email Notification</label>
+                </span>
+                <input type="checkbox" name="send_email" id="send_email" checked>
+            </label>
+        </div>
         <input type="submit" name="submit" value="Submit"
             class="text-white bg-clr-3 hover:bg-clr-4 focus:outline-none focus:bg-clr-4 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-3 md:mr-0">
         </input>

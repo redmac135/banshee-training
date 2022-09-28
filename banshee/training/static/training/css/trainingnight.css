@@ -9,11 +9,17 @@
     width: 40px
 }
 
+.plan-wrapper tr>td>a {
+    height: 100%
+}
+
 .plan-wrapper td,
 .plan-wrapper th {
     border: 1px solid white;
     color: white;
     width: 200px;
+    padding: .5rem;
+    height: 1px;
 }
 
 .plan-wrapper th {

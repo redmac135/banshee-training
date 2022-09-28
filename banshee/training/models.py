@@ -6,19 +6,27 @@ from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelatio
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 
+from training.managers import managers
+
+from .managers import level_managers, senior_managers
+
 from users.models import TrainingSetting
 
 # Managing People
 
 # Important: users.forms requires senior numbers be unique
 class Level(models.Model):
-    MASTER_LEVEL_NUMBER = 0
-    MASTER_LEVEL_NAME = "ms"  # must be 2 characters
     OFFICER_LEVEL_NUMBER = 7
-    OFFICER_LEVEL_NAME = "oo"
+    OFFICER_LEVEL_NAME = "oo"  # must be 2 characters
 
     name = models.CharField(max_length=2)
     number = models.IntegerField()
+
+    # Managers
+    objects = models.Manager()
+    levels = level_managers.LevelManager()
+    seniors = level_managers.SeniorManager()
+    juniors = level_managers.JuniorManager()
 
     class Meta:
         ordering = ["name"]
@@ -26,14 +34,7 @@ class Level(models.Model):
     def __str__(self):
         return self.name
 
-    # The level for the teach instance attached to every training night for NCOs and OnCalls
-    @classmethod
-    def get_master(cls):
-        if cls.objects.filter(number=0).exists():
-            return cls.objects.get(number=0)
-        else:
-            return cls.objects.create(name=cls.MASTER_LEVEL_NAME, number=0)
-
+    # Not put into a manager as it's only 1 function
     @classmethod
     def get_officer(cls):
         if cls.objects.filter(number=cls.OFFICER_LEVEL_NUMBER).exists():
@@ -42,43 +43,6 @@ class Level(models.Model):
             return cls.objects.create(
                 name=cls.MASTER_LEVEL_NAME, number=cls.MASTER_LEVEL_NUMBER
             )
-
-    @classmethod
-    def get_juniors(cls):
-        return cls.objects.filter(number__lte=4, number__gte=1)
-
-    @classmethod
-    def get_seniors(cls):
-        return cls.objects.filter(number__lte=6, number__gte=5)
-
-    @classmethod
-    def get_senior_level_choices(cls):
-        seniors = cls.get_seniors()
-        return [(level.number, level.name) for level in seniors]
-
-    @classmethod
-    def senior_numbertoinstance(cls, number):
-        return cls.objects.get(number=number)
-
-    def get_next(self):
-        found = False
-        levels = self.objects.all()
-        for level in levels:
-            if found:
-                return level
-            if self == level:
-                found = True
-        return None
-
-    def get_prev(self):
-        found = False
-        levels = self.objects.all().reverse()
-        for level in levels:
-            if found:
-                return level
-            if self == level:
-                found = True
-        return None
 
 
 class Senior(models.Model):
@@ -113,6 +77,11 @@ class Senior(models.Model):
     permission_level = models.IntegerField(choices=PERMISSION_CHOICES, default=1)
     email_confirmed = models.BooleanField(default=False)
 
+    # Managers
+    objects = models.Manager()
+    seniors = senior_managers.SeniorManager()
+    instructors = senior_managers.InstructorManager()
+
     def __str__(self):
         return (
             self.rank_to_str(int(self.rank))
@@ -124,30 +93,6 @@ class Senior(models.Model):
 
     class Meta:
         ordering = ["level", "rank"]
-
-    @classmethod
-    def by_level(cls, level):
-        queryset = cls.get_all()
-        return queryset.filter(level=level)
-
-    @classmethod
-    def get_all(cls):
-        return cls.objects.filter(permission_level__lte=2)
-
-    @classmethod
-    def get_all_instructors(cls):
-        queryset = cls.get_all()
-        return queryset.filter(permission_level=1)
-
-    @classmethod
-    def get_by_id(cls, id: int):
-        queryset = cls.get_all()
-        return queryset.get(id=id)
-
-    @classmethod
-    def get_by_username(cls, username: str):
-        queryset = cls.get_all()
-        return queryset.get(user__username=username)
 
     @classmethod
     def rank_to_str(cls, number):
@@ -192,20 +137,12 @@ class TrainingNight(models.Model):
 
         return instance
 
-    @classmethod
-    def get(cls, id):
-        return cls.objects.get(pk=id)
-
-    @classmethod
-    def get_by_date(cls, date: datetime):
-        return cls.objects.get(date=date)
+    # Managers
+    objects = models.Manager()
+    nights = managers.NightManager()
 
     def get_absolute_url(self):
         return reverse("trainingnight", args=[self.id])
-
-    @classmethod
-    def get_nights(cls, **kwargs):
-        return cls.objects.filter(**kwargs)
 
     def get_periods(self):
         return self.trainingperiod_set.all().order_by("order")
@@ -226,7 +163,7 @@ class TrainingPeriod(models.Model):
     @classmethod
     def create_fulllesson(cls, night, order):
         instance = cls.objects.create(night=night, order=order)
-        levels = Level.get_juniors()
+        levels = Level.juniors.all()
         for level in levels:
             Teach.create(level, instance)
         return instance
@@ -234,7 +171,7 @@ class TrainingPeriod(models.Model):
     @classmethod
     def create_fullact(cls, night, order):
         instance = cls.objects.create(night=night, order=order)
-        levels = Level.get_juniors()
+        levels = Level.juniors.all()
         teach_id = Teach.get_next_teach_id()
         for level in levels:
             Teach.create(level, instance, id=teach_id)
@@ -242,8 +179,165 @@ class TrainingPeriod(models.Model):
 
 
 # Managing Lessons
+class PerformanceObjective(models.Model):
+    po = models.CharField(max_length=3, unique=True)
+    po_title = models.CharField(max_length=256, blank=True, null=True)
+
+    objects = models.Manager()
+    objectives = managers.ObjectiveManager()
+
+    def __str__(self):
+        return self.po
+
+
+class Lesson(models.Model):
+    po = models.ForeignKey(PerformanceObjective, on_delete=models.SET_NULL, null=True)
+    eocode = models.CharField(
+        max_length=64, unique=True
+    )  # Should be in the format 'M336.04'
+    title = models.CharField(max_length=256)
+
+    def __str__(self):
+        return self.eocode
+
+    @classmethod
+    def create(cls, eocode: str, title: str, po_title: str = None, po: str = None):
+        if cls.objects.filter(eocode=eocode).exists():
+            instance = cls.objects.get(eocode=eocode)
+            if not instance.title == title:
+                instance.change_title(title)
+            return cls.objects.get(eocode=eocode)
+
+        if po == None:
+            po = eocode[1:4]
+
+        po_instance = PerformanceObjective.objectives.get_or_create(po, po_title)
+        instance = cls.objects.create(po=po_instance, eocode=eocode, title=title)
+        return instance
+
+    @classmethod
+    def get_title(cls, eocode: str):
+        if cls.objects.filter(eocode=eocode).exists():
+            instance = cls.objects.get(eocode=eocode)
+            return instance.title
+        return False
+
+    def get_form_initial(self):
+        initial = {}
+        initial["eocode"] = self.eocode
+        initial["title"] = self.title
+        return initial
+
+    def change_title(self, title):
+        self.title = title
+        self.save()
+
+    # This method is for the utils.trainingdayschedule class
+    def format_html_block(self, teach, location: str):
+        block = f"<p class='tracking-tight leading-none'>Lesson at {location}</p>"
+        block += (
+            f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.eocode}</p>"
+        )
+
+        instructors = ""
+        for role, instructor in MapSeniorTeach.get_instructors(teach):
+            instructors += f"{role}: {instructor}<br>"
+        block += f"<p class='font-normal'>{instructors}</p>"
+
+        return block
+
+    def get_content_attributes(self):
+        return [("EO Code", self.eocode), ("Title", self.title)]
+
+
+class Activity(models.Model):
+    title = models.CharField(max_length=256, default="Squadron-Organized Event")
+
+    def __str__(self):
+        return self.title
+
+    @classmethod
+    def create(cls, title: str):
+        instance = cls.objects.create(title=title)
+        return instance
+
+    def get_form_initial(self):
+        initial = {}
+        initial["title"] = self.title
+        return initial
+
+    # This method is for the utils.trainingdayschedule class
+    def format_html_block(self, teach, location: str):
+        block = f"<p class='tracking-tight leading-none'>Activity at {location}</p>"
+        block += f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.title}</p>"
+
+        instructors = ""
+        for role, instructor in MapSeniorTeach.get_instructors(teach):
+            instructors += f"{role}: {instructor}<br>"
+        block += f"<p class='font-normal'>{instructors}</p>"
+
+        return block
+
+    def get_content_attributes(self):
+        return [("Title", self.title)]
+
+
+class GenericLesson(models.Model):
+    topic = models.CharField(max_length=255)
+    title = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.topic + " " + self.title
+
+    @classmethod
+    def create(cls, topic: str, title: str):
+        instance = cls.objects.create(topic=topic, title=title)
+        return instance
+
+    def get_form_initial(self):
+        initial = {}
+        initial["topic"] = self.topic
+        initial["title"] = self.title
+        return initial
+
+    def format_html_block(self, teach, location: str):
+        block = f"<p class='tracking-tight leading-none'>Lesson at {location}</p>"
+        block += f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.title}</p>"
+
+        instructors = ""
+        for role, instructor in MapSeniorTeach.get_instructors(teach):
+            instructors += f"{role}: {instructor}<br>"
+        block += f"<p class='font-normal'>{instructors}</p>"
+
+        return block
+
+    def get_content_attributes(self):
+        return [("Topic", self.topic), ("Title", self.title)]
+
+
+# Blank object for empty teach instances
+class EmptyLesson(models.Model):
+    def __str__(self):
+        return "Empty Lesson Placeholder"
+
+    @classmethod
+    def create(cls):
+        return cls.objects.create()
+
+    @classmethod
+    def format_html_block(self, *args, **kwargs):
+        return "<div class='text-center h-full font-bold text-lg tracking-tight'>UNASSIGNED</div>"
+
+
 class Teach(models.Model):
     DEFAULT_LOCATION = "Classroom"
+    DEFAULT_CONTENT_CLASS = EmptyLesson
+    CONTENT_CLASSES_LIST = [
+        (0, Lesson),
+        (1, Activity),
+        (2, GenericLesson),
+    ]
+    CONTENT_CLASSES = [x[1] for x in CONTENT_CLASSES_LIST]
 
     teach_id = (
         models.PositiveIntegerField()
@@ -298,45 +392,22 @@ class Teach(models.Model):
         )
         return instance
 
-    def get_absolute_url(self):
-        return reverse("teach", args=[self.teach_id])
-
-    def get_absolute_edit_url(self):
-        night_id = self.get_night_id()
-        content_class = self.get_content_type()
-        # Render activity form if it's an activity
-        if content_class == "Activity":
-            return reverse("teach-form", args=[night_id, 1, self.teach_id])
-        return reverse("teach-form", args=[night_id, 0, self.teach_id])
-
-    def get_content_type(self):
-        name = type(self.content).__name__
-        return name
-
-    def get_night_id(self):
-        return self.period.night.id
-
-    def get_date(self):
-        return self.period.night.date
-
-    def format_html_block(self):
-        self = self.get_parent_instance()
-        content_class = self.get_content_type()
-
-        if content_class == "Lesson":
-            return Lesson.format_html_block(self.content, self, self.location)
-        if content_class == "Activity":
-            return Activity.format_html_block(self.content, self, self.location)
-        if content_class == "EmptyLesson":
-            return EmptyLesson.format_html_block()
-        return "UNKNOWN CONTENT CLASS NAME"
-
     @classmethod
     def get_by_teach_id(cls, teach_id):
         instances = cls.objects.filter(teach_id=teach_id)
         if not instances.exists():
             raise ObjectDoesNotExist("Teach ID not Found")
         return instances.first()
+
+    # Get Teach Attrs or Related Data
+    def get_absolute_url(self):
+        return reverse("teach", args=[self.teach_id])
+
+    def get_night_id(self):
+        return self.period.night.id
+
+    def get_date(self):
+        return self.period.night.date
 
     def get_parent_instance(self):
         return self.get_by_teach_id(self.teach_id)
@@ -345,23 +416,11 @@ class Teach(models.Model):
     def get_neighbour_instances(cls, teach_id):
         return cls.objects.filter(teach_id=teach_id)
 
-    def get_form_content_initial(self):
-        initial = {}
-        initial["location"] = self.location
-        content_class = self.get_content_type()
-
-        if content_class == "Lesson":
-            initial.update(self.content.get_form_initial())
-        if content_class == "Activity":
-            initial.update(self.content.get_form_initial())
-
-        return initial
-
     def get_form_slot_initial(self):
         instances = Teach.get_neighbour_instances(self.teach_id)
         positions = instances.values_list("period__order", "level__name")
         night_instance = self.period.night
-        levels = Level.get_juniors()
+        levels = Level.juniors.all()
 
         slot_initial = []
 
@@ -397,6 +456,7 @@ class Teach(models.Model):
         return unique_instances
 
     def get_status(self):
+        self: Teach = self.get_parent_instance()
         if self.finished == True:
             return "Submitted"
 
@@ -410,6 +470,7 @@ class Teach(models.Model):
         else:
             return "Not Submitted"
 
+    # Updating Teach Attrs
     def update_plan(self, plan: str):
         self.plan = plan
         if plan == "":
@@ -417,16 +478,6 @@ class Teach(models.Model):
         else:
             self.finished = True
         return self.save()
-
-    def get_content_attributes(self):
-        self = self.get_parent_instance()
-        content_class = self.get_content_type()
-
-        if content_class == "Lesson":
-            return Lesson.get_content_attributes(self.content)
-        if content_class == "Activity":
-            return Activity.get_content_attributes(self.content)
-        return {}
 
     def change_content(self, content):
         old_content = self.content
@@ -437,131 +488,48 @@ class Teach(models.Model):
         if type(old_content) == EmptyLesson:
             old_content.delete()
 
+    # managing content
+    def get_content_type(self):
+        class_name = type(self.content)
+        return class_name
 
-class PerformanceObjective(models.Model):
-    po = models.CharField(max_length=3, unique=True)
-    po_title = models.CharField(max_length=256, blank=True, null=True)
+    def get_absolute_edit_url(self):
+        night_id = self.get_night_id()
+        content_class = self.get_content_type()
 
-    def __str__(self):
-        return self.po
-
-    @classmethod
-    def create(cls, po: str, po_title: str):
-        if cls.objects.filter(po=po).exists():
-            return cls.objects.get(po=po)
-
-        instance = cls.objects.create(po=po, po_title=po_title)
-        return instance
-
-
-class Lesson(models.Model):
-    po = models.ForeignKey(PerformanceObjective, on_delete=models.SET_NULL, null=True)
-    eocode = models.CharField(
-        max_length=64, unique=True
-    )  # Should be in the format 'M336.04'
-    title = models.CharField(max_length=256)
-    teach = GenericRelation(Teach)
-
-    def __str__(self):
-        return self.eocode
-
-    @classmethod
-    def create(cls, eocode: str, title: str, po_title: str = None, po: str = None):
-        if cls.objects.filter(eocode=eocode).exists():
-            instance = cls.objects.get(eocode=eocode)
-            if not instance.title == title:
-                instance.change_title(title)
-            return cls.objects.get(eocode=eocode)
-
-        if po == None:
-            po = eocode[1:4]
-
-        po_instance = PerformanceObjective.create(po, po_title)
-        instance = cls.objects.create(po=po_instance, eocode=eocode, title=title)
-        return instance
-
-    @classmethod
-    def get_title(cls, eocode: str):
-        if cls.objects.filter(eocode=eocode).exists():
-            instance = cls.objects.get(eocode=eocode)
-            return instance.title
-        return False
-
-    def get_form_initial(self):
-        initial = {}
-        initial["eocode"] = self.eocode
-        initial["title"] = self.title
-        return initial
-
-    def change_title(self, title):
-        self.title = title
-        self.save()
-
-    # This method is for the utils.trainingdayschedule class
-    def format_html_block(self, teach: Teach, location: str):
-        block = f"<p class='tracking-tight leading-none'>Lesson at {location}</p>"
-        block += (
-            f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.eocode}</p>"
-        )
-
-        instructors = ""
-        for role, instructor in MapSeniorTeach.get_instructors(teach):
-            instructors += f"{role}: {instructor}<br>"
-        block += f"<p class='font-normal'>{instructors}</p>"
-
-        return block
+        # find link to form to render
+        for content_tuple in self.CONTENT_CLASSES_LIST:
+            if content_tuple[1] == content_class:
+                return reverse(
+                    "teach-form", args=[night_id, content_tuple[0], self.teach_id]
+                )
+        return reverse("teach-form", args=[night_id, 0, self.teach_id])
 
     def get_content_attributes(self):
-        return [("EO Code", self.eocode), ("Title", self.title)]
+        self: Teach = self.get_parent_instance()
+        content_class = self.get_content_type()
 
+        if content_class in self.CONTENT_CLASSES:
+            return content_class.get_content_attributes(self.content)
+        return {}
 
-class Activity(models.Model):
-    title = models.CharField(max_length=256, default="Squadron-Organized Event")
-    teach = GenericRelation(Teach)
-
-    def __str__(self):
-        return self.title
-
-    @classmethod
-    def create(cls, title: str):
-        instance = cls.objects.create(title=title)
-        return instance
-
-    def get_form_initial(self):
-        initial = {}
-        initial["title"] = self.title
-        return initial
-
-    # This method is for the utils.trainingdayschedule class
-    def format_html_block(self, teach: Teach, location: str):
-        block = f"<p class='tracking-tight leading-none'>Activity at {location}</p>"
-        block += f"<p class='mb-2 font-bold tracking-tight text-clr-5'>{self.title}</p>"
-
-        instructors = ""
-        for instructor in MapSeniorTeach.get_instructors(teach):
-            instructors += f"{instructor}<br>"
-        block += f"<p class='font-normal'>{instructors}</p>"
-
-        return block
-
-    def get_content_attributes(self):
-        return [("Title", self.title)]
-
-
-# Blank object for empty teach instances
-class EmptyLesson(models.Model):
-    teach = GenericRelation(Teach)
-
-    def __str__(self):
-        return "Empty Lesson Placeholder"
-
-    @classmethod
-    def create(cls):
-        return cls.objects.create()
-
-    @classmethod
     def format_html_block(self):
-        return "<div class='text-center h-full font-bold text-lg tracking-tight'>UNASSIGNED</div>"
+        self: Teach = self.get_parent_instance()
+        content_class = self.get_content_type()
+
+        if content_class in self.CONTENT_CLASSES + [self.DEFAULT_CONTENT_CLASS]:
+            return content_class.format_html_block(self.content, self, self.location)
+        return "UNKNOWN CONTENT CLASS NAME"
+
+    def get_form_content_initial(self):
+        initial = {}
+        initial["location"] = self.location
+        content_class = self.get_content_type()
+
+        if content_class in self.CONTENT_CLASSES:
+            initial.update(self.content.get_form_initial())
+
+        return initial
 
 
 class MapSeniorTeach(models.Model):
@@ -595,7 +563,17 @@ class MapSeniorTeach(models.Model):
         for object in queryset:
             instructors.append((object.role, object.senior))
 
-        return instructors
+        # Function for sorting
+        def role_priority(role: tuple):
+            roles = cls.DATALIST_SUGGESTIONS
+            # Role[0] is the role in the (role, senior) tuple
+            if role[0] in roles:
+                return roles.index(role[0])
+            else:
+                return len(roles) + 1
+
+        # Sorting the list of tuples
+        return sorted(instructors, key=role_priority)
 
     @classmethod
     def get_senior_queryset_after_date(cls, senior: Senior, date: date):
@@ -629,7 +607,16 @@ class MapSeniorNight(models.Model):
         for object in queryset:
             instructors.append((object.role, object.senior))
 
-        return instructors
+        # Function for sorting
+        def role_priority(role: tuple):
+            roles = cls.DATALIST_SUGGESTIONS
+            # Role[0] is the role in the (role, senior) tuple
+            if role[0] in roles:
+                return roles.index(role[0])
+            else:
+                return len(roles) + 1
+
+        return sorted(instructors, key=role_priority)
 
     @classmethod
     def get_senior_queryset_after_date(cls, senior: Senior, date: date):

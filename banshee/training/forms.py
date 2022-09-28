@@ -9,6 +9,7 @@ import re
 
 from .models import (
     Activity,
+    GenericLesson,
     Lesson,
     Senior,
     TrainingNight,
@@ -17,6 +18,7 @@ from .models import (
     MapSeniorTeach,
     MapSeniorNight,
 )
+from users.models import TrainingSetting
 
 
 # Edit Senior Form
@@ -30,9 +32,18 @@ class AssignTeachForm(ModelForm):
     )
     senior = forms.ChoiceField(choices=[])
 
-    def __init__(self, *args, teach_id, senior_choices, parent_instance, **kwargs):
+    def __init__(
+        self,
+        *args,
+        teach_id: int,
+        senior_choices: list,
+        parent_instance,
+        send_email: bool = True,
+        **kwargs,
+    ):
         super(AssignTeachForm, self).__init__(*args, **kwargs)
 
+        self.send_email = send_email  # Should we send emails on save?
         self.teach_id = teach_id
         self.parent_instance = parent_instance
         self.fields["senior"].choices = (
@@ -46,28 +57,44 @@ class AssignTeachForm(ModelForm):
     def clean(self):
         cleaned_data = self.cleaned_data
         senior_id = cleaned_data.get("senior")
-        senior_instance = Senior.get_by_id(senior_id)
+        senior_instance = Senior.seniors.get_by_id(senior_id)
         cleaned_data.update({"senior": senior_instance})
 
-        if senior_instance.permission_level > 1:
-            raise ValidationError({"senior": "You can't assign this senior."})
+        senior_assignment_setting = TrainingSetting.get_senior_assignment()
+
+        if senior_assignment_setting:
+            if senior_instance.permission_level > 2:
+                raise ValidationError({"senior": "You can't assign this senior."})
+        else:
+            if senior_instance.permission_level > 1:
+                raise ValidationError({"senior": "You can't assign this senior."})
 
         return cleaned_data
 
     def save(self, commit: bool = True):
         super(AssignTeachForm, self).save(commit)
-        cleaned_data = self.cleaned_data
-        Email.send_teach_assignment_email(
-            user=cleaned_data.get("senior").user,
-            teach=self.parent_instance,
-            role=cleaned_data.get("role"),
-        )
+        if self.send_email:
+            cleaned_data = self.cleaned_data
+            Email.send_teach_assignment_email(
+                user=cleaned_data.get("senior").user,
+                teach=self.parent_instance,
+                role=cleaned_data.get("role"),
+            )
 
 
 class AssignNightForm(AssignTeachForm):
-    def __init__(self, *args, night_id, senior_choices, parent_instance, **kwargs):
+    def __init__(
+        self,
+        *args,
+        night_id,
+        senior_choices,
+        parent_instance,
+        send_email: bool = True,
+        **kwargs,
+    ):
         ModelForm.__init__(self, *args, **kwargs)
 
+        self.send_email = send_email
         self.night_id = night_id
         self.parent_instance = parent_instance
         self.fields["senior"].choices = (
@@ -80,12 +107,13 @@ class AssignNightForm(AssignTeachForm):
 
     def save(self, commit: bool = True):
         ModelForm.save(self, commit)
-        cleaned_data = self.cleaned_data
-        Email.send_night_assignment_email(
-            user=cleaned_data.get("senior").user,
-            night=self.parent_instance,
-            role=cleaned_data.get("role"),
-        )
+        if self.send_email:
+            cleaned_data = self.cleaned_data
+            Email.send_night_assignment_email(
+                user=cleaned_data.get("senior").user,
+                night=self.parent_instance,
+                role=cleaned_data.get("role"),
+            )
 
 
 AssignTeachFormset = inlineformset_factory(
@@ -112,7 +140,7 @@ class BaseTeachForm(forms.Form):
 
         self.night_id = night_id
 
-        instance = TrainingNight.get(night_id)
+        instance = TrainingNight.nights.get(pk=night_id)
         for number, period in enumerate(instance.get_periods(), 1):
             self.fields[f"p{number}_choice"] = forms.MultipleChoiceField(
                 choices=level_choices,
@@ -229,6 +257,16 @@ class ActivityTeachForm(BaseTeachForm):
         data = self.cleaned_data
 
         return Activity.create(data["title"])
+
+
+class GenericLessonTeachForm(BaseTeachForm):
+    topic = forms.CharField(max_length=256, required=True)
+    title = forms.CharField(max_length=256, required=True)
+
+    def get_content_instance(self):
+        data = self.cleaned_data
+
+        return GenericLesson.create(data["topic"], data["title"])
 
 
 class TeachPlanForm(ModelForm):

@@ -5,7 +5,7 @@ from django.urls import reverse
 
 class TrainingDaySchedule:
     def formatlesson(self, lesson: Teach):
-        return f"<td><a href='{lesson.get_absolute_url()}' class='block p-2 m-2 w-auto min-h-24 bg-clr-1 hover:bg-green-900 rounded-lg shadow-md'>{lesson.format_html_block()}</a></td>"
+        return f"<td><a href='{lesson.get_absolute_url()}' class='block p-2 w-auto min-h-24 bg-clr-1 hover:bg-green-900 rounded-lg shadow-md'>{lesson.format_html_block()}</a></td>"
 
     def formatperiod(self, periodnum: int, period: TrainingPeriod):
         period_html = f"<th>P{str(periodnum)}</th>"
@@ -33,20 +33,20 @@ class TrainingDaySchedule:
 
 class EditTrainingDaySchedule(TrainingDaySchedule):
     def formatlesson(self, lesson: Teach):
-        return f"<td><a href='{lesson.get_absolute_edit_url()}' class='block p-2 m-2 w-auto min-h-24 bg-blue-700 hover:bg-blue-900 rounded-lg shadow-md'>{lesson.format_html_block()}</a></td>"
+        return f"<td><a href='{lesson.get_absolute_edit_url()}' class='block p-2 w-auto min-h-24 bg-blue-700 hover:bg-blue-900 rounded-lg shadow-md'>{lesson.format_html_block()}</a></td>"
 
 
 class DueTrainingDaySchedule(TrainingDaySchedule):
     def formatlesson(self, lesson: Teach):
         status = lesson.get_status()
-        print(status)
+
         if status == "Submitted":
-            return f"<td><a href='{lesson.get_absolute_url()}' class='block p-2 m-2 w-auto min-h-24 bg-banshee-green-800 hover:bg-green-900 rounded-lg shadow-md text-black'>{lesson.format_html_block()}</a></td>"
+            return f"<td><a href='{lesson.get_absolute_url()}' class='block p-2 w-auto min-h-24 bg-banshee-green-800 hover:bg-green-900 rounded-lg shadow-md text-black'>{lesson.format_html_block()}</a></td>"
         if status == "Not Submitted":
-            return f"<td><a href='{lesson.get_absolute_url()}' class='block p-2 m-2 w-auto min-h-24 bg-gray-400 hover:bg-green-900 rounded-lg shadow-md text-black'>{lesson.format_html_block()}</a></td>"
+            return f"<td><a href='{lesson.get_absolute_url()}' class='block p-2 w-auto min-h-24 bg-gray-400 hover:bg-green-900 rounded-lg shadow-md text-black'>{lesson.format_html_block()}</a></td>"
         if status == "Missing":
-            return f"<td><a href='{lesson.get_absolute_url()}' class='block p-2 m-2 w-auto min-h-24 bg-red-600 hover:bg-green-900 rounded-lg shadow-md'>{lesson.format_html_block()}</a></td>"
-        return f"<td><a href='{lesson.get_absolute_url()}' class='block p-2 m-2 w-auto min-h-24 bg-clr-1 hover:bg-green-900 rounded-lg shadow-md'>{lesson.format_html_block()}</a></td>"
+            return f"<td><a href='{lesson.get_absolute_url()}' class='block p-2 w-auto min-h-24 bg-red-600 hover:bg-green-900 rounded-lg shadow-md'>{lesson.format_html_block()}</a></td>"
+        return f"<td><a href='{lesson.get_absolute_url()}' class='block p-2 w-auto min-h-24 bg-clr-1 hover:bg-green-900 rounded-lg shadow-md'>{lesson.format_html_block()}</a></td>"
 
 
 class ViewDashboardCalendar(HTMLCalendar):

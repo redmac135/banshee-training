@@ -22,7 +22,7 @@
         <div class="bg-clr-1 shadow-md rounded px-8 pt-6 pb-8 mb-4">
             <div class="font-bold text-2xl text-white">Plan</div>
             {% if plan.finished %}
-            <p class="font-normal text-white break-all"><strong>Link: </strong><a class="underline text-blue-600 hover:text-blue-800 visited:text-purple-600" href="{{ plan.link }}">{{ plan.link }}</a></p>
+            <p class="font-normal text-white break-all"><strong>Link: </strong><a class="underline text-blue-600 hover:text-blue-800 visited:text-purple-600" href="{{ plan.link }}" target="_blank" rel="noopener noreferrer">{{ plan.link }}</a></p>
             {% else %}
             <p class="font-bold text-gray-400">UNFINISHED</p>
             {% endif %}

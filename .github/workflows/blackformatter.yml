@@ -1,0 +1,14 @@
+name: Run black formatter
+
+on: push
+
+jobs:
+  black:
+    name: black format code base
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+       
+      - name: Run Black Formatter
+        uses: rickstaa/action-black@v1.1.14

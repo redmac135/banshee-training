@@ -20,7 +20,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         username = kwargs.get("username")
         permission = kwargs.get("permission")
-        instance = Senior.get_by_username(username)
+        instance = Senior.seniors.get_by_username(username)
         instance.change_permission(permission)
         self.stdout.write(
             f"Senior {str(instance)} changed to permission level {permission}"

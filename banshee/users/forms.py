@@ -1,6 +1,10 @@
 from django import forms
 from django.db.models.fields import BLANK_CHOICE_DASH
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import (
+    UserCreationForm,
+    AuthenticationForm,
+    PasswordResetForm,
+)
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
@@ -69,7 +73,7 @@ class SignupForm(UserCreationForm):
         self.fields["level"].choices = (
             self.BLANK_CHOICE_LEVEL
             + self.BLANK_CHOICE_DASH
-            + Level.get_senior_level_choices()
+            + Level.seniors.get_choices()
         )
 
     class Meta:
@@ -195,15 +199,25 @@ class TrainingSettingsForm(forms.ModelForm):
     duedateoffset = forms.IntegerField(
         label="How many days before lessons are lesson plans due?"
     )
+    allow_senior_assignment = forms.BooleanField(required=False)
 
     class Meta:
         model = TrainingSetting
-        fields = ["duedateoffset"]
+        fields = ["duedateoffset", "allow_senior_assignment"]
+
+    def text_fields(self):
+        field_list = ["duedateoffset"]
+        return [field for field in self if field.name in field_list]
+
+    def boolean_fields(self):
+        field_list = ["allow_senior_assignment"]
+        return [field for field in self if field.name in field_list]
 
     def save(self, commit=True):
         cleaned_data = self.cleaned_data
         instance = TrainingSetting.create()
         instance.duedateoffset = cleaned_data.get("duedateoffset")
+        instance.allow_senior_assignment = cleaned_data.get("allow_senior_assignment")
         instance.save()
 
 
