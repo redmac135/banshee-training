@@ -125,7 +125,7 @@
             </div>
         </div>
         <div class="md:pl-4 max-w-screen-sm mx-2">
-            <p class="text-2xl text-clr-5 font-bold mb-2 w-max">TEACHING ASSIGNMENTS</p>
+            <p class="pl-2 text-2xl text-clr-5 font-bold mb-2 w-max">TEACHING ASSIGNMENTS</p>
             {% for assignment in teach_assignments %}
                 <div class="block pb-2">
                     <a href="{{ assignment.teach.get_absolute_url }}"
@@ -157,7 +157,7 @@
             {% empty %}
             <p class="text-clr-5 font-light">No upcoming teach assignments.</p>
             {% endfor %}
-            <p class="text-2xl text-clr-5 font-bold mb-2 w-max">SQUADRON ASSIGNMENTS</p>
+            <p class="pl-2 text-2xl text-clr-5 font-bold mb-2 w-max">SQUADRON ASSIGNMENTS</p>
             {% for assignment in night_assignments %}
                 <div class="block pb-2">
                     <a href="{{ assignment.night.get_absolute_url }}"
