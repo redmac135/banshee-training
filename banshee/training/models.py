@@ -357,7 +357,7 @@ class Teach(models.Model):
     period = models.ForeignKey(TrainingPeriod, on_delete=models.CASCADE)
 
     def __str__(self):
-        return str(self.content)
+        return str(self.teach_id) + " " + str(self.content)
 
     class Meta:
         ordering = ["teach_id", "id"]
