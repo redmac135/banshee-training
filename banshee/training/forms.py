@@ -128,6 +128,7 @@ AssignNightFormset = inlineformset_factory(
 
 # Forms to edit Teach Instances
 class BaseTeachForm(forms.Form):
+    # Test to find which fields are slot fields, aka the "p1_choice" fields
     PERIOD_FIELD_TEST = re.compile("^p\d_choice$")
     location = forms.CharField(max_length=64)
 
@@ -152,8 +153,7 @@ class BaseTeachForm(forms.Form):
         cleaned_data = self.cleaned_data
 
         fields = cleaned_data.keys()
-        test = re.compile("^p\d_choice$")
-        period_fields = [field for field in fields if test.match(field)]
+        period_fields = [field for field in fields if self.PERIOD_FIELD_TEST.match(field)]
 
         length = 0
         for period_field in period_fields:

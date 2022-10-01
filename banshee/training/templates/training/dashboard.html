@@ -7,8 +7,8 @@
 
 {% block content %}
 <div class="flex items-center justify-center py-4 px-4">
-    <div class="flex flex-col md:flex-row">
-        <div class="max-w-sm w-full shadow-lg h-max">
+    <div class="flex flex-col items-center md:flex-row">
+        <div class="max-w-sm shadow-lg h-max">
             <div class="md:p-8 p-5 bg-clr-1 rounded">
                 <div class="flex items-center justify-between">
                     <span tabindex="0"
@@ -124,8 +124,8 @@
                 </div>
             </div>
         </div>
-        <div class="pl-4">
-            <p class="text-3xl text-clr-5 font-bold mb-2 w-max">TEACHING ASSIGNMENTS</p>
+        <div class="md:pl-4 max-w-screen-sm mx-2">
+            <p class="pl-2 text-2xl text-clr-5 font-bold mb-2 w-max">TEACHING ASSIGNMENTS</p>
             {% for assignment in teach_assignments %}
                 <div class="block pb-2">
                     <a href="{{ assignment.teach.get_absolute_url }}"
@@ -157,7 +157,7 @@
             {% empty %}
             <p class="text-clr-5 font-light">No upcoming teach assignments.</p>
             {% endfor %}
-            <p class="text-3xl text-clr-5 font-bold mb-2 w-max">SQUADRON ASSIGNMENTS</p>
+            <p class="pl-2 text-2xl text-clr-5 font-bold mb-2 w-max">SQUADRON ASSIGNMENTS</p>
             {% for assignment in night_assignments %}
                 <div class="block pb-2">
                     <a href="{{ assignment.night.get_absolute_url }}"
