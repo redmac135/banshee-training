@@ -153,7 +153,9 @@ class BaseTeachForm(forms.Form):
         cleaned_data = self.cleaned_data
 
         fields = cleaned_data.keys()
-        period_fields = [field for field in fields if self.PERIOD_FIELD_TEST.match(field)]
+        period_fields = [
+            field for field in fields if self.PERIOD_FIELD_TEST.match(field)
+        ]
 
         length = 0
         for period_field in period_fields:
