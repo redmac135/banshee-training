@@ -109,31 +109,34 @@ class TrainingNightView(LoginRequiredMixin, View):
     model = TrainingNight
     schedule_class = TrainingDaySchedule
     template_name = "training/night.html"
+    view_name = "view"
 
-    def get(self, request, night_id, *args, **kwargs):
+    def get_context_data(self, night_id: int, **kwargs):
+        context = {}
+
+        context["view"] = self.view_name
+
+        context["nightid"] = night_id
         night: TrainingNight = TrainingNight.objects.get(pk=night_id)
 
         level_objects = Level.juniors.all()
         levels = [level_object.name for level_object in level_objects]
-
         schedule_obj = self.schedule_class()
         schedule = schedule_obj.formatschedule(night, levels)
-        mark_safe(schedule)
+        context["schedule"] = mark_safe(schedule)
 
-        roles = MapSeniorNight.get_instructors(night)
+        context["roles"] = MapSeniorNight.get_instructors(night)
 
         date = night.date
         title = {}
         title["month"] = date.strftime("%B")
         title["day"] = date.day
+        context["title"] = title
 
-        context = {
-            "schedule": mark_safe(schedule),
-            "nightid": night.pk,
-            "roles": roles,
-            "title": title,
-        }
-        context.update(self.get_context_data())
+        return context
+
+    def get(self, request, night_id, *args, **kwargs):
+        context = self.get_context_data(night_id)
 
         return render(
             request,
@@ -141,28 +144,15 @@ class TrainingNightView(LoginRequiredMixin, View):
             context,
         )
 
-    def get_context_data(self, **kwargs):
-        context = {}
-        context["view"] = "view"
-        return context
-
 
 class EditTrainingNightView(TrainingNightView):
     schedule_class = EditTrainingDaySchedule
-
-    def get_context_data(self, **kwargs):
-        context = {}
-        context["view"] = "edit"
-        return context
+    view_name = "edit"
 
 
 class DueTrainingNightView(TrainingNightView):
     schedule_class = DueTrainingDaySchedule
-
-    def get_context_data(self, **kwargs):
-        context = {}
-        context["view"] = "due"
-        return context
+    view_name = "due"
 
 
 class TeachFormView(LoginRequiredMixin, UserPassesTestMixin, View):
