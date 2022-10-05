@@ -363,6 +363,7 @@ class Teach(models.Model):
         ordering = ["teach_id", "id"]
         indexes = [models.Index(fields=["content_type", "object_id"])]
 
+    # TODO: Move and create teachids and levels manager
     @classmethod
     def get_next_teach_id(cls):
         largest = (
@@ -543,6 +544,7 @@ class MapSeniorTeach(models.Model):
     def __str__(self):
         return str(self.teach.teach_id) + " " + str(self.senior)
 
+    # TODO: Create seniorteachs manager
     @classmethod
     def get_ic(cls, teach: Teach):
         if cls.objects.filter(teach=teach, role=cls.IC_ROLE_NAME).exists():
