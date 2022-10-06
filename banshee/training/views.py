@@ -432,7 +432,7 @@ class DiscludeSeniorFormView(LoginRequiredMixin, UserPassesTestMixin, FormView):
 
     def get_form_kwargs(self):
         kwargs = super(DiscludeSeniorFormView, self).get_form_kwargs()
-        senior_queryset = Senior.instructors.all()
+        senior_queryset = Senior.seniors.all()
         senior_choices = [(senior.id, str(senior)) for senior in senior_queryset]
         kwargs["senior_choices"] = senior_choices
         return kwargs
