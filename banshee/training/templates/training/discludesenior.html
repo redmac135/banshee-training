@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% load formclass %}
+
+{% block content %}
+<form action="{% url 'trainingsettings' %}">
+    <input type="submit" value="Back to Training Settings" class="text-white bg-clr-1 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700 mt-2 ml-2"></input>
+</form>
+<div class="bg-clr-2 min-h-screen pt-2 font-mono">
+    <div class="container mx-auto">
+        <div class="inputs w-full max-w-2xl p-6 mx-auto">
+            <h2 class="text-2xl text-clr-5">Disclude Senior</h2>
+            <form action="" method="post" class="mt-6 border-t border-gray-400 text-clr-5 pt-4">
+                {% csrf_token %}
+                <div class="flex flex-col -mx-3 mb-6">
+                    <div class="flex justify-start pb-2">
+                        <label class="block text-clr-5 font-bold md:text-right mb-1 md:mb-0 pr-4" for="{{ form.senior.id_for_label }}">
+                            {{ form.senior.label_tag }}
+                        </label>
+                    </div>
+                    <div>
+                        {% if form.senior.errors %}
+                            {{ form.senior|addclass:'select2 bg-gray-200 appearance-none rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white focus:border-red-300 border-red-600 border border-solid border-2' }}
+                            {% for error in form.senior.errors %}
+                                <p class="mb-4 text-red-600 font-thin italic">{{ error }}</p>
+                            {% endfor %}
+                        {% else %}
+                            {{ form.senior|addclass:'select2 bg-gray-200 appearance-none border-2 border-gray-200 rounded w-full py-2 px-4 text-gray-700 leading-tight focus:outline-none focus:bg-white' }}
+                        {% endif %}
+                    </div>
+                    {% for error in form.non_field_errors %}
+                        <p class="text-red-600">{{ error }}</p>
+                    {% endfor %}
+                    <div class="flex justify-center">
+                        <button type="submit"
+                            class="appearance-none bg-gray-200 text-gray-900 px-2 py-1 shadow-sm border border-gray-400 rounded-md mt-4">disclude senior</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

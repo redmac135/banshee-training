@@ -1,6 +1,19 @@
 from django.urls import path, register_converter
 from .converters import DateConverter
-from .views import *
+from .views import (
+    HomeView,
+    TrainingNightView,
+    EditTrainingNightView,
+    DueTrainingNightView,
+    AssignNightView,
+    DashboardView,
+    TeachFormView,
+    AssignTeachView,
+    TeachView,
+    DiscludeSeniorFormView,
+    TrainingNightDetailView,
+    SeniorDetailView,
+)
 
 register_converter(DateConverter, "date")
 
@@ -32,9 +45,11 @@ urlpatterns = [
     ),
     path("teach/assign/<int:teach_id>", AssignTeachView.as_view(), name="teach-assign"),
     path("teach/<int:teach_id>", TeachView.as_view(), name="teach"),
+    path("accounts/disclude", DiscludeSeniorFormView.as_view(), name="disclude-senior"),
     path(
         "api/<int:year>/<int:month>/<int:day>/",
         TrainingNightDetailView.as_view(),
         name="api-trainingnight",
     ),
+    path("api/<int:senior_id>/", SeniorDetailView.as_view(), name="api-senior"),
 ]

@@ -3,7 +3,7 @@ from datetime import date, datetime, timedelta
 
 from django.views.generic import TemplateView, FormView
 from django.views import View
-from django.urls import reverse
+from django.urls import reverse_lazy
 from django.shortcuts import render, redirect
 from django.utils.safestring import mark_safe
 from django.contrib import messages
@@ -16,6 +16,7 @@ from .models import MapSeniorNight, MapSeniorTeach, TrainingNight, Level, Teach,
 from .forms import (
     AssignTeachFormset,
     AssignNightFormset,
+    DiscludeSeniorForm,
     GenericLessonTeachForm,
     LessonTeachForm,
     ActivityTeachForm,
@@ -420,6 +421,27 @@ class TeachView(LoginRequiredMixin, View):
         return render(request, self.template_name, context)
 
 
+class DiscludeSeniorFormView(LoginRequiredMixin, UserPassesTestMixin, FormView):
+    template_name = "training/discludesenior.html"
+    form_class = DiscludeSeniorForm
+    success_url = reverse_lazy("trainingsettings")
+
+    # For UserPassesTestMixin
+    def test_func(self):
+        return self.request.user.senior.is_training()
+
+    def get_form_kwargs(self):
+        kwargs = super(DiscludeSeniorFormView, self).get_form_kwargs()
+        senior_queryset = Senior.instructors.all()
+        senior_choices = [(senior.id, str(senior)) for senior in senior_queryset]
+        kwargs["senior_choices"] = senior_choices
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        return redirect(self.success_url)
+
+
 # Utility Views (views that do things but don't actually have a template)
 class TrainingNightDetailView(LoginRequiredMixin, UserPassesTestMixin, APIView):
     http_method_names = ["get", "delete"]
@@ -439,4 +461,18 @@ class TrainingNightDetailView(LoginRequiredMixin, UserPassesTestMixin, APIView):
         instance = TrainingNight.nights.get_by_date(day)
         instance.delete()
         messages.success(request, "Training Day Deleted.")
+        return Response(status=status.HTTP_200_OK)
+
+
+class SeniorDetailView(LoginRequiredMixin, UserPassesTestMixin, APIView):
+    http_method_names = ["delete"]
+
+    # For UserPassesTestMixin
+    def test_func(self):
+        return self.request.user.senior.is_training()
+
+    def delete(self, request, senior_id, *args, **kwargs):
+        instance = Senior.seniors.get_by_id(senior_id)
+        instance.change_disclude_status(False)
+        messages.success(request, "Senior included in assignment.")
         return Response(status=status.HTTP_200_OK)

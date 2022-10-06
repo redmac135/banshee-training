@@ -206,6 +206,7 @@ class TrainingSettingsView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     def get_context_data(self, **kwargs):
         context = super(TrainingSettingsView, self).get_context_data(**kwargs)
         context["authorizedemails"] = AuthorizedEmail.get_list_of_emails()
+        context["unassignable_seniors"] = Senior.seniors.get_unassignable_seniors()
         return context
 
 

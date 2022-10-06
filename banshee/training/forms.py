@@ -299,3 +299,34 @@ class TeachPlanForm(ModelForm):
         plan = cleaned_data.get("plan")
 
         self.instance.update_plan(plan)
+
+
+class DiscludeSeniorForm(forms.Form):
+    BLANK_CHOICE_SENIOR = [("", "Senior")]
+    BLANK_CHOICE_DASH = BLANK_CHOICE_DASH
+
+    senior = forms.ChoiceField(choices=[])
+
+    def __init__(self, *args, senior_choices: list, **kwargs):
+        super(DiscludeSeniorForm, self).__init__(*args, **kwargs)
+        self.fields["senior"].choices = (
+            self.BLANK_CHOICE_SENIOR + self.BLANK_CHOICE_DASH + senior_choices
+        )
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        senior_id = cleaned_data.get("senior")
+        senior_instance = Senior.seniors.get_by_id(senior_id)
+        cleaned_data.update({"senior": senior_instance})
+
+        if senior_instance.discluded_assignment == True:
+            raise ValidationError(
+                {"senior": "This senior is already discluded from assignment."}
+            )
+
+        return cleaned_data
+
+    def save(self):
+        cleaned_data = self.cleaned_data
+        senior = cleaned_data.get("senior")
+        senior.change_disclude_status(True)

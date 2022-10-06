@@ -18,6 +18,13 @@ class SeniorManager(models.Manager):
     def get_by_username(self, username: str):
         return self.get_queryset().get(user__username=username)
 
+    def get_unassignable_seniors(self):
+        return self.get_queryset().filter(discluded_assignment=True)
+
+    # Note: this does not refer to technically assignable, just those that are not discluded from assignment
+    def get_assignable_seniors(self):
+        return self.get_queryset().filter(discluded_assignment=False)
+
 
 class InstructorManager(models.Manager):
     def get_queryset(self):

@@ -77,6 +77,9 @@ class Senior(models.Model):
     level = models.ForeignKey(Level, on_delete=models.SET_NULL, null=True)
     permission_level = models.IntegerField(choices=PERMISSION_CHOICES, default=1)
     email_confirmed = models.BooleanField(default=False)
+    discluded_assignment = models.BooleanField(
+        default=False
+    )  # Should this senior be discluded from assignments
 
     # Managers
     objects = models.Manager()
@@ -100,6 +103,9 @@ class Senior(models.Model):
         ranks = dict(cls.RANK_CHOICES)
         return ranks[number]
 
+    def get_absolute_url(self):
+        return reverse("api-senior", args=[self.pk])
+
     def is_training(self):
         if self.permission_level >= 2:
             return True
@@ -108,6 +114,10 @@ class Senior(models.Model):
 
     def change_permission(self, permission: int):
         self.permission_level = permission
+        return self.save()
+
+    def change_disclude_status(self, status: bool):
+        self.discluded_assignment = status
         return self.save()
 
 
@@ -149,7 +159,7 @@ class TrainingNight(models.Model):
         return self.trainingperiod_set.all().order_by("order")
 
     def get_unassigned(self):
-        queryset = Senior.seniors.all()
+        queryset = Senior.seniors.get_assignable_seniors()
         night_assignment_ids = [senior.id for (role, senior) in self.get_assignments()]
 
         teach_assignment_ids = []
@@ -494,7 +504,7 @@ class Teach(models.Model):
             return "Not Submitted"
 
     def get_assignable_seniors(self):
-        queryset = Senior.seniors.all()
+        queryset = Senior.seniors.get_assignable_seniors()
         night_assignment_ids = [
             senior.id for role, senior in self.period.night.get_assignments()
         ]
