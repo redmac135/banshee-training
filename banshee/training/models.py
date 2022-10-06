@@ -492,6 +492,22 @@ class Teach(models.Model):
         else:
             return "Not Submitted"
 
+    def get_assignable_seniors(self):
+        queryset = Senior.seniors.all()
+        night_assignment_ids = [
+            senior.id for role, senior in self.period.night.get_assignments()
+        ]
+
+        teach_assignment_ids = []
+        for teach in self.period.get_teach_instances():
+            teaching_seniors = [senior.id for (role, senior) in teach.get_assignments()]
+            teach_assignment_ids.extend(teaching_seniors)
+
+        filtered = queryset.exclude(
+            Q(id__in=night_assignment_ids) | Q(id__in=teach_assignment_ids)
+        )
+        return filtered
+
     # Updating Teach Attrs
     def update_plan(self, plan: str):
         self.plan = plan
