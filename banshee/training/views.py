@@ -127,6 +127,8 @@ class TrainingNightView(LoginRequiredMixin, View):
 
         context["roles"] = MapSeniorNight.get_instructors(night)
 
+        context["unassigned_seniors"] = night.get_unassigned()
+
         date = night.date
         title = {}
         title["month"] = date.strftime("%B")
