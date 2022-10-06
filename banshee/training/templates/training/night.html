@@ -66,5 +66,15 @@
             </tbody>
         </table>
     </div>
+    <div class="pt-8 max-w-7xl w-full mx-auto text-clr-5">
+        <div class="max-w-xs">
+            <p class="text-2xl font-bold mb-2 text-center">UNASSIGNED SENIORS</p>
+            {% for senior in unassigned_seniors %}
+            <div class="bg-clr-1 rounded-md p-2 mb-2">{{ senior }}</div>
+            {% empty %}
+            <p class="font-light text-center">All Seniors Assigned.</p>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 {% endblock %}

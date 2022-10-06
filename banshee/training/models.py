@@ -1,5 +1,6 @@
 from datetime import datetime, date, timedelta
 from django.db import models
+from django.db.models import Q
 from django.urls import reverse
 from django.contrib.auth.models import User
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
@@ -146,6 +147,27 @@ class TrainingNight(models.Model):
 
     def get_periods(self):
         return self.trainingperiod_set.all().order_by("order")
+
+    def get_unassigned(self):
+        queryset = Senior.seniors.all()
+        night_assignment_ids = [senior.id for (role, senior) in self.get_assignments()]
+
+        teach_assignment_ids = []
+        for period in self.get_periods():
+            for teach in period.get_teach_instances():
+                teaching_seniors = [
+                    senior.id for (role, senior) in teach.get_assignments()
+                ]
+                teach_assignment_ids.extend(teaching_seniors)
+
+        filtered = queryset.exclude(
+            Q(id__in=night_assignment_ids) | Q(id__in=teach_assignment_ids)
+        )
+        return filtered
+
+    # Convenience Functions
+    def get_assignments(self):
+        return MapSeniorNight.get_instructors(self)
 
 
 class TrainingPeriod(models.Model):
@@ -471,6 +493,22 @@ class Teach(models.Model):
         else:
             return "Not Submitted"
 
+    def get_assignable_seniors(self):
+        queryset = Senior.seniors.all()
+        night_assignment_ids = [
+            senior.id for role, senior in self.period.night.get_assignments()
+        ]
+
+        teach_assignment_ids = []
+        for teach in self.period.get_teach_instances():
+            teaching_seniors = [senior.id for (role, senior) in teach.get_assignments()]
+            teach_assignment_ids.extend(teaching_seniors)
+
+        filtered = queryset.exclude(
+            Q(id__in=night_assignment_ids) | Q(id__in=teach_assignment_ids)
+        )
+        return filtered
+
     # Updating Teach Attrs
     def update_plan(self, plan: str):
         self.plan = plan
@@ -532,6 +570,10 @@ class Teach(models.Model):
 
         return initial
 
+    # Convenience Classes
+    def get_assignments(self) -> tuple:
+        return MapSeniorTeach.get_instructors(self)
+
 
 class MapSeniorTeach(models.Model):
     IC_ROLE_NAME = "ic"
@@ -557,6 +599,7 @@ class MapSeniorTeach(models.Model):
         queryset = cls.objects.filter(teach=teach)
         return queryset
 
+    # TODO: change to get_assignments
     @classmethod
     def get_instructors(cls, teach: Teach):
         queryset = cls.get_teach_queryset(teach)
@@ -601,6 +644,7 @@ class MapSeniorNight(models.Model):
         queryset = cls.objects.filter(night=night)
         return queryset
 
+    # TODO: change to get assignments
     @classmethod
     def get_instructors(cls, night: TrainingNight):
         queryset = cls.get_night_queryset(night)
