@@ -271,6 +271,7 @@ class AssignTeachView(LoginRequiredMixin, UserPassesTestMixin, FormView):
         context["teach_attrs"] = teach_instance.get_content_attributes()
         context["teach_url"] = teach_instance.get_absolute_edit_url()
         context["role_suggestions"] = MapSeniorTeach.DATALIST_SUGGESTIONS
+        context["assignable_seniors"] = teach_instance.get_assignable_seniors()
 
         return context
 
