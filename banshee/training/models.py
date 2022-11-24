@@ -71,9 +71,7 @@ class Senior(models.Model):
     instructors = senior_managers.InstructorManager()
 
     def __str__(self):
-        return (
-            self.user.username
-        )
+        return self.user.username
 
     class Meta:
         ordering = ["level"]
