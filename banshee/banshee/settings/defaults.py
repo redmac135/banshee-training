@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     "django.contrib.humanize",
     "jquery",
     "training",
-    "emails",
     "rest_framework",
 ]
 

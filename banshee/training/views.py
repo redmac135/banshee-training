@@ -248,9 +248,7 @@ class AssignTeachView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     def test_func(self):
         return self.request.user.senior.is_training()
 
-    def init_form(
-        self, teach_id, teach_instance, *args, send_email: bool = True, **kwargs
-    ):
+    def init_form(self, teach_id, teach_instance, *args, **kwargs):
         senior_queryset = Senior.instructors.all()
         senior_choices = [(senior.id, str(senior)) for senior in senior_queryset]
         formset = self.formset_class(
@@ -259,7 +257,6 @@ class AssignTeachView(LoginRequiredMixin, UserPassesTestMixin, FormView):
                 "teach_id": teach_id,
                 "senior_choices": senior_choices,
                 "parent_instance": teach_instance,
-                "send_email": send_email,
             },
             instance=teach_instance,
             **kwargs
@@ -289,13 +286,7 @@ class AssignTeachView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     def post(self, request, teach_id, *args, **kwargs):
         self.object = None
         teach_instance = Teach.get_by_teach_id(teach_id)
-        if "send_email" in request.POST:
-            send_email = True
-        else:
-            send_email = False
-        formset = self.init_form(
-            teach_id, teach_instance, request.POST, send_email=send_email
-        )
+        formset = self.init_form(teach_id, teach_instance, request.POST)
         context = self.get_context_data(formset, teach_instance)
         if formset.is_valid():
             formset.save()
@@ -325,9 +316,7 @@ class AssignNightView(LoginRequiredMixin, UserPassesTestMixin, FormView):
 
         return context
 
-    def init_form(
-        self, night_id, night_instance, *args, send_email: bool = True, **kwargs
-    ):
+    def init_form(self, night_id, night_instance, *args, **kwargs):
         senior_queryset = Senior.instructors.all()
         senior_choices = [(senior.id, str(senior)) for senior in senior_queryset]
         formset = self.formset_class(
@@ -336,7 +325,6 @@ class AssignNightView(LoginRequiredMixin, UserPassesTestMixin, FormView):
                 "night_id": night_id,
                 "senior_choices": senior_choices,
                 "parent_instance": night_instance,
-                "send_email": send_email,
             },
             instance=night_instance,
             **kwargs
@@ -356,13 +344,7 @@ class AssignNightView(LoginRequiredMixin, UserPassesTestMixin, FormView):
     def post(self, request, night_id, *args, **kwargs):
         self.object = None
         night_instance = TrainingNight.nights.get(pk=night_id)
-        if "send_email" in request.POST:
-            send_email = True
-        else:
-            send_email = False
-        formset = self.init_form(
-            night_id, night_instance, request.POST, send_email=send_email
-        )
+        formset = self.init_form(night_id, night_instance, request.POST)
         context = self.get_context_data(formset)
         if formset.is_valid():
             formset.save()

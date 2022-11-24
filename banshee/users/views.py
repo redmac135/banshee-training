@@ -1,26 +1,14 @@
 from django.shortcuts import render, redirect
 from django.views.generic.edit import FormView
-from django.views.generic import View
 from django.contrib import messages
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import User
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.utils.encoding import force_str
-from django.utils.http import urlsafe_base64_decode
 
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.views import APIView
-
-from .tokens import account_activation_token
-from .models import AccountActivation, AuthorizedEmail, TrainingSetting
+from .models import TrainingSetting
 from .forms import (
-    OfficerSignupForm,
-    ResendActivationEmailForm,
     SignupForm,
     LoginForm,
-    AuthorizedEmailForm,
     TrainingSettingsForm,
     UserSettingsForm,
 )
@@ -91,69 +79,7 @@ class SignupView(FormView):
             user=user, level=level_instance, rank=rank
         )
         user.save()
-        AccountActivation.send_activation_email(user, self.request)
-        messages.info(
-            self.request,
-            "Activation Email Sent, please activate your email before signing in",
-        )
         return redirect("home")
-
-
-class OfficerSignupView(SignupView):
-    form_class = OfficerSignupForm
-
-    def get_context_data(self, **kwargs):
-        context = super(SignupView, self).get_context_data(**kwargs)
-        context["title"] = "Officer Signup"
-        return context
-
-    def form_valid(self, form):
-        user = form.save()
-
-        level = form.cleaned_data.get("level")
-        level_instance = Level.levels.get_by_number(level)
-        rank = form.cleaned_data.get("rank")
-
-        # permission_level = 3 for officers
-        senior = Senior.objects.get_or_create(
-            user=user, level=level_instance, rank=rank, permission_level=3
-        )
-        user.save()
-        AccountActivation.send_activation_email(user, self.request)
-        messages.info(
-            self.request,
-            "Activation Email Sent, please activate your email before signing in",
-        )
-        return redirect("home")
-
-
-class AuthorizedEmailFormView(LoginRequiredMixin, UserPassesTestMixin, FormView):
-    template_name = "users/authorizedemailform.html"
-    form_class = AuthorizedEmailForm
-
-    # For UserPassesTestMixin
-    def test_func(self):
-        return self.request.user.senior.is_training()
-
-    def form_valid(self, form):
-        if form.has_changed():
-            # form.save method was expanded to include request for messaging
-            form.save(self.request)
-            messages.success(self.request, "Emails Added Successfully.")
-        return redirect("authemail")
-
-
-class AuthorizedEmailDetailView(LoginRequiredMixin, UserPassesTestMixin, APIView):
-    http_method_names = ["delete"]
-
-    # For UserPassesTestMixin
-    def test_func(self):
-        return self.request.user.senior.is_training()
-
-    def delete(self, request, pk, *args, **kwargs):
-        AuthorizedEmail.unauthorize_pk(pk)
-        messages.success(request, f"Object Deleted")
-        return Response(status.HTTP_200_OK)
 
 
 class SettingsView(LoginRequiredMixin, FormView):
@@ -162,7 +88,6 @@ class SettingsView(LoginRequiredMixin, FormView):
 
     def get_initial(self):
         initial = super(SettingsView, self).get_initial()
-        initial["email"] = self.request.user.email
         initial["first_name"] = self.request.user.first_name
         initial["last_name"] = self.request.user.last_name
         initial["username"] = self.request.user.username
@@ -205,67 +130,5 @@ class TrainingSettingsView(LoginRequiredMixin, UserPassesTestMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super(TrainingSettingsView, self).get_context_data(**kwargs)
-        context["authorizedemails"] = AuthorizedEmail.get_list_of_emails()
         context["unassignable_seniors"] = Senior.seniors.get_unassignable_seniors()
         return context
-
-
-class ResendActivationEmailView(View):
-    form_class = ResendActivationEmailForm
-    template_name = "users/resend_activation_email.html"
-
-    def get(self, request, *args, **kwargs):
-        form = self.form_class()
-        return render(request, self.template_name, {"form": form})
-
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            cleaned_data = form.cleaned_data
-            email = cleaned_data.get("email")
-
-            user = User.objects.get(email=email)
-
-            AccountActivation.send_activation_email(user, request)
-            messages.success(request, ("Activation Email Successfully Sent."))
-
-            return redirect("login")
-
-        return render(request, self.template_name, {"form": form})
-
-
-class ActivateAccountView(View):
-    def get(self, request, uidb64, token, *args, **kwargs):
-        try:
-            uid = force_str(urlsafe_base64_decode(uidb64))
-            user = User.objects.get(pk=uid)
-        except (TypeError, ValueError, OverflowError, User.DoesNotExist):
-            user = None
-
-        if user is not None and account_activation_token.check_token(user, token):
-            user.senior.email_confirmed = True
-            user.senior.save()
-            messages.success(request, ("Your account have been confirmed."))
-        else:
-            messages.warning(
-                request,
-                (
-                    "The confirmation link was invalid, possibly because it has already been used."
-                ),
-            )
-        return redirect("login")
-
-
-class PasswordResetRedirectView(View):
-    def get(self, request, *args, **kwargs):
-        messages.success(
-            request,
-            "We've emailed you instructions for resetting your password. Be sure to check your spam folder!",
-        )
-        return redirect("login")
-
-
-class PasswordResetCompleteRedirectView(View):
-    def get(self, request, *args, **kwargs):
-        messages.success(request, "Password Reset Successfully!")
-        return redirect("login")

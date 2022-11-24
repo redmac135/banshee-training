@@ -1,6 +1,0 @@
-{% autoescape off %}
-Hi {{ user.senior }},
-
-You have just been assigned as the {{ role }} for "{{ teach.content }}" on {{ teach.get_date }}:
-For L{{ teach.get_level_list|join:", "}}. During P{{ teach.get_period_list|join:", "}}
-{% endautoescape %}

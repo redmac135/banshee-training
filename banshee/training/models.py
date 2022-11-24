@@ -76,7 +76,6 @@ class Senior(models.Model):
     rank = models.IntegerField()
     level = models.ForeignKey(Level, on_delete=models.SET_NULL, null=True)
     permission_level = models.IntegerField(choices=PERMISSION_CHOICES, default=1)
-    email_confirmed = models.BooleanField(default=False)
     discluded_assignment = models.BooleanField(
         default=False
     )  # Should this senior be discluded from assignments

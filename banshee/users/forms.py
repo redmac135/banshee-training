@@ -3,15 +3,12 @@ from django.db.models.fields import BLANK_CHOICE_DASH
 from django.contrib.auth.forms import (
     UserCreationForm,
     AuthenticationForm,
-    PasswordResetForm,
 )
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
-from django.contrib import messages
 
-from .models import AuthorizedEmail, TrainingSetting
-from .fields import CommaSeparatedEmailField
+from .models import TrainingSetting
 from training.models import Senior, Level
 
 
@@ -35,8 +32,6 @@ class LoginForm(AuthenticationForm):
             user = authenticate(self.request, username=username, password=password)
             if user is None:
                 raise ValidationError("Incorrect Username or Password")
-            if user.senior.email_confirmed == False:
-                raise ValidationError("Activate your email before logging in.")
 
         return cleaned_data
 
@@ -55,7 +50,6 @@ class SignupForm(UserCreationForm):
     last_name = forms.CharField(
         widget=forms.TextInput(attrs={"placeholder": "Last Name"})
     )
-    email = forms.EmailField(widget=forms.EmailInput(attrs={"placeholder": "Email"}))
     password1 = forms.CharField(
         widget=forms.PasswordInput(attrs={"placeholder": "Password"})
     )
@@ -82,56 +76,27 @@ class SignupForm(UserCreationForm):
             "username",
             "first_name",
             "last_name",
-            "email",
             "rank",
             "level",
             "password1",
             "password2",
         ]
 
-    def check_email(self, email):
-        return AuthorizedEmail.cadet_email_exists(email)
-
     def clean(self):
         cleaned_data = self.cleaned_data
         username = cleaned_data.get("username")
-        email = cleaned_data.get("email")
 
-        if username and email:
-            # Check Username and Email Uniqueness
+        if username:
+            # Check Username Uniqueness
             if User.objects.filter(username=username).exists():
                 raise ValidationError(
                     {"username": "An Account with this Username Already Exists"}
-                )
-            if User.objects.filter(email=email).exists():
-                raise ValidationError(
-                    {"email": "An Account with this Email Already Exists"}
-                )
-            if not self.check_email(email):
-                raise ValidationError(
-                    {
-                        "email": "This email isn't authorized, if you believe this to be an error, please message the admin."
-                    }
                 )
 
         return cleaned_data
 
 
-class OfficerSignupForm(SignupForm):
-    def __init__(self, *args, **kwargs):
-        super(SignupForm, self).__init__(*args, **kwargs)
-
-        self.fields["rank"].initial = Senior.OFFICER_RANK_NUMBER
-        self.fields["rank"].widget = forms.widgets.HiddenInput()
-        self.fields["level"].initial = Level.OFFICER_LEVEL_NUMBER
-        self.fields["level"].widget = forms.widgets.HiddenInput()
-
-    def check_email(self, email):
-        return AuthorizedEmail.officer_email_exists(email)
-
-
 class UserSettingsForm(forms.Form):
-    email = forms.EmailField()
     first_name = forms.CharField()
     last_name = forms.CharField()
     username = forms.CharField(
@@ -146,10 +111,6 @@ class UserSettingsForm(forms.Form):
         self.instance = user
 
     # Get methods for organizing fields in template
-    def settings_fields(self):
-        field_list = ["email"]
-        return [field for field in self if field.name in field_list]
-
     def active_fields(self):
         field_list = ["username", "first_name", "last_name"]
         return [field for field in self if field.name in field_list]
@@ -160,26 +121,16 @@ class UserSettingsForm(forms.Form):
 
     def clean(self):
         currusername = self.instance.username
-        curremail = self.instance.email
         cleaned_data = self.cleaned_data
         username = cleaned_data.get("username")
-        email = cleaned_data.get("email")
 
-        if username and email:
+        if username:
             if (
                 username != currusername
                 and User.objects.filter(username=username).exists()
             ):
                 raise ValidationError(
                     {"username": 'Username "%s" is not available.' % username}
-                )
-            if email != curremail and User.objects.filter(email=email).exists():
-                raise ValidationError({"email": "Email already taken."})
-            if not AuthorizedEmail.email_exists(email):
-                raise ValidationError(
-                    {
-                        "email": "This email is not authorized, if you believe this to be an error, message the admin."
-                    }
                 )
 
         return cleaned_data
@@ -188,7 +139,6 @@ class UserSettingsForm(forms.Form):
         cleaned_data = self.cleaned_data
         user_instance = self.instance
 
-        user_instance.email = cleaned_data.get("email")
         user_instance.first_name = cleaned_data.get("first_name")
         user_instance.last_name = cleaned_data.get("last_name")
         user_instance.username = cleaned_data.get("username")
@@ -219,41 +169,3 @@ class TrainingSettingsForm(forms.ModelForm):
         instance.duedateoffset = cleaned_data.get("duedateoffset")
         instance.allow_senior_assignment = cleaned_data.get("allow_senior_assignment")
         instance.save()
-
-
-class ResendActivationEmailForm(forms.Form):
-    email = forms.EmailField(
-        required=True, widget=forms.EmailInput(attrs={"placeholder": "Email"})
-    )
-
-    def clean(self):
-        cleaned_data = self.cleaned_data
-        email = cleaned_data.get("email")
-
-        if email:
-            if not User.objects.filter(email=email).exists():
-                raise ValidationError(
-                    {"email": "An Account with this Email Address does not Exist"}
-                )
-            user = User.objects.get(email=email)
-            senior = Senior.objects.get(user=user)
-            if senior.email_confirmed == True:
-                raise ValidationError({"email": "Your Email is Already Active!"})
-
-        return cleaned_data
-
-
-class AuthorizedEmailForm(forms.Form):
-    is_officer = forms.BooleanField(required=False)
-    emails = CommaSeparatedEmailField()
-
-    def save(self, request):
-        is_officer = self.cleaned_data.get("is_officer")
-        emails = self.cleaned_data.get("emails")
-
-        for email in emails:
-            obj, created = AuthorizedEmail.authorize_email(email, is_officer)
-            if not created:
-                messages.warning(
-                    request, "Email %s already exists so has been skipped" % str(obj)
-                )
