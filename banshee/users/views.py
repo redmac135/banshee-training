@@ -5,12 +5,17 @@ from django.contrib.auth.views import LoginView
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-from .models import TrainingSetting
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from .models import TrainingSetting, AuthorizedUsername
 from .forms import (
     SignupForm,
     LoginForm,
     TrainingSettingsForm,
     UserSettingsForm,
+    AuthorizedUsernameForm,
 )
 from training.models import Senior, Level
 
@@ -126,5 +131,35 @@ class TrainingSettingsView(LoginRequiredMixin, UserPassesTestMixin, FormView):
 
     def get_context_data(self, **kwargs):
         context = super(TrainingSettingsView, self).get_context_data(**kwargs)
+        context["authorizedusernames"] = AuthorizedUsername.all_usernames()
         context["unassignable_seniors"] = Senior.seniors.get_unassignable_seniors()
         return context
+
+
+class AuthorizedEmailFormView(LoginRequiredMixin, UserPassesTestMixin, FormView):
+    template_name = "users/authorizedusernameform.html"
+    form_class = AuthorizedUsernameForm
+
+    # For UserPassesTestMixin
+    def test_func(self):
+        return self.request.user.senior.is_training()
+
+    def form_valid(self, form):
+        if form.has_changed():
+            # form.save method was expanded to include request for messaging
+            form.save(self.request)
+            messages.success(self.request, "Usernames Added Successfully.")
+        return redirect("authusername")
+
+
+class AuthorizedEmailDetailView(LoginRequiredMixin, UserPassesTestMixin, APIView):
+    http_method_names = ["delete"]
+
+    # For UserPassesTestMixin
+    def test_func(self):
+        return self.request.user.senior.is_training()
+
+    def delete(self, request, pk, *args, **kwargs):
+        AuthorizedUsername.unauthorize_pk(pk)
+        messages.success(request, f"Object Deleted")
+        return Response(status.HTTP_200_OK)

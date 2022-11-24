@@ -7,9 +7,11 @@ from django.contrib.auth.forms import (
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.contrib import messages
 
-from .models import TrainingSetting
-from training.models import Senior, Level
+from .fields import CommaSeparatedCharField
+from .models import TrainingSetting, AuthorizedUsername
+from training.models import Level
 
 
 class LoginForm(AuthenticationForm):
@@ -77,7 +79,13 @@ class SignupForm(UserCreationForm):
             # Check Username Uniqueness
             if User.objects.filter(username=username).exists():
                 raise ValidationError(
-                    {"username": "An Account with this Username Already Exists"}
+                    {"username": "An account with this username already exists"}
+                )
+            if AuthorizedUsername.username_allowed(username) == False:
+                raise ValidationError(
+                    {
+                        "username": "This Username is not authorized. Please contact the Admin if you believe this to be an error"
+                    }
                 )
 
         return cleaned_data
@@ -141,3 +149,18 @@ class TrainingSettingsForm(forms.ModelForm):
         instance.duedateoffset = cleaned_data.get("duedateoffset")
         instance.allow_senior_assignment = cleaned_data.get("allow_senior_assignment")
         instance.save()
+
+
+class AuthorizedUsernameForm(forms.Form):
+    usernames = CommaSeparatedCharField()
+
+    def save(self, request):
+        usernames = self.cleaned_data.get("usernames")
+
+        for username in usernames:
+            obj, created = AuthorizedUsername.authorize_username(username)
+            if not created:
+                messages.warning(
+                    request,
+                    "Username %s already exists and as been skipped." % str(obj),
+                )
