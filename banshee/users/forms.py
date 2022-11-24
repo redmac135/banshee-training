@@ -37,7 +37,6 @@ class LoginForm(AuthenticationForm):
 
 
 class SignupForm(UserCreationForm):
-    BLANK_CHOICE_RANK = [("", "Rank")]
     BLANK_CHOICE_LEVEL = [("", "Level")]
     BLANK_CHOICE_DASH = BLANK_CHOICE_DASH
 
@@ -56,9 +55,6 @@ class SignupForm(UserCreationForm):
     password2 = forms.CharField(
         widget=forms.PasswordInput(attrs={"placeholder": "Confirm Password"})
     )
-    rank = forms.ChoiceField(
-        choices=BLANK_CHOICE_RANK + BLANK_CHOICE_DASH + Senior.RANK_CHOICES
-    )
     level = forms.ChoiceField(choices=BLANK_CHOICE_LEVEL + BLANK_CHOICE_DASH)
 
     def __init__(self, *args, **kwargs):
@@ -76,7 +72,6 @@ class SignupForm(UserCreationForm):
             "username",
             "first_name",
             "last_name",
-            "rank",
             "level",
             "password1",
             "password2",
@@ -102,22 +97,11 @@ class UserSettingsForm(forms.Form):
     username = forms.CharField(
         max_length=191
     )  # https://docs.djangoproject.com/en/4.1/ref/contrib/auth/
-    rank = forms.CharField(disabled=True)
-    level = forms.CharField(disabled=True)
 
     def __init__(self, user: User, *args, **kwargs):
         super(UserSettingsForm, self).__init__(*args, **kwargs)
 
         self.instance = user
-
-    # Get methods for organizing fields in template
-    def active_fields(self):
-        field_list = ["username", "first_name", "last_name"]
-        return [field for field in self if field.name in field_list]
-
-    def inactive_fields(self):
-        field_list = ["level", "rank"]
-        return [field for field in self if field.name in field_list]
 
     def clean(self):
         currusername = self.instance.username

@@ -47,20 +47,6 @@ class Level(models.Model):
 
 
 class Senior(models.Model):
-    RANK_CHOICES = [
-        (0, "Officer"),
-        (1, "Cdt"),
-        (2, "Lac"),
-        (3, "Cpl"),
-        (4, "FCpl"),
-        (5, "Sgt"),
-        (6, "FSgt"),
-        (7, "WO2"),
-        (8, "WO1"),
-    ]
-    CADET_RANK_CHOICES = RANK_CHOICES[1:]
-    OFFICER_RANK_NUMBER = RANK_CHOICES[0][0]
-
     STANDARD_INSTRUCTOR = 1
     TRAINING_MANAGER = 2
     OFFICER = 3
@@ -73,7 +59,6 @@ class Senior(models.Model):
     ]
 
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True)
-    rank = models.IntegerField()
     level = models.ForeignKey(Level, on_delete=models.SET_NULL, null=True)
     permission_level = models.IntegerField(choices=PERMISSION_CHOICES, default=1)
     discluded_assignment = models.BooleanField(
@@ -87,20 +72,13 @@ class Senior(models.Model):
 
     def __str__(self):
         return (
-            self.rank_to_str(int(self.rank))
-            + ". "
-            + self.user.last_name.capitalize()
+            self.user.last_name.capitalize()
             + ", "
             + self.user.first_name.capitalize()
         )
 
     class Meta:
-        ordering = ["level", "rank"]
-
-    @classmethod
-    def rank_to_str(cls, number):
-        ranks = dict(cls.RANK_CHOICES)
-        return ranks[number]
+        ordering = ["level"]
 
     def get_absolute_url(self):
         return reverse("api-senior", args=[self.pk])

@@ -73,10 +73,9 @@ class SignupView(FormView):
 
         level = form.cleaned_data.get("level")
         level_instance = Level.levels.get_by_number(level)
-        rank = form.cleaned_data.get("rank")
 
-        senior = Senior.objects.get_or_create(
-            user=user, level=level_instance, rank=rank
+        Senior.objects.get_or_create(
+            user=user, level=level_instance
         )
         user.save()
         return redirect("home")
@@ -91,7 +90,6 @@ class SettingsView(LoginRequiredMixin, FormView):
         initial["first_name"] = self.request.user.first_name
         initial["last_name"] = self.request.user.last_name
         initial["username"] = self.request.user.username
-        initial["rank"] = Senior.rank_to_str(self.request.user.senior.rank)
         initial["level"] = self.request.user.senior.level
 
         return initial
