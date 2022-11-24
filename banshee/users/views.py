@@ -74,9 +74,7 @@ class SignupView(FormView):
         level = form.cleaned_data.get("level")
         level_instance = Level.levels.get_by_number(level)
 
-        Senior.objects.get_or_create(
-            user=user, level=level_instance
-        )
+        Senior.objects.get_or_create(user=user, level=level_instance)
         user.save()
         return redirect("home")
 

@@ -6,16 +6,16 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('training', '0007_remove_senior_email_confirmed'),
+        ("training", "0007_remove_senior_email_confirmed"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='senior',
-            options={'ordering': ['level']},
+            name="senior",
+            options={"ordering": ["level"]},
         ),
         migrations.RemoveField(
-            model_name='senior',
-            name='rank',
+            model_name="senior",
+            name="rank",
         ),
     ]

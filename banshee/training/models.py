@@ -72,9 +72,7 @@ class Senior(models.Model):
 
     def __str__(self):
         return (
-            self.user.last_name.capitalize()
-            + ", "
-            + self.user.first_name.capitalize()
+            self.user.last_name.capitalize() + ", " + self.user.first_name.capitalize()
         )
 
     class Meta:
