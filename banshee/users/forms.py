@@ -43,12 +43,6 @@ class SignupForm(UserCreationForm):
     username = forms.CharField(
         widget=forms.TextInput(attrs={"placeholder": "Username"})
     )
-    first_name = forms.CharField(
-        widget=forms.TextInput(attrs={"placeholder": "First Name"})
-    )
-    last_name = forms.CharField(
-        widget=forms.TextInput(attrs={"placeholder": "Last Name"})
-    )
     password1 = forms.CharField(
         widget=forms.PasswordInput(attrs={"placeholder": "Password"})
     )
@@ -70,8 +64,6 @@ class SignupForm(UserCreationForm):
         model = User
         fields = [
             "username",
-            "first_name",
-            "last_name",
             "level",
             "password1",
             "password2",
@@ -92,8 +84,6 @@ class SignupForm(UserCreationForm):
 
 
 class UserSettingsForm(forms.Form):
-    first_name = forms.CharField()
-    last_name = forms.CharField()
     username = forms.CharField(
         max_length=191
     )  # https://docs.djangoproject.com/en/4.1/ref/contrib/auth/
@@ -123,8 +113,6 @@ class UserSettingsForm(forms.Form):
         cleaned_data = self.cleaned_data
         user_instance = self.instance
 
-        user_instance.first_name = cleaned_data.get("first_name")
-        user_instance.last_name = cleaned_data.get("last_name")
         user_instance.username = cleaned_data.get("username")
         user_instance.save()
 

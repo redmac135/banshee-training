@@ -85,8 +85,6 @@ class SettingsView(LoginRequiredMixin, FormView):
 
     def get_initial(self):
         initial = super(SettingsView, self).get_initial()
-        initial["first_name"] = self.request.user.first_name
-        initial["last_name"] = self.request.user.last_name
         initial["username"] = self.request.user.username
         initial["level"] = self.request.user.senior.level
 
