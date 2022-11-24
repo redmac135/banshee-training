@@ -61,7 +61,7 @@ class SignupView(FormView):
     def post(self, request, *args, **kwargs):
         form = self.form_class(request.POST)
         if form.is_valid():
-            self.form_valid(form)
+            return self.form_valid(form)
         context = self.get_context_data()
         context.update(
             {"form": form}
@@ -76,7 +76,9 @@ class SignupView(FormView):
 
         Senior.objects.get_or_create(user=user, level=level_instance)
         user.save()
-        return redirect("home")
+        login(self.request, user)
+
+        return redirect("dashboard")
 
 
 class SettingsView(LoginRequiredMixin, FormView):
