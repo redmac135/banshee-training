@@ -34,6 +34,9 @@ class TrainingSetting(models.Model):
 class AuthorizedUsername(models.Model):
     username = models.CharField(max_length=32, unique=True)
 
+    def __str__(self):
+        return self.username
+
     def get_absolute_url(self):
         return reverse("authusername-detail", args=[self.pk])
 
